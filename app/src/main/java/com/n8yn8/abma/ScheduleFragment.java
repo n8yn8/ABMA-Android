@@ -12,6 +12,17 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.dd.plist.NSArray;
+import com.dd.plist.NSDictionary;
+import com.dd.plist.NSObject;
+import com.dd.plist.PropertyListParser;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,6 +36,9 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
     ImageButton nextButton;
     TextView dateTextView;
     ListView scheduleListView;
+    NSDictionary schedule;
+    int scheduleIndex = 0;
+    List<String> eventDays;
 
     /**
      * Use this factory method to create a new instance of
@@ -63,12 +77,16 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "back button clicked");
+                scheduleIndex--;
+                setDay();
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "next button clicked");
+                scheduleIndex++;
+                setDay();
             }
         });
 
@@ -78,5 +96,23 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        try {
+            InputStream is = getResources().openRawResource(R.raw.event_list);
+            schedule = (NSDictionary) PropertyListParser.parse(is);
+            Set<String> eventDaysSet = schedule.keySet();
+            eventDays = new ArrayList<String>(eventDaysSet);
+        } catch(Exception ex) {
+            Log.e(TAG, "" + ex.getLocalizedMessage());
+        }
+    }
+
+    private void setDay() {
+        String dayKey = eventDays.get(scheduleIndex);
+        NSObject[] day = ((NSArray) schedule.objectForKey(dayKey)).getArray();
+        for(NSObject object: day) {
+            Map<String, String> event = (Map<String, String>) object.toJavaObject();
+            Log.d(TAG, "object class = " + event.toString());
+        }
     }
 }
