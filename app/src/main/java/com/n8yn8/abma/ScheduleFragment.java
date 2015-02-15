@@ -2,12 +2,14 @@ package com.n8yn8.abma;
 
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -88,6 +90,20 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
                 Log.d(TAG, "next button clicked");
                 scheduleIndex++;
                 setDay();
+            }
+        });
+
+        scheduleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Map<String, String> event = adapter.getItem(position);
+                Intent intent = new Intent(getActivity().getApplicationContext(), EventActivity.class);
+                intent.putExtra("EXTRA_EVENT_TITLE", event.get("Title"));
+                intent.putExtra("EXTRA_EVENT_SUBTITLE", event.get("Subtitle"));
+                intent.putExtra("EXTRA_EVENT_TIME",event.get("Time"));
+                intent.putExtra("EXTRA_EVENT_LOCATION",event.get("Location"));
+                intent.putExtra("EXTRA_EVENT_DETAIL",event.get("Description"));
+                startActivity(intent);
             }
         });
 

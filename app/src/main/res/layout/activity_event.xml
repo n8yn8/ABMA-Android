@@ -1,0 +1,179 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.n8yn8.abma.EventActivity">
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_gravity="center_horizontal"
+        android:background="#ff707070"
+        android:id="@+id/relativeLayout">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MONDAY"
+            android:id="@+id/dayTextField"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="10dp"
+            android:textColor="#ffe1e1e1"
+            android:layout_marginRight="5dp"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="13"
+            android:id="@+id/textView2"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/dayTextField"
+            android:layout_toEndOf="@+id/dayTextField"
+            android:textColor="#fffcfcfc"
+            android:textSize="40sp" />
+
+        <ImageButton
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:id="@+id/imageButton"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/ic_arrowright"
+            android:background="@android:color/transparent" />
+
+        <ImageButton
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:id="@+id/imageButton2"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/imageButton"
+            android:layout_toStartOf="@+id/imageButton"
+            android:src="@drawable/ic_arrowleft"
+            android:background="@android:color/transparent" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="120dp"
+        android:layout_below="@+id/relativeLayout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/relativeLayout2">
+
+        <ImageView
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:id="@+id/imageView"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="15dp" />
+
+
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/imageView"
+            android:layout_toEndOf="@+id/imageView">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="KEYNOTE SPEAKER"
+                android:id="@+id/textView"
+                android:layout_alignTop="@+id/imageView"
+                android:layout_toRightOf="@+id/imageView"
+                android:layout_toEndOf="@+id/imageView"
+                android:layout_marginLeft="10dp"
+                android:textColor="#ff53baf8"
+                android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hal Markowitz, PhD;"
+                android:id="@+id/textView3"
+                android:layout_below="@+id/textView"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="10dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="San Francisco State University"
+                android:id="@+id/textView4"
+                android:layout_below="@+id/textView3"
+                android:layout_marginLeft="10dp" />
+            </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/relativeLayout2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/relativeLayout3">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView2"
+            android:src="@drawable/ic_place"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="15dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New Text"
+            android:id="@+id/placeTextView"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/imageView2"
+            android:layout_toEndOf="@+id/imageView2"
+            android:layout_marginLeft="5dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New Text"
+            android:id="@+id/timeTextView"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="5dp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView3"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/timeTextView"
+            android:layout_toStartOf="@+id/timeTextView"
+            android:src="@drawable/ic_time" />
+
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/detailTextView"
+        android:layout_below="@+id/relativeLayout3"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="10dp"
+        android:scrollbars = "vertical"/>
+
+</RelativeLayout>

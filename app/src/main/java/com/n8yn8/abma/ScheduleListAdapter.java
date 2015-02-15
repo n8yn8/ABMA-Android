@@ -48,4 +48,9 @@ public class ScheduleListAdapter extends ArrayAdapter<Map<String, String>> {
 
         return rowView;
     }
+
+    @Override
+    public Map<String, String> getItem(int position) {
+        return super.getItem(position);
+    }
 }
