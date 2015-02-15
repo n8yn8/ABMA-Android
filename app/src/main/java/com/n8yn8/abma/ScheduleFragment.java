@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -31,6 +30,7 @@ import java.util.Set;
  */
 public class ScheduleFragment extends android.support.v4.app.Fragment {
     private final String TAG = "Schedule";
+    private ScheduleListAdapter adapter;
 
     ImageButton backButton;
     ImageButton nextButton;
@@ -39,6 +39,7 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
     NSDictionary schedule;
     int scheduleIndex = 0;
     List<String> eventDays;
+    ArrayList<Map<String, String>> day;
 
     /**
      * Use this factory method to create a new instance of
@@ -68,10 +69,10 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_schedule, container, false);
-        ImageButton backButton = (ImageButton) rootView.findViewById(R.id.prevDayButton);
-        ImageButton nextButton = (ImageButton) rootView.findViewById(R.id.nextDayButton);
-        TextView dateTextView = (TextView) rootView.findViewById(R.id.dateTextView);
-        ListView scheduleListView = (ListView) rootView.findViewById(R.id.scheduleListView);
+        backButton = (ImageButton) rootView.findViewById(R.id.prevDayButton);
+        nextButton = (ImageButton) rootView.findViewById(R.id.nextDayButton);
+        dateTextView = (TextView) rootView.findViewById(R.id.dateTextView);
+        scheduleListView = (ListView) rootView.findViewById(R.id.scheduleListView);
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,8 +101,8 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
         try {
             InputStream is = getResources().openRawResource(R.raw.event_list);
             schedule = (NSDictionary) PropertyListParser.parse(is);
-            Set<String> eventDaysSet = schedule.keySet();
-            eventDays = new ArrayList<String>(eventDaysSet);
+            eventDays = new ArrayList<>(schedule.keySet());
+            setDay();
         } catch(Exception ex) {
             Log.e(TAG, "" + ex.getLocalizedMessage());
         }
@@ -109,10 +110,14 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
 
     private void setDay() {
         String dayKey = eventDays.get(scheduleIndex);
-        NSObject[] day = ((NSArray) schedule.objectForKey(dayKey)).getArray();
-        for(NSObject object: day) {
-            Map<String, String> event = (Map<String, String>) object.toJavaObject();
-            Log.d(TAG, "object class = " + event.toString());
+        NSObject[] dayNSArray = ((NSArray) schedule.objectForKey(dayKey)).getArray();
+        day = new ArrayList<>();
+        for(NSObject eventNSObject: dayNSArray) {
+            Map<String, String> event = (Map<String, String>) eventNSObject.toJavaObject();
+            day.add(event);
         }
+        adapter = new ScheduleListAdapter(getActivity(), day);
+        scheduleListView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 }
