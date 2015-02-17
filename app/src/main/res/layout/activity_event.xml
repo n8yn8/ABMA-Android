@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="13"
-            android:id="@+id/textView2"
+            android:id="@+id/dateTextView"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/dayTextField"
             android:layout_toEndOf="@+id/dayTextField"
@@ -39,7 +39,7 @@
         <ImageButton
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:id="@+id/imageButton"
+            android:id="@+id/nextEventButton"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
@@ -49,10 +49,10 @@
         <ImageButton
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:id="@+id/imageButton2"
+            android:id="@+id/backEventButton"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/imageButton"
-            android:layout_toStartOf="@+id/imageButton"
+            android:layout_toLeftOf="@+id/nextEventButton"
+            android:layout_toStartOf="@+id/nextEventButton"
             android:src="@drawable/ic_arrowleft"
             android:background="@android:color/transparent" />
     </RelativeLayout>
@@ -88,7 +88,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="KEYNOTE SPEAKER"
-                android:id="@+id/textView"
+                android:id="@+id/titleTextView"
                 android:layout_alignTop="@+id/imageView"
                 android:layout_toRightOf="@+id/imageView"
                 android:layout_toEndOf="@+id/imageView"
@@ -100,19 +100,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Hal Markowitz, PhD;"
-                android:id="@+id/textView3"
-                android:layout_below="@+id/textView"
+                android:id="@+id/subtitleTextView"
+                android:layout_below="@+id/titleTextView"
                 android:layout_marginTop="5dp"
                 android:layout_marginLeft="10dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="San Francisco State University"
-                android:id="@+id/textView4"
-                android:layout_below="@+id/textView3"
-                android:layout_marginLeft="10dp" />
-            </LinearLayout>
+        </LinearLayout>
     </RelativeLayout>
 
     <RelativeLayout

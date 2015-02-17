@@ -22,7 +22,6 @@ import com.dd.plist.PropertyListParser;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -41,7 +40,7 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
     NSDictionary schedule;
     int scheduleIndex = 0;
     List<String> eventDays;
-    ArrayList<Map<String, String>> day;
+    ArrayList<Event> day;
 
     /**
      * Use this factory method to create a new instance of
@@ -96,13 +95,13 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
         scheduleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Map<String, String> event = adapter.getItem(position);
+                Event event = adapter.getItem(position);
                 Intent intent = new Intent(getActivity().getApplicationContext(), EventActivity.class);
-                intent.putExtra("EXTRA_EVENT_TITLE", event.get("Title"));
-                intent.putExtra("EXTRA_EVENT_SUBTITLE", event.get("Subtitle"));
-                intent.putExtra("EXTRA_EVENT_TIME",event.get("Time"));
-                intent.putExtra("EXTRA_EVENT_LOCATION",event.get("Location"));
-                intent.putExtra("EXTRA_EVENT_DETAIL",event.get("Description"));
+                intent.putExtra("EXTRA_EVENT_TITLE", event.getTitle());
+                intent.putExtra("EXTRA_EVENT_SUBTITLE", event.getSubtitle());
+                intent.putExtra("EXTRA_EVENT_TIME",event.getTime());
+                intent.putExtra("EXTRA_EVENT_LOCATION",event.getPlace());
+                intent.putExtra("EXTRA_EVENT_DETAIL",event.getDetails());
                 startActivity(intent);
             }
         });
@@ -129,7 +128,7 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
         NSObject[] dayNSArray = ((NSArray) schedule.objectForKey(dayKey)).getArray();
         day = new ArrayList<>();
         for(NSObject eventNSObject: dayNSArray) {
-            Map<String, String> event = (Map<String, String>) eventNSObject.toJavaObject();
+            Event event = new Event(eventNSObject);
             day.add(event);
         }
         adapter = new ScheduleListAdapter(getActivity(), day);

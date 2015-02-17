@@ -8,22 +8,21 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Created by Nate on 2/15/15.
  */
-public class ScheduleListAdapter extends ArrayAdapter<Map<String, String>> {
+public class ScheduleListAdapter extends ArrayAdapter<Event> {
 
     private final Activity context;
-    private final ArrayList<Map<String, String>> events;
+    private final ArrayList<Event> events;
 
     static class ViewHolder {
         public TextView eventTitleTextView;
         public TextView timeTextView;
     }
 
-    public ScheduleListAdapter(Activity context, ArrayList<Map<String, String>> events) {
+    public ScheduleListAdapter(Activity context, ArrayList<Event> events) {
         super(context, R.layout.item_list_schedule, events);
         this.context = context;
         this.events = events;
@@ -43,14 +42,14 @@ public class ScheduleListAdapter extends ArrayAdapter<Map<String, String>> {
         }
 
         ViewHolder holder = (ViewHolder) rowView.getTag();
-        holder.eventTitleTextView.setText(events.get(position).get("Title"));
-        holder.timeTextView.setText(events.get(position).get("Time"));
+        holder.eventTitleTextView.setText(events.get(position).getTitle());
+        holder.timeTextView.setText(events.get(position).getTime());
 
         return rowView;
     }
 
     @Override
-    public Map<String, String> getItem(int position) {
+    public Event getItem(int position) {
         return super.getItem(position);
     }
 }
