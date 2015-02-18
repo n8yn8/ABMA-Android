@@ -31,16 +31,17 @@ import java.util.List;
  */
 public class ScheduleFragment extends android.support.v4.app.Fragment {
     private final String TAG = "Schedule";
-    private ScheduleListAdapter adapter;
+    ScheduleListAdapter adapter;
 
     ImageButton backButton;
     ImageButton nextButton;
     TextView dateTextView;
     ListView scheduleListView;
-    NSDictionary schedule;
+    NSDictionary scheduleDict;
     int scheduleIndex = 0;
     List<String> eventDays;
     ArrayList<Event> day;
+    Schedule schedule;
 
     /**
      * Use this factory method to create a new instance of
@@ -80,7 +81,6 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
             public void onClick(View v) {
                 Log.d(TAG, "back button clicked");
                 scheduleIndex--;
-                setDay();
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
@@ -88,7 +88,12 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
             public void onClick(View v) {
                 Log.d(TAG, "next button clicked");
                 scheduleIndex++;
-                setDay();
+                day = schedule.getNextDay();
+                adapter.clear();
+                for(Event event: day) {
+                    adapter.add(event);
+                }
+
             }
         });
 
@@ -115,17 +120,15 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
 
         try {
             InputStream is = getResources().openRawResource(R.raw.event_list);
-            schedule = (NSDictionary) PropertyListParser.parse(is);
-            eventDays = new ArrayList<>(schedule.keySet());
-            setDay();
+            scheduleDict = (NSDictionary) PropertyListParser.parse(is);
         } catch(Exception ex) {
             Log.e(TAG, "" + ex.getLocalizedMessage());
         }
-    }
 
-    private void setDay() {
+        schedule = new Schedule(scheduleDict);
+        eventDays = new ArrayList<>(scheduleDict.keySet());
         String dayKey = eventDays.get(scheduleIndex);
-        NSObject[] dayNSArray = ((NSArray) schedule.objectForKey(dayKey)).getArray();
+        NSObject[] dayNSArray = ((NSArray) scheduleDict.objectForKey(dayKey)).getArray();
         day = new ArrayList<>();
         for(NSObject eventNSObject: dayNSArray) {
             Event event = new Event(eventNSObject);
@@ -133,6 +136,5 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
         }
         adapter = new ScheduleListAdapter(getActivity(), day);
         scheduleListView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
     }
 }
