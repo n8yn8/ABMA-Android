@@ -14,12 +14,8 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.dd.plist.NSArray;
 import com.dd.plist.NSDictionary;
-import com.dd.plist.NSObject;
-import com.dd.plist.PropertyListParser;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,22 +114,9 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        try {
-            InputStream is = getResources().openRawResource(R.raw.event_list);
-            scheduleDict = (NSDictionary) PropertyListParser.parse(is);
-        } catch(Exception ex) {
-            Log.e(TAG, "" + ex.getLocalizedMessage());
-        }
+        schedule = Cache.getInstance().getSchedule();
+        day = schedule.getCurrentDay();
 
-        schedule = new Schedule(scheduleDict);
-        eventDays = new ArrayList<>(scheduleDict.keySet());
-        String dayKey = eventDays.get(scheduleIndex);
-        NSObject[] dayNSArray = ((NSArray) scheduleDict.objectForKey(dayKey)).getArray();
-        day = new ArrayList<>();
-        for(NSObject eventNSObject: dayNSArray) {
-            Event event = new Event(eventNSObject);
-            day.add(event);
-        }
         adapter = new ScheduleListAdapter(getActivity(), day);
         scheduleListView.setAdapter(adapter);
     }

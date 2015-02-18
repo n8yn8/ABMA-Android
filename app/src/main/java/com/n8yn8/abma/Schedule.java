@@ -23,6 +23,8 @@ public class Schedule extends Object{
 
     public Schedule(NSDictionary scheduleDict) {
         eventDays = new ArrayList<>(scheduleDict.keySet());
+        dayIndex = 0;
+        eventIndex = 0;
         schedule = new HashMap<>();
         for (String dayKey: eventDays) {
             NSObject[] dayNSArray = ((NSArray) scheduleDict.objectForKey(dayKey)).getArray();
@@ -47,6 +49,10 @@ public class Schedule extends Object{
 
     public ArrayList<Event> getDay(String dayIndex){
         return schedule.get(dayIndex);
+    }
+
+    public ArrayList<Event> getCurrentDay() {
+        return schedule.get(eventDays.get(dayIndex));
     }
 
     public void setCurrentEventIndex(int dayIndex, int eventIndex) {
