@@ -47,12 +47,21 @@ public class Schedule extends Object{
         return schedule.get(eventDays.get(dayIndex));
     }
 
+    public ArrayList<Event> getPrevDay() {
+        dayIndex--;
+        return schedule.get(eventDays.get(dayIndex));
+    }
+
     public ArrayList<Event> getDay(String dayIndex){
         return schedule.get(dayIndex);
     }
 
     public ArrayList<Event> getCurrentDay() {
         return schedule.get(eventDays.get(dayIndex));
+    }
+
+    public String getCurrentDate(){
+        return eventDays.get(dayIndex);
     }
 
     public void setCurrentEventIndex(int dayIndex, int eventIndex) {

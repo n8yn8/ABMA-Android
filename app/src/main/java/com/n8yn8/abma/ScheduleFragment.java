@@ -14,10 +14,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.dd.plist.NSDictionary;
-
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -33,9 +30,6 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
     ImageButton nextButton;
     TextView dateTextView;
     ListView scheduleListView;
-    NSDictionary scheduleDict;
-    int scheduleIndex = 0;
-    List<String> eventDays;
     ArrayList<Event> day;
     Schedule schedule;
 
@@ -76,20 +70,20 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "back button clicked");
-                scheduleIndex--;
+                day = schedule.getPrevDay();
+                dateTextView.setText(schedule.getCurrentDate());
+                adapter.clear();
+                adapter.addAll(day);
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "next button clicked");
-                scheduleIndex++;
                 day = schedule.getNextDay();
+                dateTextView.setText(schedule.getCurrentDate());
                 adapter.clear();
-                for(Event event: day) {
-                    adapter.add(event);
-                }
-
+                adapter.addAll(day);
             }
         });
 
@@ -116,7 +110,7 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
 
         schedule = Cache.getInstance().getSchedule();
         day = schedule.getCurrentDay();
-
+        dateTextView.setText(schedule.getCurrentDate());
         adapter = new ScheduleListAdapter(getActivity(), day);
         scheduleListView.setAdapter(adapter);
     }
