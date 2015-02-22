@@ -63,4 +63,15 @@ public class Event {
     public void setDetails(String details) {
         this.details = details;
     }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "title='" + title + '\'' +
+                ", subtitle='" + subtitle + '\'' +
+                ", time='" + time + '\'' +
+                ", place='" + place + '\'' +
+                ", details='" + details + '\'' +
+                '}';
+    }
 }
