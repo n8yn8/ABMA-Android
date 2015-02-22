@@ -30,8 +30,9 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
     ImageButton nextButton;
     TextView dateTextView;
     ListView scheduleListView;
-    ArrayList<Event> day;
+
     Schedule schedule;
+    ArrayList<Event> day;
 
     /**
      * Use this factory method to create a new instance of
@@ -71,9 +72,9 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
             public void onClick(View v) {
                 Log.d(TAG, "back button clicked");
                 day = schedule.getPrevDay();
-                dateTextView.setText(schedule.getCurrentDate());
-                adapter.clear();
-                adapter.addAll(day);
+                if (day != null) {
+                    displayDay(day);
+                }
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
@@ -81,22 +82,18 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
             public void onClick(View v) {
                 Log.d(TAG, "next button clicked");
                 day = schedule.getNextDay();
-                dateTextView.setText(schedule.getCurrentDate());
-                adapter.clear();
-                adapter.addAll(day);
+                if (day != null) {
+                    displayDay(day);
+                }
             }
         });
 
         scheduleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Event event = adapter.getItem(position);
+                schedule.setCurrentEventIndex(position);
+                Cache.getInstance().cacheSchedule(schedule);
                 Intent intent = new Intent(getActivity().getApplicationContext(), EventActivity.class);
-                intent.putExtra("EXTRA_EVENT_TITLE", event.getTitle());
-                intent.putExtra("EXTRA_EVENT_SUBTITLE", event.getSubtitle());
-                intent.putExtra("EXTRA_EVENT_TIME",event.getTime());
-                intent.putExtra("EXTRA_EVENT_LOCATION",event.getPlace());
-                intent.putExtra("EXTRA_EVENT_DETAIL",event.getDetails());
                 startActivity(intent);
             }
         });
@@ -107,9 +104,13 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         schedule = Cache.getInstance().getSchedule();
         day = schedule.getCurrentDay();
+        displayDay(day);
+    }
+
+    public void displayDay(ArrayList<Event> day) {
+        //TODO: figure out why adapter.notifdatasetchanged doesn't work
         dateTextView.setText(schedule.getCurrentDate());
         adapter = new ScheduleListAdapter(getActivity(), day);
         scheduleListView.setAdapter(adapter);
