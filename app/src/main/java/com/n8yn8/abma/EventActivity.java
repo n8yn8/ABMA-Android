@@ -8,48 +8,61 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class EventActivity extends ActionBarActivity {
 
     private final String TAG = "EventActivity";
+    Schedule schedule;
+
+    TextView titleTextView;
+    TextView subtitleTextView;
+    TextView detailTextView;
+    TextView timeTextView;
+    TextView placeTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
 
-            TextView titleTextView = (TextView) findViewById(R.id.titleTextView);
-            TextView subtitleTextView = (TextView) findViewById(R.id.subtitleTextView);
-            TextView detailTextView = (TextView) findViewById(R.id.detailTextView);
-            TextView timeTextView = (TextView) findViewById(R.id.timeTextView);
-            TextView placeTextView = (TextView) findViewById(R.id.placeTextView);
+            titleTextView = (TextView) findViewById(R.id.titleTextView);
+            subtitleTextView = (TextView) findViewById(R.id.subtitleTextView);
+            detailTextView = (TextView) findViewById(R.id.detailTextView);
+            timeTextView = (TextView) findViewById(R.id.timeTextView);
+            placeTextView = (TextView) findViewById(R.id.placeTextView);
 
-            titleTextView.setText(extras.getString("EXTRA_EVENT_TITLE"));
-            subtitleTextView.setText(extras.getString("EXTRA_EVENT_SUBTITLE"));
-            timeTextView.setText(extras.getString("EXTRA_EVENT_TIME"));
-            placeTextView.setText(extras.getString("EXTRA_EVENT_LOCATION"));
-            detailTextView.setText(extras.getString("EXTRA_EVENT_DETAIL"));
-            detailTextView.setMovementMethod(new ScrollingMovementMethod());
+            schedule = Cache.getInstance().getSchedule();
+            Event event = schedule.getCurrentEvent();
+        displayEvent(event);
 
             ImageButton backButton = (ImageButton) findViewById(R.id.backEventButton);
             ImageButton nextButton = (ImageButton) findViewById(R.id.nextEventButton);
             backButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    Event nextEvent = schedule.getPrevEvent();
+                    if (nextEvent != null) {
+                        displayEvent(nextEvent);
+                    } else {
+                        Toast.makeText(getApplicationContext(), "First event reached", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
             nextButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    Event nextEvent = schedule.getNextEvent();
+                    if (nextEvent != null) {
+                        displayEvent(nextEvent);
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Last event reached", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 
-        }
+
     }
 
 
@@ -73,5 +86,14 @@ public class EventActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void displayEvent (Event event) {
+        titleTextView.setText(event.getTitle());
+        subtitleTextView.setText(event.getSubtitle());
+        timeTextView.setText(event.getTime());
+        placeTextView.setText(event.getPlace());
+        detailTextView.setText(event.getDetails());
+        detailTextView.setMovementMethod(new ScrollingMovementMethod());
     }
 }
