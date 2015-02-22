@@ -17,23 +17,25 @@ public class Schedule extends Object{
     private final String TAG = "Schedule";
     private Map<String, ArrayList<Event>> schedule;
     private List<String> eventDays;
-    private ArrayList<Event> day;
+
     private int eventIndex;
     private int dayIndex;
 
     public Schedule(NSDictionary scheduleDict) {
-        eventDays = new ArrayList<>(scheduleDict.keySet());
-        dayIndex = 0;
-        eventIndex = 0;
-        schedule = new HashMap<>();
-        for (String dayKey: eventDays) {
-            NSObject[] dayNSArray = ((NSArray) scheduleDict.objectForKey(dayKey)).getArray();
-            day = new ArrayList<>();
-            for(NSObject eventNSObject: dayNSArray) {
-                Event event = new Event(eventNSObject);
-                day.add(event);
+        if (schedule == null) {
+            eventDays = new ArrayList<>(scheduleDict.keySet());
+            dayIndex = 0;
+            eventIndex = 0;
+            schedule = new HashMap<>();
+            for (String dayKey: eventDays) {
+                NSObject[] dayNSArray = ((NSArray) scheduleDict.objectForKey(dayKey)).getArray();
+                ArrayList<Event> day = new ArrayList<>();
+                for(NSObject eventNSObject: dayNSArray) {
+                    Event event = new Event(eventNSObject);
+                    day.add(event);
+                }
+                schedule.put(dayKey, day);
             }
-            schedule.put(dayKey, day);
         }
 
     }
@@ -43,13 +45,21 @@ public class Schedule extends Object{
     }
 
     public ArrayList<Event> getNextDay() {
-        dayIndex++;
-        return schedule.get(eventDays.get(dayIndex));
+        if (dayIndex == eventDays.size()-1) {
+            return null;
+        } else {
+            dayIndex++;
+            return schedule.get(eventDays.get(dayIndex));
+        }
     }
 
     public ArrayList<Event> getPrevDay() {
-        dayIndex--;
-        return schedule.get(eventDays.get(dayIndex));
+        if (dayIndex == 0) {
+            return null;
+        } else {
+            dayIndex--;
+            return schedule.get(eventDays.get(dayIndex));
+        }
     }
 
     public ArrayList<Event> getDay(String dayIndex){
@@ -64,12 +74,43 @@ public class Schedule extends Object{
         return eventDays.get(dayIndex);
     }
 
-    public void setCurrentEventIndex(int dayIndex, int eventIndex) {
+    public void setCurrentEventIndex(int eventIndex) {
         this.eventIndex = eventIndex;
-        this.dayIndex = dayIndex;
+    }
+
+    public Event getCurrentEvent() {
+        return schedule.get(eventDays.get(dayIndex)).get(eventIndex);
+    }
+
+    public Event getPrevEvent() {
+        ArrayList<Event> day = schedule.get(eventDays.get(dayIndex));
+        if (eventIndex == 0) { //First event of day
+            day = getPrevDay();
+            if (day != null) { //Prev day
+                eventIndex = day.size()-1; //Last event of prev day
+                return day.get(eventIndex);
+            } else { //First day of schedule reached
+                return null;
+            }
+        } else {
+            eventIndex--;
+            return day.get(eventIndex);
+        }
     }
 
     public Event getNextEvent() {
-        return day.get(eventIndex);
+        ArrayList<Event> day = schedule.get(eventDays.get(dayIndex));
+        if (eventIndex == day.size() - 1) { //Last event of day
+            day = getNextDay();
+            if (day != null) { //Next day
+                eventIndex = 0;
+                return day.get(eventIndex);
+            } else { //Last day of schedule reached
+                return null;
+            }
+        } else {
+            eventIndex++;
+            return day.get(eventIndex);
+        }
     }
 }
