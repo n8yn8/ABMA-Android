@@ -1,10 +1,15 @@
 package com.n8yn8.abma;
 
+import android.util.Log;
+
 import com.dd.plist.NSArray;
 import com.dd.plist.NSDictionary;
 import com.dd.plist.NSObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +22,7 @@ public class Schedule extends Object{
     private final String TAG = "Schedule";
     private Map<String, ArrayList<Event>> schedule;
     private List<String> eventDays;
+    private List<Date> eventDates;
 
     private int eventIndex;
     private int dayIndex;
@@ -24,12 +30,20 @@ public class Schedule extends Object{
     public Schedule(NSDictionary scheduleDict) {
         if (schedule == null) {
             eventDays = new ArrayList<>(scheduleDict.keySet());
+            eventDates = new ArrayList<>();
             dayIndex = 0;
             eventIndex = 0;
             schedule = new HashMap<>();
             for (String dayKey: eventDays) {
                 NSObject[] dayNSArray = ((NSArray) scheduleDict.objectForKey(dayKey)).getArray();
                 ArrayList<Event> day = new ArrayList<>();
+                try {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("LLL d, y");
+                    Date date = dateFormat.parse(dayKey);
+                    eventDates.add(date);
+                } catch (ParseException ex) {
+                    Log.e(TAG, "Error parsing date, "+ex.getLocalizedMessage());
+                }
                 for(NSObject eventNSObject: dayNSArray) {
                     Event event = new Event(eventNSObject);
                     day.add(event);
@@ -70,8 +84,12 @@ public class Schedule extends Object{
         return schedule.get(eventDays.get(dayIndex));
     }
 
-    public String getCurrentDate(){
+    public String getCurrentDateString(){
         return eventDays.get(dayIndex);
+    }
+
+    public Date getCurrentDate() {
+        return eventDates.get(dayIndex);
     }
 
     public void setCurrentEventIndex(int eventIndex) {

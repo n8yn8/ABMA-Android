@@ -107,11 +107,13 @@ public class ScheduleFragment extends android.support.v4.app.Fragment {
         schedule = Cache.getInstance().getSchedule();
         day = schedule.getCurrentDay();
         displayDay(day);
+
+
     }
 
     public void displayDay(ArrayList<Event> day) {
         //TODO: figure out why adapter.notifdatasetchanged doesn't work
-        dateTextView.setText(schedule.getCurrentDate());
+        dateTextView.setText(schedule.getCurrentDateString());
         adapter = new ScheduleListAdapter(getActivity(), day);
         scheduleListView.setAdapter(adapter);
     }

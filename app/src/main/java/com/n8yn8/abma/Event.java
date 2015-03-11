@@ -9,6 +9,8 @@ import java.util.Map;
  */
 public class Event {
 
+    private final String TAG = "Event";
+
     private String title;
     private String subtitle;
     private String time;

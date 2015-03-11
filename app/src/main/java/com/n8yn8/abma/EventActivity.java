@@ -10,12 +10,17 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 public class EventActivity extends ActionBarActivity {
 
     private final String TAG = "EventActivity";
     Schedule schedule;
 
+    TextView dayTextView;
+    TextView dateTextView;
     TextView titleTextView;
     TextView subtitleTextView;
     TextView detailTextView;
@@ -27,11 +32,13 @@ public class EventActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
 
-            titleTextView = (TextView) findViewById(R.id.titleTextView);
-            subtitleTextView = (TextView) findViewById(R.id.subtitleTextView);
-            detailTextView = (TextView) findViewById(R.id.detailTextView);
-            timeTextView = (TextView) findViewById(R.id.timeTextView);
-            placeTextView = (TextView) findViewById(R.id.placeTextView);
+        dayTextView = (TextView) findViewById(R.id.dayTextView);
+        dateTextView = (TextView) findViewById(R.id.dateTextView);
+        titleTextView = (TextView) findViewById(R.id.titleTextView);
+        subtitleTextView = (TextView) findViewById(R.id.subtitleTextView);
+        detailTextView = (TextView) findViewById(R.id.detailTextView);
+        timeTextView = (TextView) findViewById(R.id.timeTextView);
+        placeTextView = (TextView) findViewById(R.id.placeTextView);
 
             schedule = Cache.getInstance().getSchedule();
             Event event = schedule.getCurrentEvent();
@@ -89,6 +96,11 @@ public class EventActivity extends ActionBarActivity {
     }
 
     public void displayEvent (Event event) {
+        Date date = schedule.getCurrentDate();
+        SimpleDateFormat dayFormatter = new SimpleDateFormat("EEEE");
+        dayTextView.setText(dayFormatter.format(date).toUpperCase());
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("d");
+        dateTextView.setText(dateFormatter.format(date));
         titleTextView.setText(event.getTitle());
         subtitleTextView.setText(event.getSubtitle());
         timeTextView.setText(event.getTime());
