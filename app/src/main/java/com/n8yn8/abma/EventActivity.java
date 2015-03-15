@@ -32,7 +32,7 @@ public class EventActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
 
-        dayTextView = (TextView) findViewById(R.id.dayTextView);
+        dayTextView = (TextView) findViewById(R.id.dayTextField);
         dateTextView = (TextView) findViewById(R.id.dateTextView);
         titleTextView = (TextView) findViewById(R.id.titleTextView);
         subtitleTextView = (TextView) findViewById(R.id.subtitleTextView);
