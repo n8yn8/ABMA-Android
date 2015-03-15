@@ -20,7 +20,8 @@
         <activity
             android:name=".EventActivity"
             android:label="@string/title_activity_event"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustPan|stateHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.n8yn8.abma.MainActivity" />

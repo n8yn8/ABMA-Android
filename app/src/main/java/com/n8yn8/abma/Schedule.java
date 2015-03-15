@@ -20,6 +20,7 @@ import java.util.Map;
 public class Schedule extends Object{
 
     private final String TAG = "Schedule";
+
     private Map<String, ArrayList<Event>> schedule;
     private List<String> eventDays;
     private List<Date> eventDates;
@@ -28,12 +29,14 @@ public class Schedule extends Object{
     private int dayIndex;
 
     public Schedule(NSDictionary scheduleDict) {
+
         if (schedule == null) {
             eventDays = new ArrayList<>(scheduleDict.keySet());
             eventDates = new ArrayList<>();
             dayIndex = 0;
             eventIndex = 0;
             schedule = new HashMap<>();
+            int index = 0;
             for (String dayKey: eventDays) {
                 NSObject[] dayNSArray = ((NSArray) scheduleDict.objectForKey(dayKey)).getArray();
                 ArrayList<Event> day = new ArrayList<>();
@@ -47,12 +50,16 @@ public class Schedule extends Object{
                 for(NSObject eventNSObject: dayNSArray) {
                     Event event = new Event(eventNSObject);
                     day.add(event);
+                    event.setIndex(index);
+                    index++;
                 }
                 schedule.put(dayKey, day);
             }
         }
 
     }
+
+
 
     public List<String> getEventDays() {
         return eventDays;
@@ -95,6 +102,14 @@ public class Schedule extends Object{
     public void setCurrentEventIndex(int eventIndex) {
         this.eventIndex = eventIndex;
     }
+
+//    public Event getEventByIndex(int index) {
+//        ArrayList<Event> day = schedule.get(eventDays.get(0));
+//        Log.d(TAG, "index = " + index);
+//        if (index > day.size()) {
+//
+//        }
+//    }
 
     public Event getCurrentEvent() {
         return schedule.get(eventDays.get(dayIndex)).get(eventIndex);
