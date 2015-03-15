@@ -103,6 +103,14 @@ public class Schedule extends Object{
         this.eventIndex = eventIndex;
     }
 
+//    public Event getEventByIndex(int index) {
+//        ArrayList<Event> day = schedule.get(eventDays.get(0));
+//        Log.d(TAG, "index = " + index);
+//        if (index > day.size()) {
+//
+//        }
+//    }
+
     public Event getCurrentEvent() {
         return schedule.get(eventDays.get(dayIndex)).get(eventIndex);
     }

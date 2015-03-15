@@ -2,8 +2,9 @@
     <string name="app_name">ABMA</string>
 
     <string name="title_section1">SCHEDULE</string>
-    <string name="title_section2">SPONSORS</string>
-    <string name="title_section3">CONTACT</string>
+    <string name="title_section3">SPONSORS</string>
+    <string name="title_section4">CONTACT</string>
+    <string name="title_section2">NOTES</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
