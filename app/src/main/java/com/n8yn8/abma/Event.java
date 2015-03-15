@@ -11,6 +11,8 @@ public class Event {
 
     private final String TAG = "Event";
 
+    private int id;
+    private int index;
     private String title;
     private String subtitle;
     private String time;
@@ -24,6 +26,32 @@ public class Event {
         this.time = eventMap.get("Time");
         this.place = eventMap.get("Location");
         this.details = eventMap.get("Description");
+    }
+
+    public Event(int id, int index, String title, String subtitle, String time, String place, String details) {
+        this.id = id;
+        this.index = index;
+        this.title = title;
+        this.subtitle = subtitle;
+        this.time = time;
+        this.place = place;
+        this.details = details;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int dayIndex) {
+        this.index = dayIndex;
     }
 
     public String getTitle() {
