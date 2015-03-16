@@ -35,6 +35,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_DETAILS = "details";
     private static final String KEY_EVENT_ID = "title";
     private static final String KEY_NOTE_CONTENT = "note_content";
+    private static final String KEY_EVENT_TITLE = "event_title";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -58,7 +59,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String CREATE_NOTES_TABLE = "CREATE TABLE " + TABLE_NOTES + "("
                 + KEY_ID + " INTEGER PRIMARY KEY,"
                 + KEY_EVENT_ID + " INTEGER,"
-                + KEY_NOTE_CONTENT + " TEXT"
+                + KEY_NOTE_CONTENT + " TEXT,"
+                + KEY_EVENT_TITLE + " TEXT"
                 + ")";
         db.execSQL(CREATE_NOTES_TABLE);
 
@@ -96,6 +98,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(KEY_EVENT_ID, note.getEventId());
         values.put(KEY_NOTE_CONTENT, note.getContent());
+        values.put(KEY_EVENT_TITLE, note.getEventName());
 
         db.insert(TABLE_NOTES, null, values);
     }
@@ -116,10 +119,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public Note getNote(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(TABLE_NOTES, new String[] {KEY_ID, KEY_EVENT_ID, KEY_NOTE_CONTENT}, KEY_EVENT_ID + "=?", new String[] {String.valueOf(id)}, null, null, null, null);
+        Cursor cursor = db.query(TABLE_NOTES, new String[] {KEY_ID, KEY_EVENT_ID, KEY_NOTE_CONTENT, KEY_EVENT_TITLE}, KEY_EVENT_ID + "=?", new String[] {String.valueOf(id)}, null, null, null, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                return new Note(cursor.getInt(0), cursor.getInt(1), cursor.getString(2));
+                return new Note(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getString(3));
             } else {
                 return null;
             }
@@ -157,7 +160,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                Note note = new Note(cursor.getInt(0), cursor.getInt(1), cursor.getString(2));
+                Note note = new Note(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getString(3));
                 noteList.add(note);
             } while (cursor.moveToNext());
         }

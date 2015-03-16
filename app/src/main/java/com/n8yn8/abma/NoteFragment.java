@@ -11,8 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import com.n8yn8.abma.dummy.DummyContent;
-
 import java.util.List;
 
 /**
@@ -99,7 +97,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+//            mListener.onFragmentInteraction(mAdapter.getItem(position));
         }
     }
 
@@ -127,8 +125,8 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(String id);
+//        // TODO: Update argument type and name
+//        public void onFragmentInteraction(String id);
     }
 
 }

@@ -42,9 +42,9 @@ public class NoteListAdapter  extends ArrayAdapter<Note> {
         }
 
         ViewHolder holder = (ViewHolder) rowView.getTag();
-        holder.noteTextView.setText(notes.get(position).getContent());
-        //TODO: find event
-        holder.detailTextView.setText("Index = " + notes.get(position).getEventId());
+        Note note = notes.get(position);
+        holder.noteTextView.setText(note.getContent());
+        holder.detailTextView.setText(note.getEventName());
 
         return rowView;
     }

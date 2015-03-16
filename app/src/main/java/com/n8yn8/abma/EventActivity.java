@@ -86,13 +86,20 @@ public class EventActivity extends ActionBarActivity {
             public void onClick(View v) {
                 int eventId = event.getIndex();
                 String noteContent = noteEditText.getText().toString();
-                if (note == null) {
-                    note = new Note(eventId, noteContent);
-                    db.addNote(note);
+                if (!noteContent.equals("")) {
+                    if (note == null) {
+                        note = new Note(eventId, noteContent, event.getTitle());
+                        db.addNote(note);
+                    } else {
+                        note.setContent(noteContent);
+                        db.updateNote(note);
+                    }
                 } else {
-                    note.setContent(noteContent);
-                    db.updateNote(note);
+                    if (note != null) {
+                        db.deleteNote(note);
+                    }
                 }
+
             }
         });
     }
