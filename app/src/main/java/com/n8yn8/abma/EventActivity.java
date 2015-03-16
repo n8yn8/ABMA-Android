@@ -99,9 +99,11 @@ public class EventActivity extends ActionBarActivity {
                         note.setContent(noteContent);
                         db.updateNote(note);
                     }
+                    Toast.makeText(EventActivity.this, "This note has been saved", Toast.LENGTH_SHORT).show();
                 } else {
                     if (note != null) {
                         db.deleteNote(note);
+                        Toast.makeText(EventActivity.this, "This note has been deleted", Toast.LENGTH_SHORT).show();
                     }
                 }
 

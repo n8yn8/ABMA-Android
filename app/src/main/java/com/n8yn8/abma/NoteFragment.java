@@ -1,6 +1,8 @@
 package com.n8yn8.abma;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -22,10 +25,11 @@ import java.util.List;
  * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
  * interface.
  */
-public class NoteFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class NoteFragment extends Fragment implements AbsListView.OnItemClickListener, AbsListView.OnItemLongClickListener {
 
     private OnFragmentInteractionListener mListener;
     List<Note> noteList;
+    TextView noDataTextView;
 
     /**
      * The fragment's ListView/GridView.
@@ -61,7 +65,6 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
 
         noteList = db.getAllNotes();
 
-        // TODO: Change Adapter to display your content
         mAdapter = new NoteListAdapter(getActivity(), noteList);
     }
 
@@ -70,12 +73,19 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_note, container, false);
 
+        noDataTextView = (TextView) view.findViewById(R.id.emptyNoteListTextView);
+        if (noteList.size() == 0) {
+            noDataTextView.setText("No notes have been saved yet.");
+        } else {
+            noDataTextView.setText("");
+        }
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
+        mListView.setOnItemLongClickListener(this);
 
         return view;
     }
@@ -99,6 +109,38 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
             // fragment is attached to one) that an item has been selected.
 //            mListener.onFragmentInteraction(mAdapter.getItem(position));
         }
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Would you like to delete this note?");
+        builder.setCancelable(true);
+        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Note note = mAdapter.getItem(position);
+                DatabaseHandler db = new DatabaseHandler(getActivity());
+                db.deleteNote(note);
+                noteList.remove(position);
+                mAdapter.notifyDataSetChanged();
+                Toast.makeText(getActivity(), "This note has been deleted", Toast.LENGTH_SHORT).show();
+                if (noteList.size() == 0) {
+                    noDataTextView.setText("No notes have been saved yet.");
+                }
+            }
+        });
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+        return true;
     }
 
     /**
