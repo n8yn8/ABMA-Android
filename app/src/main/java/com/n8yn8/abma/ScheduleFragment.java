@@ -1,7 +1,7 @@
 package com.n8yn8.abma;
 
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
  * Use the {@link ScheduleFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ScheduleFragment extends android.support.v4.app.Fragment {
+public class ScheduleFragment extends Fragment {
     private final String TAG = "Schedule";
     ScheduleListAdapter adapter;
 

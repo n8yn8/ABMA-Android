@@ -55,6 +55,10 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             fragmentManager.beginTransaction()
                     .replace(R.id.container, NoteFragment.newInstance())
                     .commit();
+        } else if (position == 2) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, SponsorsFragment.newInstance())
+                    .commit();
         } else {
             fragmentManager.beginTransaction()
                     .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
