@@ -146,6 +146,7 @@ public class EventActivity extends ActionBarActivity {
         placeTextView.setText(event.getPlace());
         detailTextView.setText(event.getDetails());
         detailTextView.setMovementMethod(new ScrollingMovementMethod());
+        detailTextView.scrollTo(0,0);
 
         note = db.getNote(event.getIndex());
         if (note != null) {
