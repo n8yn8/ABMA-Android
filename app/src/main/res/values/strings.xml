@@ -2,20 +2,13 @@
     <string name="app_name">ABMA</string>
 
     <string name="title_section1">SCHEDULE</string>
-    <string name="title_section3">SPONSORS</string>
-    <string name="title_section4">CONTACT</string>
+    <string name="title_section4">SPONSORS</string>
+    <string name="title_section5">CONTACT</string>
     <string name="title_section2">NOTES</string>
+    <string name="title_section3">2015 INFO</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_example">Example action</string>
-
-    <string name="action_settings">Settings</string>
-
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_event">EventActivity</string>
-
-    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_event">ABMA</string>
 </resources>

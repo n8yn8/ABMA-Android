@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" tools:context="com.n8yn8.abma.InfoFragment"
+    android:orientation="vertical">
+
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="General Information"
+        android:id="@+id/textView2"
+        android:layout_margin="5dp" />
+
+    <TextView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:id="@+id/infoTextView"
+        android:layout_margin="5dp"
+        android:autoLink="email|web" />
+
+</LinearLayout>

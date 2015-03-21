@@ -57,9 +57,13 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                     .commit();
         } else if (position == 2) {
             fragmentManager.beginTransaction()
-                    .replace(R.id.container, SponsorsFragment.newInstance())
+                    .replace(R.id.container, InfoFragment.newInstance())
                     .commit();
         } else if (position == 3) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, SponsorsFragment.newInstance())
+                    .commit();
+        } else if (position == 4) {
             fragmentManager.beginTransaction()
                     .replace(R.id.container, ContactFragment.newInstance())
                     .commit();
