@@ -23,7 +23,7 @@ public class NoteListAdapter  extends ArrayAdapter<Note> {
     }
 
     public NoteListAdapter(Activity context, List<Note> notes) {
-        super(context, R.layout.fragment_note_list, notes);
+        super(context, R.layout.item_list_notes, notes);
         this.context = context;
         this.notes = notes;
     }
