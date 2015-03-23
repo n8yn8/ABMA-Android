@@ -2,6 +2,8 @@ package com.n8yn8.abma;
 
 import com.dd.plist.NSObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,14 +20,25 @@ public class Event {
     private String time;
     private String place;
     private String details;
+    private List<Paper> papers;
 
     public Event(NSObject eventNSObject) {
-        Map<String, String> eventMap = (Map<String, String>) eventNSObject.toJavaObject();
-        this.title = eventMap.get("Title");
-        this.subtitle = eventMap.get("Subtitle");
-        this.time = eventMap.get("Time");
-        this.place = eventMap.get("Location");
-        this.details = eventMap.get("Description");
+        Map<String, Object> eventMap = (Map<String, Object>) eventNSObject.toJavaObject();
+        this.title = eventMap.get("Title").toString();
+        this.subtitle = eventMap.get("Subtitle").toString();
+        this.time = eventMap.get("Time").toString();
+        this.place = eventMap.get("Location").toString();
+        this.details = eventMap.get("Description").toString();
+        papers = new ArrayList<>();
+
+        Object[] objects = (Object[]) eventMap.get("Papers");
+        if (objects != null) {
+            for (Object object: objects) {
+                Paper paper = new Paper((Map<String, String>) object);
+                papers.add(paper);
+            }
+        }
+
     }
 
     public Event(int id, int index, String title, String subtitle, String time, String place, String details) {
@@ -92,6 +105,10 @@ public class Event {
 
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    public List<Paper> getPapers() {
+        return papers;
     }
 
     @Override
