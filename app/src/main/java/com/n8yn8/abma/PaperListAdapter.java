@@ -10,22 +10,21 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
- * Created by Nate on 3/15/15.
+ * Created by Nate on 3/22/15.
  */
-public class NoteListAdapter extends ArrayAdapter<Note> {
-
+public class PaperListAdapter extends ArrayAdapter<Paper> {
     private final Activity context;
-    private final List<Note> notes;
+    private final List<Paper> papers;
 
     static class ViewHolder {
-        public TextView noteTextView;
-        public TextView detailTextView;
+        public TextView titleTextView;
+        public TextView authorTextView;
     }
 
-    public NoteListAdapter(Activity context, List<Note> notes) {
-        super(context, R.layout.item_list_notes, notes);
+    public PaperListAdapter(Activity context, List<Paper> papers) {
+        super(context, R.layout.item_list_paper, papers);
         this.context = context;
-        this.notes = notes;
+        this.papers = papers;
     }
 
     @Override
@@ -34,23 +33,23 @@ public class NoteListAdapter extends ArrayAdapter<Note> {
         View rowView = convertView;
         if (rowView == null) {
             LayoutInflater inflater = context.getLayoutInflater();
-            rowView = inflater.inflate(R.layout.item_list_notes, null);
+            rowView = inflater.inflate(R.layout.item_list_paper, null);
             ViewHolder viewHolder = new ViewHolder();
-            viewHolder.noteTextView = (TextView) rowView.findViewById(R.id.noteTitleTextView);
-            viewHolder.detailTextView = (TextView) rowView.findViewById(R.id.noteDetailTextView);
+            viewHolder.titleTextView = (TextView) rowView.findViewById(R.id.paperTitleTextView);
+            viewHolder.authorTextView = (TextView) rowView.findViewById(R.id.paperAuthorTextView);
             rowView.setTag(viewHolder);
         }
 
         ViewHolder holder = (ViewHolder) rowView.getTag();
-        Note note = notes.get(position);
-        holder.noteTextView.setText(note.getContent());
-        holder.detailTextView.setText(note.getEventName());
+        Paper paper = papers.get(position);
+        holder.titleTextView.setText(paper.getTitle());
+        holder.authorTextView.setText(paper.getAuthor());
 
         return rowView;
     }
 
     @Override
-    public Note getItem(int position) {
+    public Paper getItem(int position) {
         return super.getItem(position);
     }
 }

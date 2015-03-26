@@ -8,18 +8,21 @@ public class Note {
 
     private int id;
     private int eventId;
+    private int paperId;
     private String content;
     private String eventName;
 
-    public Note(int id, int eventId, String content, String eventName) {
+    public Note(int id, int eventId, int paperId, String content, String eventName) {
         this.id = id;
         this.eventId = eventId;
+        this.paperId = paperId;
         this.content = content;
         this.eventName = eventName;
     }
 
-    public Note(int eventId, String content, String eventName) {
+    public Note(int eventId, int paperId, String content, String eventName) {
         this.eventId = eventId;
+        this.paperId = paperId;
         this.content = content;
         this.eventName = eventName;
     }
@@ -34,6 +37,14 @@ public class Note {
 
     public int getEventId() {
         return eventId;
+    }
+
+    public int getPaperId() {
+        return paperId;
+    }
+
+    public void setPaperId(int paperId) {
+        this.paperId = paperId;
     }
 
     public void setEventId(int eventId) {

@@ -27,6 +27,7 @@ public class Schedule extends Object{
 
     private int eventIndex;
     private int dayIndex;
+    private int paperIndex;
 
     public Schedule(NSDictionary scheduleDict) {
 
@@ -35,6 +36,7 @@ public class Schedule extends Object{
             eventDates = new ArrayList<>();
             dayIndex = 0;
             eventIndex = 0;
+            paperIndex = -1;
             schedule = new HashMap<>();
             int index = 0;
             for (String dayKey: eventDays) {
@@ -103,6 +105,8 @@ public class Schedule extends Object{
         this.eventIndex = eventIndex;
     }
 
+
+
     public Event getEventByIndex(int index) {
         int daySize = 0;
         int dayPosition = 0;
@@ -153,6 +157,42 @@ public class Schedule extends Object{
         } else {
             eventIndex++;
             return day.get(eventIndex);
+        }
+    }
+
+    public void setPaperIndex(int paperIndex) {
+        this.paperIndex = paperIndex;
+    }
+
+    public int getPaperIndex() {
+        return paperIndex;
+    }
+
+    public Paper getCurrentPaper() {
+        if (paperIndex == -1) {
+            return null;
+        } else {
+            return getCurrentEvent().getPapers().get(paperIndex);
+        }
+    }
+
+    public Paper getPrevPaper() {
+        List<Paper> papers = getCurrentEvent().getPapers();
+        if (paperIndex == 0) { //First paper of event
+            return null;
+        } else {
+            paperIndex--;
+            return papers.get(paperIndex);
+        }
+    }
+
+    public Paper getNextPaper() {
+        List<Paper> papers = getCurrentEvent().getPapers();
+        if (paperIndex == papers.size() - 1) { //Last paper of event
+            return null;
+        } else {
+            paperIndex++;
+            return papers.get(paperIndex);
         }
     }
 }
