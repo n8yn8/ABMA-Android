@@ -33,7 +33,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_TIME = "time";
     private static final String KEY_PLACE = "place";
     private static final String KEY_DETAILS = "details";
-    private static final String KEY_EVENT_ID = "title";
+    private static final String KEY_EVENT_ID = "event_id";
+    private static final String KEY_PAPER_ID = "paper_id";
     private static final String KEY_NOTE_CONTENT = "note_content";
     private static final String KEY_EVENT_TITLE = "event_title";
 
@@ -59,6 +60,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String CREATE_NOTES_TABLE = "CREATE TABLE " + TABLE_NOTES + "("
                 + KEY_ID + " INTEGER PRIMARY KEY,"
                 + KEY_EVENT_ID + " INTEGER,"
+                + KEY_PAPER_ID + " INTEGER,"
                 + KEY_NOTE_CONTENT + " TEXT,"
                 + KEY_EVENT_TITLE + " TEXT"
                 + ")";
@@ -99,6 +101,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_EVENT_ID, note.getEventId());
         values.put(KEY_NOTE_CONTENT, note.getContent());
         values.put(KEY_EVENT_TITLE, note.getEventName());
+        values.put(KEY_PAPER_ID, note.getPaperId());
 
         db.insert(TABLE_NOTES, null, values);
     }
@@ -119,10 +122,26 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public Note getNote(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(TABLE_NOTES, new String[] {KEY_ID, KEY_EVENT_ID, KEY_NOTE_CONTENT, KEY_EVENT_TITLE}, KEY_EVENT_ID + "=?", new String[] {String.valueOf(id)}, null, null, null, null);
+        Cursor cursor = db.query(TABLE_NOTES, new String[] {KEY_ID, KEY_EVENT_ID, KEY_PAPER_ID, KEY_NOTE_CONTENT, KEY_EVENT_TITLE}, KEY_EVENT_ID + "=?", new String[] {String.valueOf(id)}, null, null, null, null);
+
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                return new Note(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getString(3));
+                return new Note(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getString(3), cursor.getString(4));
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public Note getNote(int eventId, int paperId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_NOTES, new String[] {KEY_ID, KEY_EVENT_ID, KEY_PAPER_ID, KEY_NOTE_CONTENT, KEY_EVENT_TITLE}, KEY_EVENT_ID + "=? AND " + KEY_PAPER_ID + "=?", new String[] {String.valueOf(eventId), String.valueOf(paperId)}, null, null, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                return new Note(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getString(3), cursor.getString(4));
             } else {
                 return null;
             }
@@ -160,7 +179,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                Note note = new Note(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getString(3));
+                Note note = new Note(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getString(3), cursor.getString(4));
                 noteList.add(note);
             } while (cursor.moveToNext());
         }
@@ -173,6 +192,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(KEY_EVENT_ID, note.getEventId());
+        values.put(KEY_PAPER_ID, note.getPaperId());
         values.put(KEY_NOTE_CONTENT, note.getContent());
 
         // updating row

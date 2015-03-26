@@ -10,6 +10,7 @@ public class Paper {
     private String author;
     private String title;
     private String synopsis;
+    private int index;
 
     public Paper(String author, String title, String synopsis) {
         this.author = author;
@@ -45,6 +46,14 @@ public class Paper {
 
     public void setSynopsis(String synopsis) {
         this.synopsis = synopsis;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     @Override

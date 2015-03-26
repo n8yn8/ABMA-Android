@@ -1,20 +1,25 @@
 package com.n8yn8.abma;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 
 public class EventActivity extends ActionBarActivity {
@@ -23,6 +28,7 @@ public class EventActivity extends ActionBarActivity {
     Schedule schedule;
     Event event;
     Note note;
+    Paper paper;
 
     TextView dayTextView;
     TextView dateTextView;
@@ -61,23 +67,45 @@ public class EventActivity extends ActionBarActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                event = schedule.getPrevEvent();
-                if (event != null) {
-                    displayEvent();
+                if (paper != null) {
+                    Paper tempPaper = schedule.getPrevPaper();
+                    if (tempPaper != null) {
+                        paper = tempPaper;
+                        displayEvent();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "First paper reached", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(getApplicationContext(), "First event reached", Toast.LENGTH_SHORT).show();
+                    Event tempEvent = schedule.getPrevEvent();
+                    if (tempEvent != null) {
+                        event = tempEvent;
+                        displayEvent();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "First event reached", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                event = schedule.getNextEvent();
-                if (event != null) {
-                    displayEvent();
+                if (paper != null) {
+                    Paper tempPaper = schedule.getNextPaper();
+                    if (tempPaper != null) {
+                        paper = tempPaper;
+                        displayEvent();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Last paper reached", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(getApplicationContext(), "Last event reached", Toast.LENGTH_SHORT).show();
+                    event = schedule.getNextEvent();
+                    if (event != null) {
+                        displayEvent();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Last event reached", Toast.LENGTH_SHORT).show();
+                    }
                 }
+
             }
         });
 
@@ -90,10 +118,19 @@ public class EventActivity extends ActionBarActivity {
                 imm.hideSoftInputFromWindow(noteEditText.getWindowToken(), 0);
 
                 int eventId = event.getIndex();
+                int paperId = schedule.getPaperIndex();
+                Log.d(TAG, "paperID = " + paperId);
                 String noteContent = noteEditText.getText().toString();
+                String title;
+                if (paperId != -1) { //This is a paper.
+                    title = paper.getTitle();
+                } else { //This is an event
+                    title = event.getTitle();
+                }
+
                 if (!noteContent.equals("")) {
                     if (note == null) {
-                        note = new Note(eventId, noteContent, event.getTitle());
+                        note = new Note(eventId, paperId, noteContent, title);
                         db.addNote(note);
                     } else {
                         note.setContent(noteContent);
@@ -130,8 +167,17 @@ public class EventActivity extends ActionBarActivity {
 //        if (id == R.id.action_settings) {
 //            return true;
 //        }
+        if (id == android.R.id.home) {
+            schedule.setPaperIndex(-1);
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        schedule.setPaperIndex(-1);
+        super.onBackPressed();
     }
 
     public void displayEvent () {
@@ -140,19 +186,49 @@ public class EventActivity extends ActionBarActivity {
         dayTextView.setText(dayFormatter.format(date).toUpperCase());
         SimpleDateFormat dateFormatter = new SimpleDateFormat("d");
         dateTextView.setText(dateFormatter.format(date));
-        titleTextView.setText(event.getTitle());
-        subtitleTextView.setText(event.getSubtitle());
+
         timeTextView.setText(event.getTime());
         placeTextView.setText(event.getPlace());
-        detailTextView.setText(event.getDetails());
-        detailTextView.setMovementMethod(new ScrollingMovementMethod());
-        detailTextView.scrollTo(0,0);
 
-        note = db.getNote(event.getIndex());
-        if (note != null) {
-            noteEditText.setText(note.getContent());
+        List<Paper> papers = event.getPapers();
+
+        int paperIndex = schedule.getPaperIndex();
+        if (paperIndex == -1) {
+            titleTextView.setText(event.getTitle());
+            subtitleTextView.setText(event.getSubtitle());
+            detailTextView.setText(event.getDetails());
+            detailTextView.setMovementMethod(new ScrollingMovementMethod());
+            detailTextView.scrollTo(0,0);
+            PaperListAdapter adapter = new PaperListAdapter(this, papers);
+            ListView papersListView = (ListView) findViewById(R.id.papersListView);
+            papersListView.setAdapter(adapter);
+            papersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    schedule.setPaperIndex(position);
+                    Intent intent = new Intent(EventActivity.this, EventActivity.class);
+                    startActivity(intent);
+                }
+            });
+            note = db.getNote(event.getIndex());
+            if (note != null) {
+                noteEditText.setText(note.getContent());
+            } else {
+                noteEditText.setText("");
+            }
         } else {
-            noteEditText.setText("");
+            paper = schedule.getCurrentPaper();
+            titleTextView.setText(paper.getTitle());
+            subtitleTextView.setText(paper.getAuthor());
+            detailTextView.setText(paper.getSynopsis());
+            detailTextView.setMovementMethod(new ScrollingMovementMethod());
+            detailTextView.scrollTo(0,0);
+            note = db.getNote(event.getIndex(), paper.getIndex());
+            if (note != null) {
+                noteEditText.setText(note.getContent());
+            } else {
+                noteEditText.setText("");
+            }
         }
     }
 }
