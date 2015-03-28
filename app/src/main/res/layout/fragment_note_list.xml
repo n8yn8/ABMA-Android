@@ -1,8 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context="com.n8yn8.abma.NoteFragment"
-    android:descendantFocusability="blocksDescendants">
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_gravity="center_horizontal"
+        android:background="#ff707070">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NOTES"
+            android:id="@+id/dateTextView"
+            android:textSize="30dp"
+            android:textColor="#ffe1e1e1"
+            android:layout_gravity="center"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+
+     </RelativeLayout>
 
     <ListView android:id="@android:id/list" android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -10,4 +31,4 @@
     <TextView android:id="@+id/emptyNoteListTextView" android:layout_width="match_parent"
         android:layout_height="match_parent" android:gravity="center" />
 
-</FrameLayout>
+</LinearLayout>

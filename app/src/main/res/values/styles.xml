@@ -5,4 +5,15 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="Theme.Base" parent="AppTheme">
+        <item name="colorPrimary">@color/primaryBackgroundColor</item>
+        <item name="colorPrimaryDark">@color/secondaryBackgroundColor</item>
+        <item name="colorAccent">@color/primaryBackgroundAccentColor</item>
+        <item name="android:windowBackground">@color/backgroundColor</item>
+    </style>
+
+    <style name="Theme.ABMA" parent="Theme.Base">
+
+    </style>
+
 </resources>

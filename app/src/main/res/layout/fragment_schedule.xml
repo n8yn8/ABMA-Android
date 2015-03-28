@@ -24,7 +24,7 @@
             android:text="Apr 12, 2014"
             android:id="@+id/dateTextView"
             android:textSize="30dp"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="#ffe1e1e1"
             android:layout_gravity="center"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true" />
