@@ -7,20 +7,23 @@ public class Note {
     private final String TAG = "Note";
 
     private int id;
+    private int dayId;
     private int eventId;
     private int paperId;
     private String content;
     private String eventName;
 
-    public Note(int id, int eventId, int paperId, String content, String eventName) {
+    public Note(int id, int dayId, int eventId, int paperId, String content, String eventName) {
         this.id = id;
+        this.dayId = dayId;
         this.eventId = eventId;
         this.paperId = paperId;
         this.content = content;
         this.eventName = eventName;
     }
 
-    public Note(int eventId, int paperId, String content, String eventName) {
+    public Note(int dayId, int eventId, int paperId, String content, String eventName) {
+        this.dayId = dayId;
         this.eventId = eventId;
         this.paperId = paperId;
         this.content = content;
@@ -33,6 +36,10 @@ public class Note {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getDayId() {
+        return dayId;
     }
 
     public int getEventId() {

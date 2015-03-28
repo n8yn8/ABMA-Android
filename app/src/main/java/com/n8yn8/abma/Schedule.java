@@ -38,8 +38,8 @@ public class Schedule extends Object{
             eventIndex = 0;
             paperIndex = -1;
             schedule = new HashMap<>();
-            int index = 0;
             for (String dayKey: eventDays) {
+                int index = 0;
                 NSObject[] dayNSArray = ((NSArray) scheduleDict.objectForKey(dayKey)).getArray();
                 ArrayList<Event> day = new ArrayList<>();
                 try {
@@ -85,6 +85,14 @@ public class Schedule extends Object{
         }
     }
 
+    public int getDayIndex() {
+        return dayIndex;
+    }
+
+    public void setDayIndex(int dayIndex) {
+        this.dayIndex = dayIndex;
+    }
+
     public ArrayList<Event> getDay(String dayIndex){
         return schedule.get(dayIndex);
     }
@@ -125,7 +133,10 @@ public class Schedule extends Object{
     }
 
     public Event getCurrentEvent() {
-        return schedule.get(eventDays.get(dayIndex)).get(eventIndex);
+        String thisDate = eventDays.get(dayIndex);
+        List<Event> thisDay = schedule.get(thisDate);
+        Event thisEvent = thisDay.get(eventIndex);
+        return thisEvent;
     }
 
     public Event getPrevEvent() {
@@ -172,7 +183,10 @@ public class Schedule extends Object{
         if (paperIndex == -1) {
             return null;
         } else {
-            return getCurrentEvent().getPapers().get(paperIndex);
+            Event thisEvent = getCurrentEvent();
+            List<Paper> thesePapers = thisEvent.getPapers();
+            Paper thisPaper = thesePapers.get(paperIndex);
+            return thisPaper;
         }
     }
 

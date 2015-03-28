@@ -119,6 +119,7 @@ public class EventActivity extends ActionBarActivity {
 
                 int eventId = event.getIndex();
                 int paperId = schedule.getPaperIndex();
+                int dayId = schedule.getDayIndex();
                 Log.d(TAG, "paperID = " + paperId);
                 String noteContent = noteEditText.getText().toString();
                 String title;
@@ -130,7 +131,7 @@ public class EventActivity extends ActionBarActivity {
 
                 if (!noteContent.equals("")) {
                     if (note == null) {
-                        note = new Note(eventId, paperId, noteContent, title);
+                        note = new Note(dayId, eventId, paperId, noteContent, title);
                         db.addNote(note);
                     } else {
                         note.setContent(noteContent);
@@ -223,7 +224,7 @@ public class EventActivity extends ActionBarActivity {
             detailTextView.setText(paper.getSynopsis());
             detailTextView.setMovementMethod(new ScrollingMovementMethod());
             detailTextView.scrollTo(0,0);
-            note = db.getNote(event.getIndex(), paper.getIndex());
+            note = db.getNote(schedule.getDayIndex(), event.getIndex(), paper.getIndex());
             if (note != null) {
                 noteEditText.setText(note.getContent());
             } else {

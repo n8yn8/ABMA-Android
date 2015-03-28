@@ -3,6 +3,7 @@ package com.n8yn8.abma;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -104,11 +105,14 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (null != mListener) {
-            // Notify the active callbacks interface (the activity, if the
-            // fragment is attached to one) that an item has been selected.
-//            mListener.onFragmentInteraction(mAdapter.getItem(position));
-        }
+        Note note = mAdapter.getItem(position);
+        Schedule schedule = Cache.getInstance().getSchedule();
+        schedule.setDayIndex(note.getDayId());
+        schedule.setPaperIndex(note.getPaperId());
+        schedule.setCurrentEventIndex(note.getEventId());
+        Cache.getInstance().cacheSchedule(schedule);
+        Intent intent = new Intent(getActivity().getApplicationContext(), EventActivity.class);
+        startActivity(intent);
     }
 
     @Override
