@@ -47,6 +47,8 @@ public class EventActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         db = new DatabaseHandler(getApplicationContext());
 
         dayTextView = (TextView) findViewById(R.id.dayTextView);
@@ -170,6 +172,7 @@ public class EventActivity extends ActionBarActivity {
 //        }
         if (id == android.R.id.home) {
             schedule.setPaperIndex(-1);
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
