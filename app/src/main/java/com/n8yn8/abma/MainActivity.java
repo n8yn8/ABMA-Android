@@ -14,8 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    private final String TAG = "MainActivity";
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -49,6 +50,22 @@ public class MainActivity extends ActionBarActivity
         if (position == 0) {
             fragmentManager.beginTransaction()
                     .replace(R.id.container, ScheduleFragment.newInstance())
+                    .commit();
+        } else if (position == 1) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, NoteFragment.newInstance())
+                    .commit();
+        } else if (position == 2) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, InfoFragment.newInstance())
+                    .commit();
+        } else if (position == 3) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, SponsorsFragment.newInstance())
+                    .commit();
+        } else if (position == 4) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, ContactFragment.newInstance())
                     .commit();
         } else {
             fragmentManager.beginTransaction()
@@ -100,9 +117,9 @@ public class MainActivity extends ActionBarActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
