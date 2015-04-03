@@ -55,12 +55,15 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     // references to our images
+    //2015
     private Integer[] mThumbIds = {
             R.drawable.cph_zoo, R.drawable.dbp,
             R.drawable.givskud_zoo, R.drawable.odense_zoo,
             R.drawable.sdu, R.drawable.training_store,
-            R.drawable.mazuri, R.drawable.profis
+            R.drawable.mazuri, R.drawable.profis,
+            R.drawable.sea_world
     };
+    //2014
 //    private Integer[] mThumbIds = {
 //            R.drawable.aazk_dallas, R.drawable.aazk_galv,
 //            R.drawable.aazkchey, R.drawable.abi,
