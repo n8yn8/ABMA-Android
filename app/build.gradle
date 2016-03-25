@@ -7,9 +7,9 @@ android {
     defaultConfig {
         applicationId "com.n8yn8.abma"
         minSdkVersion 15
-        versionCode 5
-        versionName "1.15.2"
         targetSdkVersion 23
+        versionCode 6
+        versionName "1.16.0"
     }
     buildTypes {
         release {
