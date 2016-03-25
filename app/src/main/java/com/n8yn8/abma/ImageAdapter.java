@@ -61,7 +61,7 @@ public class ImageAdapter extends BaseAdapter {
             R.drawable.givskud_zoo, R.drawable.odense_zoo,
             R.drawable.sdu, R.drawable.training_store,
             R.drawable.mazuri, R.drawable.profis,
-            R.drawable.sea_world
+            R.drawable.sea_world, R.drawable.zooply
     };
     //2014
 //    private Integer[] mThumbIds = {
