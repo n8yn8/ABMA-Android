@@ -55,14 +55,24 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     // references to our images
-    //2015
+    //2016
     private Integer[] mThumbIds = {
-            R.drawable.cph_zoo, R.drawable.dbp,
-            R.drawable.givskud_zoo, R.drawable.odense_zoo,
-            R.drawable.sdu, R.drawable.training_store,
-            R.drawable.mazuri, R.drawable.profis,
-            R.drawable.sea_world, R.drawable.zooply
+            R.drawable.abi, R.drawable.bgt,
+            R.drawable.brevard_zoo_logo_m, R.drawable.cfz,
+            R.drawable.cma, R.drawable.fala,
+            R.drawable.fl_aq, R.drawable.nei,
+            R.drawable.pb, R.drawable.sante_fe_teaching_zoo,
+            R.drawable.sea_world, R.drawable.tampa_aazk,
+            R.drawable.tampa_zoo
     };
+    //2015
+//    private Integer[] mThumbIds = {
+//            R.drawable.cph_zoo, R.drawable.dbp,
+//            R.drawable.givskud_zoo, R.drawable.odense_zoo,
+//            R.drawable.sdu, R.drawable.training_store,
+//            R.drawable.mazuri, R.drawable.profis,
+//            R.drawable.sea_world, R.drawable.zooply
+//    };
     //2014
 //    private Integer[] mThumbIds = {
 //            R.drawable.aazk_dallas, R.drawable.aazk_galv,
