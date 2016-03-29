@@ -16,7 +16,7 @@ public class Cache {
         lruCache = new LruCache<Object, Object>(1024);
     }
 
-    public static  Cache getInstance() {
+    public static Cache getInstance() {
         if (instance == null) {
             instance = new Cache();
         }
