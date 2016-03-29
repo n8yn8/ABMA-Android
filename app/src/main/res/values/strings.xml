@@ -1,16 +1,12 @@
 <resources>
     <string name="app_name">ABMA</string>
 
-    <string name="title_section1">SCHEDULE</string>
-    <string name="title_section4">SPONSORS</string>
-    <string name="title_section5">CONTACT</string>
-    <string name="title_section2">NOTES</string>
-    <string name="title_section3">2016 INFO</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="title_activity_event">ABMA</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="title_activity_event">Event</string>
 
     <string name="info_2016">Badges
 \nPlease make sure to wear your badges throughout the conference.  These badges are your admission to the various events and programming.
