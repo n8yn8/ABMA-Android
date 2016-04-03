@@ -51,7 +51,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        if (id == R.id.schedule) {
+        if (id == R.id.welcome) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, WelcomeFragment.newInstance())
+                    .commit();
+        } else if (id == R.id.schedule) {
             fragmentManager.beginTransaction()
                     .replace(R.id.container, ScheduleFragment.newInstance())
                     .commit();
