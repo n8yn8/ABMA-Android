@@ -1,6 +1,7 @@
 package com.n8yn8.abma;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -54,9 +58,24 @@ public class SponsorsFragment extends Fragment {
                 GridView gridview = (GridView) rootView.findViewById(R.id.gridView);
         gridview.setAdapter(new ImageAdapter(getActivity()));
 
+        final List<String> links = Arrays.asList("http://www.brevardzoo.org/",
+        "http://www.centralfloridazoo.org/",
+        "http://www.lowryparkzoo.org/",
+        "http://www.sfcollege.edu/zoo/",
+        "http://www.seewinter.com/",
+        "http://www.flaquarium.org/",
+        "https://seaworldparks.com/seaworld-orlando?&gclid=CNnZ_rOg5ssCFUQbgQodW_gLyg&dclid=CMvQhLSg5ssCFUQFgQod384IRQ",
+        "http://naturalencounters.com/",
+        "http://www.precisionbehavior.com/",
+        "http://www.animaledu.com/Home/d/1",
+        "https://seaworldparks.com/en/buschgardens-tampa/?&gclid=CM7sh5ig5ssCFYclgQodFi4MFg&dclid=CLD5i5ig5ssCFQsNgQodm1IJ_g",
+        "http://www.flaza.org/zoos--aquariums.html",
+        "http://tampabayaazk.weebly.com/");
+
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-//                Toast.makeText(getActivity(), "" + position, Toast.LENGTH_SHORT).show();
+                String urlString = links.get(position);
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(urlString)));
             }
         });
 

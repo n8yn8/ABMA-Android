@@ -1,14 +1,76 @@
 <resources>
     <string name="app_name">ABMA</string>
 
-    <string name="title_section1">SCHEDULE</string>
-    <string name="title_section4">SPONSORS</string>
-    <string name="title_section5">CONTACT</string>
-    <string name="title_section2">NOTES</string>
-    <string name="title_section3">2015 INFO</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="title_activity_event">ABMA</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="title_activity_event">Event</string>
+
+    <string name="info_2016">Badges
+\nPlease make sure to wear your badges throughout the conference.  These badges are your admission to the various events and programming.
+
+\n\nBehavioral Management Fund
+\nThe BMF Committee overlooks the Scholarship/Grant process by developing the criteria for the application, review of the applications, and selection of a recipient.  The committee is also responsible for the fundraising and development of the Behavior Management Fund. The proceeds a portion of the silent auction support the Behavioral Management Fund.
+
+\n\nABMA Travel Scholarship
+\nThe purpose of this scholarship is to assist an ABMA member who would otherwise be unable to secure financial support to attend the conference. The Travel Scholarship will help the award recipient by giving them the ability to present their work and it will help the organization by giving ABMA members the opportunity to hear presentations that they would not have otherwise been able to.  The Travel Scholarship supports the ABMA Core Value of "Sharing the Knowledge".The Travel Scholarship is made possible by the Behavior Management Fund (BMF) Committee.
+\nThis year’s recipient is:
+\n“Here and Now with Your Animal“- Techniques to Improve the Mental Awareness of Trainers and So Enable More Effective Training
+\nFrantišek Šusta, Petra Jaškówová; www.trainingisdialogue.com
+\nFor more Travel Scholarship information or to apply for next year’s conference, please visit www.theabma.org.
+
+\n\nConservation Gift
+\nEach year the BMF provides a conservation-related gift to conference delegates.  This year we are doing something new! There are three different conservation organizations that delegates can vote for when registering for the conference. Each vote will correlate to a dollar amount given to that organization.
+\nGopher Tortoise Council
+\nhttp://www.gophertortoisecouncil.org/Guardian
+\nAngel Dog Rescue
+\nhttp://guardianangeldogrescue.org/
+\nThe Nature Conservancy-Florida Panther Land Acquisition
+\nhttp://www.nature.org/ourinitiatives/regions/northamerica/unitedstates/florida/explore/save-the-florida-panther.xmlBusiness
+
+\n\nServices
+\nThere is a business center located in the hotel.
+
+\n\nConference Survey
+\nOnce again this year ABMA is being green and doing the conference surveys online.  The results of these surveys help the ABMA to make each conference successful and better suited to the members’needs.  Your responses are greatly valued and do ensure the ABMA’s future conference programming is suited to the interests of our members. The survey will be emailed to registered delegates at the closing of the conference or accessed by the following link: http://survey.constantcontact.com/survey/a07ecc74bjtil9lzqj9/startThese surveys are an important component to the assessment of the ABMA, and we thank you for your time in completing them.
+
+\n\nSilent Auction Donations
+\nSilent auction items can be dropped off at registration.  If you did not already, please send us an email with the item you are bringing and its value, please let us know when you drop the item off so that we can create a bid sheet.
+
+\n\nABMA Disclaimer
+\nOne of the core values of the ABMA states that:
+\nThe sharing of knowledge and new ideas is fundamental to advancing animal behavior management.
+\nWe do this in many ways, such as through our conferences and newsletters.  This week you’ll be seeing a lot of fascinating and thought-provoking talks, workshops, and presentations.  Some you may agree with, others may challenge your perceptions and ideas. And while the content that you see in each presentation reflects the views of the author and does not necessarily represent the feelings of the ABMA or the board of directors, we think that the diversity of subjects and viewpoints represented by our members and at our conferences is one of the strengths of this organization. We encourage you to listen to all that you hear this week with an open mind, because you might be surprised by what you learn. Thank you and enjoy the conference!
+
+\n\n2017 Save The Date
+\nBack to Basics Crossing the Bridge between Training and Conservation
+\nCincinnati, Ohio
+\nApril 24-28, 2017
+\nJoin us in Cincinnati Ohio where we will be connecting conservation through training. The week will start off across the river in Kentucky at the Newport Aquarium for the icebreaker event. We will show off all Ohio zoos have to offer with site visits to the Cincinnati Zoo &amp; Botanical Garden and the Columbus Zoo and Aquarium.
+\nThe conference meetings will be held at the Historic Hilton Netherland Hotel in downtown Cincinnati. The hotel is located in the heart of downtown Cincinnati on the bank of the Ohio River - home to the Cincinnati Reds, local and national restaurants, and celebrated micro-breweries.
+\nHilton Cincinnati Netherland Plaza
+\n35 West Fifth Street
+\nCincinnati Ohio 45202
+\n513-421-9100
+\nABMA room rate is $139.00/night </string>
+
+    <string name="welcome">Greetings and welcome to the 2016 Animal Behavior Management Alliance Conference!
+
+\n\nThe week is packed with some amazing talks. As I read through the schedule I am really excited to see everyone one of them.  I have always loved going to ABMA conferences because I learn from each and every training or enrichment talk.  I get new ideas and come back revitalized and inspired to continue to improve the welfare of all the animals in our facility.  We are kicking off the conference with our keynote speaker Dr. Susie Ellis, the Executive Director of the International Rhino Foundation (IRF).   She will be educating us on the partnership of zoos and IRF that help them reach their goals of in-situ conservation to prevent poaching and habitat loss.  They have been working for 25 years with one of the most threatened species on earth and now it is more critical than ever to collaborate and unite our efforts.
+
+\n\nSome of the highlights will be focused on welfare talks, Margaret Rousser (past president of ABMA) and manager at the Oakland Zoo will start off the talks with an out of the box matrix on how to shift our priorities in favor of psychological well-being and why.  Another talk people must attend is the integration of operant conditioning and veterinary care in wildlife management by Ray Ball D.V.M at Busch Gardens. As a veterinary technician and animal trainer this has always been a passion of mine to train animals to cooperate in their own health care.  Mark Simmons will also be telling a cautionary tale about the Killing of Keiko, the killer whale from the movie Free Willy.  We have to understand and be able to speak to the opposition about wildlife that live in captivity and why we cannot just “set them free”.  We will also have daily training demos with the local SPCA, great panels, and our Research and Evaluation workshop by Dr. Nicole Dorey, a former ABMA board member.
+
+\n\nAlso it wouldn’t be an ABMA conference without some great site visits, starting with the Ice Breaker at the Florida Aquarium. Then, since we know animal care professionals can’t sit in a room too long we head to Busch Gardens our second day and on the fourth day head out to see the Lowry Park Zoo.  All of these facilities have been working really hard to make our visits extra special. A big shout out to the conference committee for all their hard work.
+
+\n\nThank you to the other facilities that have offered pre and post conference trips, and in the learning spirit, Precision Behavior also offered a pre conference workshop from a founding member Thad Lacinak and former board member Angi Millwood, two of the best in the business!
+
+\n\nWe hope you all enjoy this conference and get to attend every talk and network with people from other zoos, aquariums, training facilities, and laboratories and create contacts and friends that will last a lifetime.  ABMA is always looking for enthusiastic members to join in committees and even board positions.Please consider getting more involved - we can always use the help!  Just find a board member or join the program council Wednesday night and see where you might be the most help.
+
+\n\nThanks again for supporting ABMA!
+
+\n\nSincerely,
+\nNicki Boyd, President
+</string>
 </resources>
