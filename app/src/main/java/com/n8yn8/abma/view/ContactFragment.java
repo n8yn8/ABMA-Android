@@ -1,4 +1,4 @@
-package com.n8yn8.abma;
+package com.n8yn8.abma.view;
 
 
 import android.content.Intent;
@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import com.n8yn8.abma.R;
 
 
 /**

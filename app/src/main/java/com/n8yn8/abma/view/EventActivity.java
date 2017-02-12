@@ -1,4 +1,4 @@
-package com.n8yn8.abma;
+package com.n8yn8.abma.view;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,15 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.n8yn8.abma.view.adapter.PaperListAdapter;
+import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.Cache;
+import com.n8yn8.abma.model.DatabaseHandler;
+import com.n8yn8.abma.model.Event;
+import com.n8yn8.abma.model.Note;
+import com.n8yn8.abma.model.Paper;
+import com.n8yn8.abma.model.Schedule;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

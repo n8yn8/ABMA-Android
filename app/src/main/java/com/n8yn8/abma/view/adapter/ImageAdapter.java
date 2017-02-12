@@ -1,4 +1,4 @@
-package com.n8yn8.abma;
+package com.n8yn8.abma.view.adapter;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
@@ -8,6 +8,8 @@ import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+
+import com.n8yn8.abma.R;
 
 /**
  * Created by Nate on 3/15/15.

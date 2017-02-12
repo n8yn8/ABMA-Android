@@ -1,4 +1,4 @@
-package com.n8yn8.abma;
+package com.n8yn8.abma.view;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -10,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
+import com.n8yn8.abma.R;
+import com.n8yn8.abma.view.adapter.ImageAdapter;
 
 import java.util.Arrays;
 import java.util.List;

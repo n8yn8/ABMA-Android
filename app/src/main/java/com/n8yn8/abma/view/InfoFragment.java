@@ -1,4 +1,4 @@
-package com.n8yn8.abma;
+package com.n8yn8.abma.view;
 
 
 import android.os.Bundle;
@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.n8yn8.abma.R;
 
 
 /**

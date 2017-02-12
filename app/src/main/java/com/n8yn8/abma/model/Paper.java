@@ -1,4 +1,4 @@
-package com.n8yn8.abma;
+package com.n8yn8.abma.model;
 
 import java.util.Map;
 
