@@ -22,7 +22,7 @@ public class App extends Application {
         super.onCreate();
         NSDictionary scheduleDict;
         try {
-            InputStream is = getResources().openRawResource(R.raw.y2015);
+            InputStream is = getResources().openRawResource(R.raw.y2016);
             scheduleDict = (NSDictionary) PropertyListParser.parse(is);
             schedule = new Schedule(scheduleDict);
             Cache.getInstance().cacheSchedule(schedule);
