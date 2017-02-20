@@ -25,4 +25,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.googlecode.plist:dd-plist:1.8'
+    compile 'com.backendless:backendless:3.0.24'
 }

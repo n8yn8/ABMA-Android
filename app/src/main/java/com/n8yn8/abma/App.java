@@ -33,6 +33,6 @@ public class App extends Application {
             Log.e(TAG, "" + ex.getLocalizedMessage());
         }
 
-        Backendless.initApp(this, "4F90A91F-3E58-5E4D-FF43-A0BA7FE1D500", "C6BA3234-4552-5DB7-FF8C-18477C80CC00", "v1");
+        Backendless.initApp(this, "6AC37915-D986-26C2-FF1C-B0B3ACCB6A00", "145212DB-A903-6C49-FF02-1C70A1BD0A00", "v1");
     }
 }
