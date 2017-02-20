@@ -16,10 +16,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.Cache;
-import com.n8yn8.abma.model.DatabaseHandler;
-import com.n8yn8.abma.model.Note;
-import com.n8yn8.abma.model.Schedule;
+import com.n8yn8.abma.model.old.Cache;
+import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.old.Note;
+import com.n8yn8.abma.model.old.Schedule;
 import com.n8yn8.abma.view.adapter.NoteListAdapter;
 
 import java.util.List;

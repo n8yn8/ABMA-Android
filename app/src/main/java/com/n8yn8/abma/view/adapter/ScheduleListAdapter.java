@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.Event;
+import com.n8yn8.abma.model.old.Event;
 
 import java.util.ArrayList;
 

@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.Note;
+import com.n8yn8.abma.model.old.Note;
 
 import java.util.List;
 

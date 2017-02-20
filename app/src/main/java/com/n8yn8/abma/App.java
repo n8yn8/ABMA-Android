@@ -6,8 +6,8 @@ import android.util.Log;
 import com.backendless.Backendless;
 import com.dd.plist.NSDictionary;
 import com.dd.plist.PropertyListParser;
-import com.n8yn8.abma.model.Cache;
-import com.n8yn8.abma.model.Schedule;
+import com.n8yn8.abma.model.old.Cache;
+import com.n8yn8.abma.model.old.Schedule;
 
 import java.io.InputStream;
 

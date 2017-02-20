@@ -1,4 +1,4 @@
-package com.n8yn8.abma.model;
+package com.n8yn8.abma.model.old;
 
 import android.util.Log;
 
