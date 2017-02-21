@@ -16,17 +16,24 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Database Name
     private static final String DATABASE_NAME = "abma";
 
-    // Contacts table name
+    // Table names
+    private static final String TABLE_YEARS = "years";
+    private static final String TABLE_SPONSORS = "sponsors";
     private static final String TABLE_EVENTS = "events";
+    private static final String TABLE_PAPERS = "papers";
     private static final String TABLE_NOTES = "notes";
 
     // Contacts Table Columns names
     private static final String KEY_ID = "id";
+    private static final String KEY_OBJECT_ID = "object_id";
+    private static final String KEY_NAME = "name";
+    private static final String KEY_INFO = "info";
+    private static final String KEY_WELCOME = "welcome";
     private static final String KEY_DAY_INDEX = "day_index";
     private static final String KEY_TITLE = "title";
     private static final String KEY_SUBTITLE = "subtitle";
@@ -42,29 +49,41 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    //Version 1
+    private String CREATE_EVENTS_TABLE = "CREATE TABLE " + TABLE_EVENTS + "("
+            + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_DAY_INDEX + " INTEGER,"
+            + KEY_TITLE + " TEXT,"
+            + KEY_SUBTITLE + " TEXT,"
+            + KEY_TIME + " TEXT,"
+            + KEY_PLACE + " TEXT,"
+            + KEY_DETAILS + " TEXT"
+            + ")";
+
+    private String CREATE_NOTES_TABLE = "CREATE TABLE " + TABLE_NOTES + "("
+            + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_DAY_INDEX + " INTEGER,"
+            + KEY_EVENT_ID + " INTEGER,"
+            + KEY_PAPER_ID + " INTEGER,"
+            + KEY_NOTE_CONTENT + " TEXT,"
+            + KEY_EVENT_TITLE + " TEXT"
+            + ")";
+
+    //Version 2
+    String CREATE_YEARS_TABLE = "CREATE TABLE " + TABLE_YEARS + "("
+            + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_OBJECT_ID + " STRING,"
+            + KEY_NAME + " INTEGER,"
+            + KEY_INFO + " TEXT,"
+            + KEY_WELCOME + " TEXT,"
+            + ")";
+
     // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        String CREATE_EVENTS_TABLE = "CREATE TABLE " + TABLE_EVENTS + "("
-                + KEY_ID + " INTEGER PRIMARY KEY,"
-                + KEY_DAY_INDEX + " INTEGER,"
-                + KEY_TITLE + " TEXT,"
-                + KEY_SUBTITLE + " TEXT,"
-                + KEY_TIME + " TEXT,"
-                + KEY_PLACE + " TEXT,"
-                + KEY_DETAILS + " TEXT"
-                + ")";
+        db.execSQL(CREATE_YEARS_TABLE);
         db.execSQL(CREATE_EVENTS_TABLE);
-
-        String CREATE_NOTES_TABLE = "CREATE TABLE " + TABLE_NOTES + "("
-                + KEY_ID + " INTEGER PRIMARY KEY,"
-                + KEY_DAY_INDEX + " INTEGER,"
-                + KEY_EVENT_ID + " INTEGER,"
-                + KEY_PAPER_ID + " INTEGER,"
-                + KEY_NOTE_CONTENT + " TEXT,"
-                + KEY_EVENT_TITLE + " TEXT"
-                + ")";
         db.execSQL(CREATE_NOTES_TABLE);
 
     }
