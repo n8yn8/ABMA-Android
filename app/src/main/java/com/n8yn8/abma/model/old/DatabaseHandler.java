@@ -34,6 +34,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_NAME = "name";
     private static final String KEY_INFO = "info";
     private static final String KEY_WELCOME = "welcome";
+    private static final String KEY_URL = "url";
+    private static final String KEY_IMAGE_URL = "image_url";
+    private static final String KEY_YEAR_ID = "year_id";
     private static final String KEY_DAY_INDEX = "day_index";
     private static final String KEY_TITLE = "title";
     private static final String KEY_SUBTITLE = "subtitle";
@@ -76,6 +79,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + KEY_NAME + " INTEGER,"
             + KEY_INFO + " TEXT,"
             + KEY_WELCOME + " TEXT,"
+            + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
+            + ")";
+
+    String CREATE_SPONSORS_TABLE = "CREATE TABLE " + TABLE_SPONSORS + "("
+            + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_OBJECT_ID + " STRING,"
+            + KEY_YEAR_ID + " STRING,"
+            + KEY_IMAGE_URL + " STRING,"
+            + KEY_URL + " STRING,"
+            + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
             + ")";
 
     // Creating Tables
@@ -83,6 +96,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
 
         db.execSQL(CREATE_YEARS_TABLE);
+        db.execSQL(CREATE_SPONSORS_TABLE);
         db.execSQL(CREATE_EVENTS_TABLE);
         db.execSQL(CREATE_NOTES_TABLE);
 
@@ -97,6 +111,37 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // Create tables again
         onCreate(db);
+    }
+
+    public void addYear(BYear year) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_OBJECT_ID, year.getObjectId());
+        values.put(KEY_NAME, year.getName());
+        values.put(KEY_INFO, year.getInfo());
+        values.put(KEY_WELCOME, year.getWelcome());
+
+        for (BSponsor sponsor: year.getSponsors()) {
+            addSponsor(sponsor, year.getObjectId());
+        }
+
+        // Inserting Row
+        db.insert(TABLE_YEARS, null, values);
+        db.close();
+    }
+
+    public void addSponsor(BSponsor sponsor, String yearId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_OBJECT_ID, sponsor.getObjectId());
+        values.put(KEY_URL, sponsor.getUrl());
+        values.put(KEY_IMAGE_URL, sponsor.getImageUrl());
+        values.put(KEY_YEAR_ID, yearId);
+
+        // Inserting Row
+        db.insert(TABLE_SPONSORS, null, values);
+//        db.close();
     }
 
     public void addEvent(Event event) {
@@ -169,6 +214,79 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         } else {
             return null;
         }
+    }
+
+    public List<BYear> getAllYears() {
+        List<BYear> yearList = new ArrayList<>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + TABLE_YEARS;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null); //TODO: sort
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                BYear year = new BYear();
+                year.setName(cursor.getInt(cursor.getColumnIndex(KEY_NAME)));
+                year.setObjectId(cursor.getString(cursor.getColumnIndex(KEY_OBJECT_ID)));
+                year.setInfo(cursor.getString(cursor.getColumnIndex(KEY_INFO)));
+                year.setWelcome(cursor.getString(cursor.getColumnIndex(KEY_WELCOME)));
+                List<BSponsor> sponsors = getAllSponsorsFor(year.getObjectId());
+                year.setSponsors(sponsors);
+                //TODO: set events
+                yearList.add(year);
+            } while (cursor.moveToNext());
+        }
+
+        // return contact list
+        return yearList;
+    }
+
+    public List<BSponsor> getAllSponsors() {
+        List<BSponsor> list = new ArrayList<>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + TABLE_SPONSORS;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null); //TODO: sort
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                BSponsor sponsor = new BSponsor();
+                sponsor.setImageUrl(cursor.getString(cursor.getColumnIndex(KEY_IMAGE_URL)));
+                sponsor.setObjectId(cursor.getString(cursor.getColumnIndex(KEY_OBJECT_ID)));
+                sponsor.setUrl(cursor.getString(cursor.getColumnIndex(KEY_URL)));
+                list.add(sponsor);
+            } while (cursor.moveToNext());
+        }
+
+        // return contact list
+        return list;
+    }
+
+    public List<BSponsor> getAllSponsorsFor(String yearId) {
+        List<BSponsor> list = new ArrayList<>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + TABLE_SPONSORS + " WHERE (" + KEY_YEAR_ID + " == '" + yearId + "')";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null); //TODO: sort
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                BSponsor sponsor = new BSponsor();
+                sponsor.setImageUrl(cursor.getString(cursor.getColumnIndex(KEY_IMAGE_URL)));
+                sponsor.setObjectId(cursor.getString(cursor.getColumnIndex(KEY_OBJECT_ID)));
+                sponsor.setUrl(cursor.getString(cursor.getColumnIndex(KEY_URL)));
+                list.add(sponsor);
+            } while (cursor.moveToNext());
+        }
+
+        // return contact list
+        return list;
     }
 
     public List<Event> getAllEvents() {

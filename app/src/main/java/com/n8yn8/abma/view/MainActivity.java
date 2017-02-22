@@ -8,9 +8,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.backendless.BYear;
+import com.n8yn8.abma.model.backendless.DbManager;
+import com.n8yn8.abma.model.old.DatabaseHandler;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -34,6 +40,18 @@ public class MainActivity extends AppCompatActivity
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, ScheduleFragment.newInstance())
                 .commit();
+
+        DbManager.getInstance().getYears(new DbManager.YearsResponse() {
+            @Override
+            public void onYearsReceived(List<BYear> years) {
+                DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+                for (BYear year: years) {
+                    db.addYear(year);
+                    List<BYear> saveYears = db.getAllYears();
+                    Log.d("Nate", "saved = " + saveYears);
+                }
+            }
+        });
     }
 
     @Override

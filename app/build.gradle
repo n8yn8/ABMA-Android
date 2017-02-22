@@ -26,4 +26,5 @@ dependencies {
     compile 'com.android.support:design:23.1.1'
     compile 'com.googlecode.plist:dd-plist:1.8'
     compile 'com.backendless:backendless:3.0.24'
+    compile 'com.android.volley:volley:1.0.0'
 }
