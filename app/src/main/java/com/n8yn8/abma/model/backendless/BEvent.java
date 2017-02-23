@@ -1,5 +1,6 @@
 package com.n8yn8.abma.model.backendless;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class BEvent {
     Date startDate;
     String subtitle;
     String title;
-    List<BPaper> papers;
+    List<BPaper> papers = new ArrayList<>();
 
     public BEvent() {
     }

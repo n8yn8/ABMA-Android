@@ -6,7 +6,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.n8yn8.abma.model.backendless.BEvent;
+import com.n8yn8.abma.model.backendless.BPaper;
+import com.n8yn8.abma.model.backendless.BSponsor;
+import com.n8yn8.abma.model.backendless.BYear;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,11 +46,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_DAY_INDEX = "day_index";
     private static final String KEY_TITLE = "title";
     private static final String KEY_SUBTITLE = "subtitle";
-    private static final String KEY_TIME = "time";
     private static final String KEY_PLACE = "place";
     private static final String KEY_DETAILS = "details";
+    private static final String KEY_END_DATE = "end_date";
+    private static final String KEY_START_DATE = "start_date";
     private static final String KEY_EVENT_ID = "event_id";
     private static final String KEY_PAPER_ID = "paper_id";
+    private static final String KEY_AUTHOR = "author";
+    private static final String KEY_SYNOPSIS = "synopsis";
     private static final String KEY_NOTE_CONTENT = "note_content";
     private static final String KEY_EVENT_TITLE = "event_title";
 
@@ -52,15 +61,27 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    //Version 1
+    private String CREATE_PAPERS_TABLE = "CREATE TABLE " + TABLE_PAPERS + "("
+            + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_OBJECT_ID + " STRING,"
+            + KEY_EVENT_ID + " STRING,"
+            + KEY_TITLE + " STRING,"
+            + KEY_AUTHOR + " STRING,"
+            + KEY_SYNOPSIS + " TEXT,"
+            + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
+            + ")";
+
     private String CREATE_EVENTS_TABLE = "CREATE TABLE " + TABLE_EVENTS + "("
             + KEY_ID + " INTEGER PRIMARY KEY,"
-            + KEY_DAY_INDEX + " INTEGER,"
-            + KEY_TITLE + " TEXT,"
-            + KEY_SUBTITLE + " TEXT,"
-            + KEY_TIME + " TEXT,"
-            + KEY_PLACE + " TEXT,"
-            + KEY_DETAILS + " TEXT"
+            + KEY_OBJECT_ID + " STRING,"
+            + KEY_YEAR_ID + " STRING,"
+            + KEY_DETAILS + " TEXT,"
+            + KEY_END_DATE + " INT,"
+            + KEY_START_DATE + " INT,"
+            + KEY_PLACE + " STRING,"
+            + KEY_TITLE + " STRING,"
+            + KEY_SUBTITLE + " STRING,"
+            + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
             + ")";
 
     private String CREATE_NOTES_TABLE = "CREATE TABLE " + TABLE_NOTES + "("
@@ -72,8 +93,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + KEY_EVENT_TITLE + " TEXT"
             + ")";
 
-    //Version 2
-    String CREATE_YEARS_TABLE = "CREATE TABLE " + TABLE_YEARS + "("
+    private String CREATE_YEARS_TABLE = "CREATE TABLE " + TABLE_YEARS + "("
             + KEY_ID + " INTEGER PRIMARY KEY,"
             + KEY_OBJECT_ID + " STRING,"
             + KEY_NAME + " INTEGER,"
@@ -82,7 +102,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
             + ")";
 
-    String CREATE_SPONSORS_TABLE = "CREATE TABLE " + TABLE_SPONSORS + "("
+    private String CREATE_SPONSORS_TABLE = "CREATE TABLE " + TABLE_SPONSORS + "("
             + KEY_ID + " INTEGER PRIMARY KEY,"
             + KEY_OBJECT_ID + " STRING,"
             + KEY_YEAR_ID + " STRING,"
@@ -99,6 +119,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(CREATE_SPONSORS_TABLE);
         db.execSQL(CREATE_EVENTS_TABLE);
         db.execSQL(CREATE_NOTES_TABLE);
+        db.execSQL(CREATE_PAPERS_TABLE);
 
     }
 
@@ -107,6 +128,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
+        //TODO: migrate notes
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTES);
 
         // Create tables again
@@ -126,12 +148,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             addSponsor(sponsor, year.getObjectId());
         }
 
+        for (BEvent event: year.getEvents()) {
+            addEvent(event, year.getObjectId());
+        }
+
         // Inserting Row
         db.insert(TABLE_YEARS, null, values);
         db.close();
     }
 
-    public void addSponsor(BSponsor sponsor, String yearId) {
+    private void addSponsor(BSponsor sponsor, String yearId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_OBJECT_ID, sponsor.getObjectId());
@@ -144,19 +170,42 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 //        db.close();
     }
 
-    public void addEvent(Event event) {
+    private void addEvent(BEvent event, String yearId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(KEY_DAY_INDEX, event.getIndex());
-        values.put(KEY_TITLE, event.getTitle());
-        values.put(KEY_SUBTITLE, event.getSubtitle());
-        values.put(KEY_TIME, event.getTime());
-        values.put(KEY_PLACE, event.getPlace());
+
+        values.put(KEY_OBJECT_ID, event.getObjectId());
+        values.put(KEY_YEAR_ID, yearId);
         values.put(KEY_DETAILS, event.getDetails());
+        if (event.getEndDate() != null) {
+            values.put(KEY_END_DATE, event.getEndDate().getTime());
+        }
+        values.put(KEY_PLACE, event.getLocation());
+        values.put(KEY_START_DATE, event.getStartDate().getTime());
+        values.put(KEY_SUBTITLE, event.getSubtitle());
+        values.put(KEY_TITLE, event.getTitle());
+        for (BPaper paper : event.getPapers()) {
+            addPaper(paper, event.getObjectId());
+        }
 
         // Inserting Row
         db.insert(TABLE_EVENTS, null, values);
-        db.close(); // Closing database connection
+//        db.close(); // Closing database connection
+    }
+
+    private void addPaper(BPaper paper, String eventId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_OBJECT_ID, paper.getObjectId());
+        values.put(KEY_EVENT_ID, eventId);
+        values.put(KEY_TITLE, paper.getTitle());
+        values.put(KEY_AUTHOR, paper.getAuthor());
+        values.put(KEY_SYNOPSIS, paper.getSynopsis());
+
+        // Inserting Row
+        db.insert(TABLE_PAPERS, null, values);
+//        db.close(); // Closing database connection
     }
 
     public void addNote(Note note) {
@@ -170,19 +219,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_PAPER_ID, note.getPaperId());
 
         db.insert(TABLE_NOTES, null, values);
-    }
-
-    public Event getEvent(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.query(TABLE_EVENTS, new String[] { KEY_ID, KEY_EVENT_ID,
-                        KEY_TITLE, KEY_SUBTITLE, KEY_TIME, KEY_PLACE, KEY_DETAILS }, KEY_ID + "=?",
-                new String[] { String.valueOf(id) }, null, null, null, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        Event event = new Event(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6));
-        return event;
     }
 
     public Note getNote(int id) {
@@ -238,6 +274,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 yearList.add(year);
             } while (cursor.moveToNext());
         }
+        cursor.close();
 
         // return contact list
         return yearList;
@@ -261,6 +298,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 list.add(sponsor);
             } while (cursor.moveToNext());
         }
+        cursor.close();
 
         // return contact list
         return list;
@@ -284,15 +322,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 list.add(sponsor);
             } while (cursor.moveToNext());
         }
+        cursor.close();
 
         // return contact list
         return list;
     }
 
-    public List<Event> getAllEvents() {
-        List<Event> eventList = new ArrayList<>();
+    public List<BEvent> getAllEventsFor(String yearId) {
+        List<BEvent> list = new ArrayList<>();
         // Select All Query
-        String selectQuery = "SELECT  * FROM " + TABLE_EVENTS;
+        String selectQuery = "SELECT  * FROM " + TABLE_EVENTS + " WHERE (" + KEY_YEAR_ID + " == '" + yearId + "')";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null); //TODO: sort
@@ -300,13 +339,50 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                Event event = new Event(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6));
-                eventList.add(event);
+                BEvent event = new BEvent();
+                event.setObjectId(cursor.getString(cursor.getColumnIndex(KEY_OBJECT_ID)));
+                event.setDetails(cursor.getString(cursor.getColumnIndex(KEY_DETAILS)));
+                long endMillis = cursor.getLong(cursor.getColumnIndex(KEY_END_DATE));
+                if (endMillis != 0) {
+                    event.setEndDate(new Date(endMillis));
+                }
+                event.setLocation(cursor.getString(cursor.getColumnIndex(KEY_PLACE)));
+                event.setStartDate(new Date(cursor.getLong(cursor.getColumnIndex(KEY_START_DATE))));
+                event.setSubtitle(cursor.getString(cursor.getColumnIndex(KEY_SUBTITLE)));
+                event.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
+                event.setPapers(getAllPapersFor(event.getObjectId()));
+                list.add(event);
             } while (cursor.moveToNext());
         }
+        cursor.close();
 
         // return contact list
-        return eventList;
+        return list;
+    }
+
+    public List<BPaper> getAllPapersFor(String eventId) {
+        List<BPaper> list = new ArrayList<>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + TABLE_PAPERS + " WHERE (" + KEY_EVENT_ID + " == '" + eventId + "')";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null); //TODO: sort
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                BPaper paper = new BPaper();
+                paper.setObjectId(cursor.getString(cursor.getColumnIndex(KEY_OBJECT_ID)));
+                paper.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
+                paper.setAuthor(cursor.getString(cursor.getColumnIndex(KEY_AUTHOR)));
+                paper.setSynopsis(cursor.getString(cursor.getColumnIndex(KEY_SYNOPSIS)));
+                list.add(paper);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        // return contact list
+        return list;
     }
 
     public List<Note> getAllNotes() {
@@ -322,6 +398,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 noteList.add(note);
             } while (cursor.moveToNext());
         }
+        cursor.close();
 
         return noteList;
     }
