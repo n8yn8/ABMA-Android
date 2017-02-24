@@ -328,6 +328,46 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return list;
     }
 
+    public BEvent getEventById(String objectId) {
+        String selectQuery = "SELECT  * FROM " + TABLE_EVENTS + " WHERE (" + KEY_OBJECT_ID + " == '" + objectId + "')";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                BEvent event = constructEvent(cursor);
+                cursor.close();
+                return event;
+            } else {
+                cursor.close();
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public List<BEvent> getAllEventsFor(long startMillis, long endMillis) {
+        List<BEvent> list = new ArrayList<>();
+        // Select All Query
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_EVENTS, null, KEY_START_DATE + ">=? and " + KEY_START_DATE + "<=?",
+                new String[] { String.valueOf(startMillis), String.valueOf(endMillis) }, null, null, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(constructEvent(cursor));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        // return contact list
+        return list;
+    }
+
     public List<BEvent> getAllEventsFor(String yearId) {
         List<BEvent> list = new ArrayList<>();
         // Select All Query
@@ -339,25 +379,29 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                BEvent event = new BEvent();
-                event.setObjectId(cursor.getString(cursor.getColumnIndex(KEY_OBJECT_ID)));
-                event.setDetails(cursor.getString(cursor.getColumnIndex(KEY_DETAILS)));
-                long endMillis = cursor.getLong(cursor.getColumnIndex(KEY_END_DATE));
-                if (endMillis != 0) {
-                    event.setEndDate(new Date(endMillis));
-                }
-                event.setLocation(cursor.getString(cursor.getColumnIndex(KEY_PLACE)));
-                event.setStartDate(new Date(cursor.getLong(cursor.getColumnIndex(KEY_START_DATE))));
-                event.setSubtitle(cursor.getString(cursor.getColumnIndex(KEY_SUBTITLE)));
-                event.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
-                event.setPapers(getAllPapersFor(event.getObjectId()));
-                list.add(event);
+                list.add(constructEvent(cursor));
             } while (cursor.moveToNext());
         }
         cursor.close();
 
         // return contact list
         return list;
+    }
+
+    private BEvent constructEvent(Cursor cursor) {
+        BEvent event = new BEvent();
+        event.setObjectId(cursor.getString(cursor.getColumnIndex(KEY_OBJECT_ID)));
+        event.setDetails(cursor.getString(cursor.getColumnIndex(KEY_DETAILS)));
+        long endMillis = cursor.getLong(cursor.getColumnIndex(KEY_END_DATE));
+        if (endMillis != 0) {
+            event.setEndDate(new Date(endMillis));
+        }
+        event.setLocation(cursor.getString(cursor.getColumnIndex(KEY_PLACE)));
+        event.setStartDate(new Date(cursor.getLong(cursor.getColumnIndex(KEY_START_DATE))));
+        event.setSubtitle(cursor.getString(cursor.getColumnIndex(KEY_SUBTITLE)));
+        event.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
+        event.setPapers(getAllPapersFor(event.getObjectId()));
+        return event;
     }
 
     public List<BPaper> getAllPapersFor(String eventId) {
@@ -371,18 +415,42 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                BPaper paper = new BPaper();
-                paper.setObjectId(cursor.getString(cursor.getColumnIndex(KEY_OBJECT_ID)));
-                paper.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
-                paper.setAuthor(cursor.getString(cursor.getColumnIndex(KEY_AUTHOR)));
-                paper.setSynopsis(cursor.getString(cursor.getColumnIndex(KEY_SYNOPSIS)));
-                list.add(paper);
+                list.add(constructPaper(cursor));
             } while (cursor.moveToNext());
         }
         cursor.close();
 
         // return contact list
         return list;
+    }
+
+    public BPaper getPaperById(String objectId) {
+        String selectQuery = "SELECT  * FROM " + TABLE_PAPERS + " WHERE (" + KEY_OBJECT_ID + " == '" + objectId + "')";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                BPaper paper = constructPaper(cursor);
+                cursor.close();
+                return paper;
+            } else {
+                cursor.close();
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private BPaper constructPaper(Cursor cursor) {
+        BPaper paper = new BPaper();
+        paper.setObjectId(cursor.getString(cursor.getColumnIndex(KEY_OBJECT_ID)));
+        paper.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
+        paper.setAuthor(cursor.getString(cursor.getColumnIndex(KEY_AUTHOR)));
+        paper.setSynopsis(cursor.getString(cursor.getColumnIndex(KEY_SYNOPSIS)));
+        return paper;
     }
 
     public List<Note> getAllNotes() {
