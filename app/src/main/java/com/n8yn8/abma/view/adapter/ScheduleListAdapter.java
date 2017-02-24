@@ -8,24 +8,24 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.old.Event;
+import com.n8yn8.abma.model.backendless.BEvent;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Nate on 2/15/15.
  */
-public class ScheduleListAdapter extends ArrayAdapter<Event> {
+public class ScheduleListAdapter extends ArrayAdapter<BEvent> {
 
     private final Activity context;
-    private final ArrayList<Event> events;
+    private final List<BEvent> events;
 
     static class ViewHolder {
         public TextView eventTitleTextView;
         public TextView timeTextView;
     }
 
-    public ScheduleListAdapter(Activity context, ArrayList<Event> events) {
+    public ScheduleListAdapter(Activity context, List<BEvent> events) {
         super(context, R.layout.item_list_schedule, events);
         this.context = context;
         this.events = events;
@@ -46,13 +46,13 @@ public class ScheduleListAdapter extends ArrayAdapter<Event> {
 
         ViewHolder holder = (ViewHolder) rowView.getTag();
         holder.eventTitleTextView.setText(events.get(position).getTitle());
-        holder.timeTextView.setText(events.get(position).getTime());
+        holder.timeTextView.setText(events.get(position).getStartDate().toString()); //TODO: show actual time
 
         return rowView;
     }
 
     @Override
-    public Event getItem(int position) {
+    public BEvent getItem(int position) {
         return super.getItem(position);
     }
 }
