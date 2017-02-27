@@ -354,7 +354,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_EVENTS, null, KEY_START_DATE + ">=? and " + KEY_START_DATE + "<=?",
-                new String[] { String.valueOf(startMillis), String.valueOf(endMillis) }, null, null, null);
+                new String[] { String.valueOf(startMillis), String.valueOf(endMillis) }, null, null, KEY_START_DATE);
 
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
