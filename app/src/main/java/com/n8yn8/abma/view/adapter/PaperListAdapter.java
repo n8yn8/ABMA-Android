@@ -8,23 +8,23 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.old.Paper;
+import com.n8yn8.abma.model.backendless.BPaper;
 
 import java.util.List;
 
 /**
  * Created by Nate on 3/22/15.
  */
-public class PaperListAdapter extends ArrayAdapter<Paper> {
+public class PaperListAdapter extends ArrayAdapter<BPaper> {
     private final Activity context;
-    private final List<Paper> papers;
+    private final List<BPaper> papers;
 
     static class ViewHolder {
         public TextView titleTextView;
         public TextView authorTextView;
     }
 
-    public PaperListAdapter(Activity context, List<Paper> papers) {
+    public PaperListAdapter(Activity context, List<BPaper> papers) {
         super(context, R.layout.item_list_paper, papers);
         this.context = context;
         this.papers = papers;
@@ -44,7 +44,7 @@ public class PaperListAdapter extends ArrayAdapter<Paper> {
         }
 
         ViewHolder holder = (ViewHolder) rowView.getTag();
-        Paper paper = papers.get(position);
+        BPaper paper = papers.get(position);
         holder.titleTextView.setText(paper.getTitle());
         holder.authorTextView.setText(paper.getAuthor());
 
@@ -52,7 +52,7 @@ public class PaperListAdapter extends ArrayAdapter<Paper> {
     }
 
     @Override
-    public Paper getItem(int position) {
+    public BPaper getItem(int position) {
         return super.getItem(position);
     }
 }

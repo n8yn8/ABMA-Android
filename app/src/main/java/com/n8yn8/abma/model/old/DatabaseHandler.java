@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BPaper;
@@ -329,6 +330,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public BEvent getEventById(String objectId) {
+
+        if (TextUtils.isEmpty(objectId)) {
+            return null;
+        }
+
         String selectQuery = "SELECT  * FROM " + TABLE_EVENTS + " WHERE (" + KEY_OBJECT_ID + " == '" + objectId + "')";
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -425,6 +431,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public BPaper getPaperById(String objectId) {
+
+        if (TextUtils.isEmpty(objectId)) {
+            return null;
+        }
+
         String selectQuery = "SELECT  * FROM " + TABLE_PAPERS + " WHERE (" + KEY_OBJECT_ID + " == '" + objectId + "')";
 
         SQLiteDatabase db = this.getWritableDatabase();

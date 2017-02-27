@@ -3,6 +3,7 @@ package com.n8yn8.abma.view;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
@@ -21,6 +22,7 @@ import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 import com.n8yn8.abma.model.old.Note;
+import com.n8yn8.abma.view.adapter.PaperListAdapter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,6 +32,7 @@ import java.util.List;
 public class EventActivity extends ActionBarActivity {
 
     private static final String EXTRA_EVENT_ID = "event_id";
+    private static final String EXTRA_PAPER_ID = "paper_id";
 
     private final String TAG = "EventActivity";
     BEvent event;
@@ -48,9 +51,10 @@ public class EventActivity extends ActionBarActivity {
 
     DatabaseHandler db;
 
-    public static void start(Context context, String eventId) {
+    public static void start(Context context, @Nullable String eventId, @Nullable String paperId) {
         Intent intent = new Intent(context, EventActivity.class);
         intent.putExtra(EXTRA_EVENT_ID, eventId);
+        intent.putExtra(EXTRA_PAPER_ID, paperId);
         context.startActivity(intent);
     }
 
@@ -73,6 +77,7 @@ public class EventActivity extends ActionBarActivity {
         noteEditText = (EditText) findViewById(R.id.noteEditText);
 
         event = db.getEventById(getIntent().getStringExtra(EXTRA_EVENT_ID));
+        paper = db.getPaperById(getIntent().getStringExtra(EXTRA_PAPER_ID));
         displayEvent();
 
         ImageButton backButton = (ImageButton) findViewById(R.id.backEventButton);
@@ -208,22 +213,20 @@ public class EventActivity extends ActionBarActivity {
 
         List<BPaper> papers = event.getPapers();
 
-        String paperId = null;
-        if (paperId == null) {
+        if (paper == null) {
             titleTextView.setText(event.getTitle());
             subtitleTextView.setText(event.getSubtitle());
             detailTextView.setText(event.getDetails());
             detailTextView.setMovementMethod(new ScrollingMovementMethod());
             detailTextView.scrollTo(0,0);
-//            PaperListAdapter adapter = new PaperListAdapter(this, papers);  //TODO:
+            final PaperListAdapter adapter = new PaperListAdapter(this, papers);
             ListView papersListView = (ListView) findViewById(R.id.papersListView);
-//            papersListView.setAdapter(adapter);
+            papersListView.setAdapter(adapter);
             papersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                    schedule.setPaperIndex(position);
-                    Intent intent = new Intent(EventActivity.this, EventActivity.class);
-                    startActivity(intent);
+                    BPaper paper = adapter.getItem(position);
+                    EventActivity.start(EventActivity.this, event.getObjectId(), paper.getObjectId());
                 }
             });
 //            note = db.getNote(event.getIndex()); //TODO: get related notes
@@ -233,7 +236,6 @@ public class EventActivity extends ActionBarActivity {
                 noteEditText.setText("");
             }
         } else {
-            paper = db.getPaperById(paperId);
             titleTextView.setText(paper.getTitle());
             subtitleTextView.setText(paper.getAuthor());
             detailTextView.setText(paper.getSynopsis());

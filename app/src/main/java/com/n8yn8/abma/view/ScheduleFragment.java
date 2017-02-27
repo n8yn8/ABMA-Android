@@ -99,7 +99,7 @@ public class ScheduleFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BEvent event = adapter.getItem(position);
-                EventActivity.start(getActivity(), event.getObjectId());
+                EventActivity.start(getActivity(), event.getObjectId(), null);
             }
         });
 
