@@ -98,9 +98,8 @@ public class ScheduleFragment extends Fragment {
         scheduleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //TODO: start activity with event id.
-//                Intent intent = new Intent(getActivity().getApplicationContext(), EventActivity.class);
-//                startActivity(intent);
+                BEvent event = adapter.getItem(position);
+                EventActivity.start(getActivity(), event.getObjectId());
             }
         });
 
@@ -112,8 +111,6 @@ public class ScheduleFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         day = db.getAllEventsFor(0, new Date().getTime());//TODO: get actual dates
         displayDay();
-
-
     }
 
     public void displayDay() {
