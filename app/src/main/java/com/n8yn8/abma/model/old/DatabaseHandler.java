@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.n8yn8.abma.model.backendless.BEvent;
@@ -392,6 +393,29 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // return contact list
         return list;
+    }
+
+    @Nullable
+    public BEvent getEventBefore(long startMillis) {
+        return getSeqEvent("<", KEY_START_DATE + " DESC", startMillis);
+    }
+
+    @Nullable
+    public BEvent getEventAfter(long startMillis) {
+        return getSeqEvent(">", KEY_START_DATE, startMillis);
+    }
+
+    private BEvent getSeqEvent(String direction, String orderBy, long startMillis) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_EVENTS, null, KEY_START_DATE + direction + "?",
+                new String[] {String.valueOf(startMillis)}, null, null, orderBy, "1");
+
+        BEvent event = null;
+        if (cursor.moveToFirst()) {
+            event = constructEvent(cursor);
+        }
+        cursor.close();
+        return event;
     }
 
     private BEvent constructEvent(Cursor cursor) {

@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
@@ -96,13 +97,13 @@ public class EventActivity extends ActionBarActivity {
 //                        Toast.makeText(getApplicationContext(), "First paper reached", Toast.LENGTH_SHORT).show();
 //                    }
 //                } else {
-//                    Event tempEvent = schedule.getPrevEvent();
-//                    if (tempEvent != null) {
-//                        event = tempEvent;
-//                        displayEvent();
-//                    } else {
-//                        Toast.makeText(getApplicationContext(), "First event reached", Toast.LENGTH_SHORT).show();
-//                    }
+                    BEvent tempEvent = db.getEventBefore(event.getStartDate().getTime());
+                    if (tempEvent != null) {
+                        event = tempEvent;
+                        displayEvent();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "First event reached", Toast.LENGTH_SHORT).show();
+                    }
 //                }
             }
         });
@@ -119,12 +120,13 @@ public class EventActivity extends ActionBarActivity {
 //                        Toast.makeText(getApplicationContext(), "Last paper reached", Toast.LENGTH_SHORT).show();
 //                    }
 //                } else {
-//                    event = schedule.getNextEvent();
-//                    if (event != null) {
-//                        displayEvent();
-//                    } else {
-//                        Toast.makeText(getApplicationContext(), "Last event reached", Toast.LENGTH_SHORT).show();
-//                    }
+                    BEvent tempEvent = db.getEventAfter(event.getStartDate().getTime());
+                    if (tempEvent != null) {
+                        event = tempEvent;
+                        displayEvent();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Last event reached", Toast.LENGTH_SHORT).show();
+                    }
 //                }
 
             }
