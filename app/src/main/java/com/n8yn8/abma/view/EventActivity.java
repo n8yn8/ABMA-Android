@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.Utils;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.old.DatabaseHandler;
@@ -208,7 +209,8 @@ public class EventActivity extends ActionBarActivity {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("d");
         dateTextView.setText(dateFormatter.format(date));
 
-        timeTextView.setText(event.getStartDate().toString()); //TODO: realy times
+
+        timeTextView.setText(Utils.getTimes(event));
         placeTextView.setText(event.getLocation());
 
         List<BPaper> papers = event.getPapers();
