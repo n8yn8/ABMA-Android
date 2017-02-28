@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.n8yn8.abma.model.backendless.BEvent;
+import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.backendless.BSponsor;
 import com.n8yn8.abma.model.backendless.BYear;
@@ -45,7 +46,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_URL = "url";
     private static final String KEY_IMAGE_URL = "image_url";
     private static final String KEY_YEAR_ID = "year_id";
-    private static final String KEY_DAY_INDEX = "day_index";
     private static final String KEY_TITLE = "title";
     private static final String KEY_SUBTITLE = "subtitle";
     private static final String KEY_PLACE = "place";
@@ -57,7 +57,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_AUTHOR = "author";
     private static final String KEY_SYNOPSIS = "synopsis";
     private static final String KEY_NOTE_CONTENT = "note_content";
-    private static final String KEY_EVENT_TITLE = "event_title";
+    private static final String KEY_CREATED = "created_at";
+    private static final String KEY_UPDATED = "updated_at";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -88,11 +89,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private String CREATE_NOTES_TABLE = "CREATE TABLE " + TABLE_NOTES + "("
             + KEY_ID + " INTEGER PRIMARY KEY,"
-            + KEY_DAY_INDEX + " INTEGER,"
-            + KEY_EVENT_ID + " INTEGER,"
-            + KEY_PAPER_ID + " INTEGER,"
+            + KEY_OBJECT_ID + " STRING,"
+            + KEY_EVENT_ID + " STRING,"
+            + KEY_PAPER_ID + " STRING,"
             + KEY_NOTE_CONTENT + " TEXT,"
-            + KEY_EVENT_TITLE + " TEXT"
+            + KEY_CREATED + " INT,"
+            + KEY_UPDATED + " INT,"
+            + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
             + ")";
 
     private String CREATE_YEARS_TABLE = "CREATE TABLE " + TABLE_YEARS + "("
@@ -210,42 +213,41 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 //        db.close(); // Closing database connection
     }
 
-    public void addNote(Note note) {
+    public void addNote(BNote note) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_DAY_INDEX, note.getDayId());
+        values.put(KEY_OBJECT_ID, note.getObjectId());
         values.put(KEY_EVENT_ID, note.getEventId());
         values.put(KEY_NOTE_CONTENT, note.getContent());
-        values.put(KEY_EVENT_TITLE, note.getEventName());
         values.put(KEY_PAPER_ID, note.getPaperId());
+        values.put(KEY_CREATED, note.getCreated().getTime());
+        values.put(KEY_UPDATED, note.getUpdated().getTime());
 
         db.insert(TABLE_NOTES, null, values);
     }
 
-    public Note getNote(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
+    private BNote constructNote(Cursor cursor) {
 
-        Cursor cursor = db.query(TABLE_NOTES, new String[] {KEY_ID, KEY_DAY_INDEX, KEY_EVENT_ID, KEY_PAPER_ID, KEY_NOTE_CONTENT, KEY_EVENT_TITLE}, KEY_EVENT_ID + "=?", new String[] {String.valueOf(id)}, null, null, null, null);
-
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                return new Note(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getString(4), cursor.getString(5));
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
+        BNote note = new BNote();
+        note.setObjectId(cursor.getString(cursor.getColumnIndex(KEY_OBJECT_ID)));
+        note.setEventId(cursor.getString(cursor.getColumnIndex(KEY_EVENT_ID)));
+        note.setPaperId(cursor.getString(cursor.getColumnIndex(KEY_PAPER_ID)));
+        note.setContent(cursor.getString(cursor.getColumnIndex(KEY_NOTE_CONTENT)));
+        note.setCreated(new Date(cursor.getLong(cursor.getColumnIndex(KEY_CREATED))));
+        note.setUpdated(new Date(cursor.getLong(cursor.getColumnIndex(KEY_UPDATED))));
+        return note;
     }
 
-    public Note getNote(int dayId, int eventId, int paperId) {
+    public BNote getNote(String eventId, String paperId) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.query(TABLE_NOTES, new String[] {KEY_ID, KEY_DAY_INDEX, KEY_EVENT_ID, KEY_PAPER_ID, KEY_NOTE_CONTENT, KEY_EVENT_TITLE}, KEY_EVENT_ID + "=? AND " + KEY_PAPER_ID + "=? AND " + KEY_DAY_INDEX + "=?", new String[] {String.valueOf(eventId), String.valueOf(paperId), String.valueOf(dayId)}, null, null, null, null);
+        Cursor cursor = db.query(TABLE_NOTES, null,
+                KEY_EVENT_ID + "=? AND " + KEY_PAPER_ID + "=? ",
+                new String[] {eventId, paperId}, null, null, KEY_CREATED, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                return new Note(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getString(4), cursor.getString(5));
+                return constructNote(cursor);
             } else {
                 return null;
             }
@@ -488,8 +490,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return paper;
     }
 
-    public List<Note> getAllNotes() {
-        List<Note> noteList= new ArrayList<>();
+    public List<BNote> getAllNotes() {
+        List<BNote> noteList= new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_NOTES;
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -497,7 +499,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                Note note = new Note(cursor.getInt(0), cursor.getInt(1), cursor.getInt(2), cursor.getInt(3), cursor.getString(4), cursor.getString(5));
+                BNote note = constructNote(cursor);
                 noteList.add(note);
             } while (cursor.moveToNext());
         }
@@ -506,24 +508,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return noteList;
     }
 
-    public int updateNote(Note note) {
+    public void deleteNote(BNote note) {
         SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(KEY_DAY_INDEX, note.getDayId());
-        values.put(KEY_EVENT_ID, note.getEventId());
-        values.put(KEY_PAPER_ID, note.getPaperId());
-        values.put(KEY_NOTE_CONTENT, note.getContent());
-
-        // updating row
-        return db.update(TABLE_NOTES, values, KEY_ID + " = ?",
-                new String[] { String.valueOf(note.getId()) });
-    }
-
-    public void deleteNote(Note note) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_NOTES, KEY_ID + " = ?",
-                new String[] { String.valueOf(note.getId()) });
+        db.delete(TABLE_NOTES, KEY_OBJECT_ID + " = ?",
+                new String[] { note.getObjectId() });
         db.close();
     }
 }

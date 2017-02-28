@@ -72,4 +72,28 @@ public class DbManager {
             }
         });
     }
+
+    public interface OnNoteSavedCallback {
+        void noteSaved(BNote note, String error);
+    }
+    public void addNote(BNote note, final OnNoteSavedCallback callback) {
+        BackendlessUser user = Backendless.UserService.CurrentUser();
+        if (user == null) {
+            callback.noteSaved(note, null);
+            return;
+        }
+        note.setUser(user);
+        Backendless.Persistence.of(BNote.class).save(note, new AsyncCallback<BNote>() {
+            @Override
+            public void handleResponse(BNote response) {
+                callback.noteSaved(response, null);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Log.e("DbManager", "Note save error: " + fault.getMessage());
+                callback.noteSaved(null, fault.getMessage());
+            }
+        });
+    }
 }

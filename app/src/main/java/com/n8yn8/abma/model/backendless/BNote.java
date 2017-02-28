@@ -2,6 +2,8 @@ package com.n8yn8.abma.model.backendless;
 
 import com.backendless.BackendlessUser;
 
+import java.util.Date;
+
 /**
  * Created by Nate on 2/20/17.
  */
@@ -13,6 +15,8 @@ public class BNote {
     String paperId;
     String eventId;
     BackendlessUser user;
+    Date created;
+    Date updated;
 
     public BNote() {
     }
@@ -55,5 +59,21 @@ public class BNote {
 
     public void setUser(BackendlessUser user) {
         this.user = user;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public Date getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(Date updated) {
+        this.updated = updated;
     }
 }
