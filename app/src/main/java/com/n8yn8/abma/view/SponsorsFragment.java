@@ -38,7 +38,6 @@ public class SponsorsFragment extends Fragment {
      *
      * @return A new instance of fragment SponsorsFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static SponsorsFragment newInstance() {
         SponsorsFragment fragment = new SponsorsFragment();
         Bundle args = new Bundle();
@@ -77,13 +76,6 @@ public class SponsorsFragment extends Fragment {
         return rootView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -107,7 +99,6 @@ public class SponsorsFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
 

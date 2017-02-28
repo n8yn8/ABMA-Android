@@ -27,7 +27,6 @@ public class ContactFragment extends Fragment {
      *
      * @return A new instance of fragment ContactFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static ContactFragment newInstance() {
         ContactFragment fragment = new ContactFragment();
         Bundle args = new Bundle();

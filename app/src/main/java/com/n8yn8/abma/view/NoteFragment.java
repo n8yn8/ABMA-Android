@@ -50,7 +50,6 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
      */
     private NoteListAdapter mAdapter;
 
-    // TODO: Rename and change types of parameters
     public static NoteFragment newInstance() {
         NoteFragment fragment = new NoteFragment();
         Bundle args = new Bundle();
@@ -178,7 +177,6 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-//        // TODO: Update argument type and name
 //        public void onFragmentInteraction(String id);
     }
 

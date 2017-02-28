@@ -29,7 +29,6 @@ public class WelcomeFragment extends Fragment {
      * this fragment using the provided parameters.
      * @return A new instance of fragment WelcomeFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static WelcomeFragment newInstance() {
         WelcomeFragment fragment = new WelcomeFragment();
         return fragment;
