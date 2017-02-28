@@ -16,10 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.old.Cache;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 import com.n8yn8.abma.model.old.Note;
-import com.n8yn8.abma.model.old.Schedule;
 import com.n8yn8.abma.view.adapter.NoteListAdapter;
 
 import java.util.List;
@@ -112,11 +110,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Note note = mAdapter.getItem(position);
-        Schedule schedule = Cache.getInstance().getSchedule();
-        schedule.setDayIndex(note.getDayId());
-        schedule.setPaperIndex(note.getPaperId());
-        schedule.setCurrentEventIndex(note.getEventId());
-        Cache.getInstance().cacheSchedule(schedule);
+        //TODO set note's items
         Intent intent = new Intent(getActivity().getApplicationContext(), EventActivity.class);
         startActivity(intent);
     }

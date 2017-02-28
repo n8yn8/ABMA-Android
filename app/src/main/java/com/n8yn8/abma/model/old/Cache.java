@@ -27,12 +27,4 @@ public class Cache {
         return lruCache;
     }
 
-    public void cacheSchedule(Schedule schedule) {
-        getLruCache().put("schedule", schedule);
-    }
-
-    public Schedule getSchedule() {
-        return (Schedule)getLruCache().get("schedule");
-    }
-
 }
