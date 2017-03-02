@@ -21,9 +21,10 @@ import android.widget.Toast;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
 import com.n8yn8.abma.model.backendless.BEvent;
+import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
+import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.old.DatabaseHandler;
-import com.n8yn8.abma.model.old.Note;
 import com.n8yn8.abma.view.adapter.PaperListAdapter;
 
 import java.text.SimpleDateFormat;
@@ -38,7 +39,7 @@ public class EventActivity extends ActionBarActivity {
 
     private final String TAG = "EventActivity";
     BEvent event;
-    Note note;
+    BNote note;
     BPaper paper;
 
     TextView dayTextView;
@@ -141,33 +142,36 @@ public class EventActivity extends ActionBarActivity {
                 imm.hideSoftInputFromWindow(noteEditText.getWindowToken(), 0);
 
                 //TODO: save note
-//                int eventId = event.getObjectId();
-//                int paperId = schedule.getPaperIndex();
-//                int dayId = schedule.getDayIndex();
-//                Log.d(TAG, "paperID = " + paperId);
-//                String noteContent = noteEditText.getText().toString();
-//                String title;
-//                if (paperId != -1) { //This is a paper.
-//                    title = paper.getTitle();
-//                } else { //This is an event
-//                    title = event.getTitle();
-//                }
-//
-//                if (!noteContent.equals("")) {
-//                    if (note == null) {
-//                        note = new Note(dayId, eventId, paperId, noteContent, title);
-//                        db.addNote(note);
-//                    } else {
-//                        note.setContent(noteContent);
-//                        db.updateNote(note);
-//                    }
-//                    Toast.makeText(EventActivity.this, "This note has been saved", Toast.LENGTH_SHORT).show();
-//                } else {
-//                    if (note != null) {
-//                        db.deleteNote(note);
-//                        Toast.makeText(EventActivity.this, "This note has been deleted", Toast.LENGTH_SHORT).show();
-//                    }
-//                }
+                String eventId = null;
+                if (event != null) {
+                    eventId = event.getObjectId();
+                }
+                String paperId = null;
+                if (paper != null) {
+                    paperId = paper.getObjectId();
+                }
+                String noteContent = noteEditText.getText().toString();
+
+                if (!noteContent.equals("")) {
+                    if (note == null) {
+                        note = new BNote();
+                    }
+                    note.setContent(noteContent);
+                    note.setEventId(eventId);
+                    note.setPaperId(paperId);
+                    DbManager.getInstance().addNote(note, new DbManager.OnNoteSavedCallback() {
+                        @Override
+                        public void noteSaved(BNote note, String error) {
+                            db.addNote(note);
+                            Toast.makeText(EventActivity.this, "This note has been saved", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    if (note != null) {
+                        db.deleteNote(note);
+                        Toast.makeText(EventActivity.this, "This note has been deleted", Toast.LENGTH_SHORT).show();
+                    }
+                }
 
             }
         });

@@ -11,13 +11,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.backendless.Backendless;
+import com.backendless.BackendlessUser;
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.old.DatabaseHandler;
-import com.n8yn8.abma.model.old.Note;
 import com.n8yn8.abma.view.adapter.NoteListAdapter;
 
 import java.util.List;
@@ -34,8 +37,10 @@ import java.util.List;
 public class NoteFragment extends Fragment implements AbsListView.OnItemClickListener, AbsListView.OnItemLongClickListener {
 
     private OnFragmentInteractionListener mListener;
-    List<Note> noteList;
+    List<BNote> noteList;
     TextView noDataTextView;
+    View loginView;
+    Button loginButton;
 
     /**
      * The fragment's ListView/GridView.
@@ -109,7 +114,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Note note = mAdapter.getItem(position);
+        BNote note = mAdapter.getItem(position);
         //TODO set note's items
         Intent intent = new Intent(getActivity().getApplicationContext(), EventActivity.class);
         startActivity(intent);
@@ -124,7 +129,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Note note = mAdapter.getItem(position);
+                BNote note = mAdapter.getItem(position);
                 DatabaseHandler db = new DatabaseHandler(getActivity());
                 db.deleteNote(note);
                 noteList.remove(position);
