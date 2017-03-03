@@ -18,6 +18,7 @@ import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 import com.n8yn8.abma.view.adapter.ScheduleListAdapter;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -115,7 +116,13 @@ public class ScheduleFragment extends Fragment {
 
     public void displayDay() {
         //TODO: figure out why adapter.notifdatasetchanged doesn't work
-        dateTextView.setText(day.get(0).getStartDate().toString()); //TODO: fix date
+        if (day.size() > 0) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
+            dateTextView.setText(dateFormat.format(day.get(0).getStartDate())); //TODO: fix date
+            dateTextView.setVisibility(View.VISIBLE);
+        } else {
+            dateTextView.setVisibility(View.INVISIBLE);
+        }
         adapter = new ScheduleListAdapter(getActivity(), day);
         scheduleListView.setAdapter(adapter);
     }
