@@ -1,5 +1,6 @@
 package com.n8yn8.abma.model.backendless;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.backendless.Backendless;
@@ -23,33 +24,37 @@ public class DbManager {
     private DbManager() {
     }
 
-    public void register(final String email, final String password) {
+    public interface OnLoginResponse {
+        void onLogin(@Nullable String error);
+    }
+
+    public void register(final String email, final String password, final OnLoginResponse callback) {
         BackendlessUser user = new BackendlessUser();
         user.setEmail(email);
         user.setPassword(password);
         Backendless.UserService.register(user, new AsyncCallback<BackendlessUser>() {
             @Override
             public void handleResponse(BackendlessUser response) {
-                login(email, password);
+                login(email, password, callback);
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
-
+                callback.onLogin(fault.getMessage());
             }
         });
     }
 
-    public void login(String email, String password) {
+    public void login(String email, String password, final OnLoginResponse callback) {
         Backendless.UserService.login(email, password, new AsyncCallback<BackendlessUser>() {
             @Override
             public void handleResponse(BackendlessUser response) {
-
+                callback.onLogin(null);
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
-
+                callback.onLogin(fault.getMessage());
             }
         }, true);
     }

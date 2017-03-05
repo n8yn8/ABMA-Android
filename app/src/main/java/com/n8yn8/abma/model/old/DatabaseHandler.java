@@ -222,7 +222,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_NOTE_CONTENT, note.getContent());
         values.put(KEY_PAPER_ID, note.getPaperId());
         values.put(KEY_CREATED, note.getCreated().getTime());
-        values.put(KEY_UPDATED, note.getUpdated().getTime());
+        if (note.getUpdated() != null) {
+            values.put(KEY_UPDATED, note.getUpdated().getTime());
+        }
 
         db.insert(TABLE_NOTES, null, values);
     }

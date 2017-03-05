@@ -5,13 +5,13 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,8 +39,6 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     private OnFragmentInteractionListener mListener;
     List<BNote> noteList;
     TextView noDataTextView;
-    View loginView;
-    Button loginButton;
 
     /**
      * The fragment's ListView/GridView.
@@ -106,6 +104,12 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        updateLoginVisibility();
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
@@ -150,6 +154,36 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         alertDialog.show();
 
         return true;
+    }
+
+    private void updateLoginVisibility() {
+        BackendlessUser user = Backendless.UserService.CurrentUser();
+        if (user == null) {
+            Snackbar loginSnackbar = Snackbar.make(getView(), "Log in to save your notes online", Snackbar.LENGTH_INDEFINITE);
+            loginSnackbar.setAction("Log In", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showLogin();
+                }
+            });
+            loginSnackbar.show();
+        }
+
+    }
+
+    private void showLogin() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Log In");
+        LoginDialog view = new LoginDialog(getActivity());
+        builder.setView(view);
+        final AlertDialog dialog = builder.show();
+        view.setCallback(new LoginDialog.OnLoginSuccess() {
+            @Override
+            public void loginSuccess() {
+                dialog.dismiss();
+                Toast.makeText(getContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
