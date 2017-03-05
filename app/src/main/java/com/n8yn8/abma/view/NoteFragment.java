@@ -3,7 +3,6 @@ package com.n8yn8.abma.view;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -119,9 +118,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         BNote note = mAdapter.getItem(position);
-        //TODO set note's items
-        Intent intent = new Intent(getActivity().getApplicationContext(), EventActivity.class);
-        startActivity(intent);
+        EventActivity.start(getContext(), note.getEventId(), note.getPaperId());
     }
 
     @Override
