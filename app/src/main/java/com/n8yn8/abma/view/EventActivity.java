@@ -237,24 +237,19 @@ public class EventActivity extends ActionBarActivity {
                     EventActivity.start(EventActivity.this, event.getObjectId(), paper.getObjectId());
                 }
             });
-//            note = db.getNote(event.getIndex()); //TODO: get related notes
-            if (note != null) {
-                noteEditText.setText(note.getContent());
-            } else {
-                noteEditText.setText("");
-            }
+            note = db.getNoteByEventId(event.getObjectId());
         } else {
             titleTextView.setText(paper.getTitle());
             subtitleTextView.setText(paper.getAuthor());
             detailTextView.setText(paper.getSynopsis());
             detailTextView.setMovementMethod(new ScrollingMovementMethod());
             detailTextView.scrollTo(0,0);
-//            note = db.getNote(schedule.getDayIndex(), event.getIndex(), paper.getIndex()); //TODO: get related notes
-            if (note != null) {
-                noteEditText.setText(note.getContent());
-            } else {
-                noteEditText.setText("");
-            }
+            note = db.getNoteByEventId(paper.getObjectId());
+        }
+        if (note != null) {
+            noteEditText.setText(note.getContent());
+        } else {
+            noteEditText.setText("");
         }
     }
 }

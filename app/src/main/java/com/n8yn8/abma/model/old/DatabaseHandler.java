@@ -241,12 +241,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return note;
     }
 
-    public BNote getNote(String eventId, String paperId) {
+    public BNote getNoteByEventId(String eventId) {
+        return getNote(KEY_EVENT_ID + "=? ", eventId);
+    }
+
+    public BNote getNoteByPaperId(String paperId) {
+        return getNote(KEY_PAPER_ID + "=? ", paperId);
+    }
+
+    private BNote getNote(String query, String id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_NOTES, null,
-                KEY_EVENT_ID + "=? AND " + KEY_PAPER_ID + "=? ",
-                new String[] {eventId, paperId}, null, null, KEY_CREATED, null);
+                 query,
+                new String[] {id}, null, null, KEY_CREATED, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 return constructNote(cursor);
