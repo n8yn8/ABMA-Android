@@ -6,8 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 import android.text.TextUtils;
 
+import com.n8yn8.abma.App;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
@@ -16,7 +18,9 @@ import com.n8yn8.abma.model.backendless.BYear;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Nate on 3/14/15.
@@ -59,9 +63,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_NOTE_CONTENT = "note_content";
     private static final String KEY_CREATED = "created_at";
     private static final String KEY_UPDATED = "updated_at";
+    //old Notes:
+    private static final String KEY_DAY_INDEX = "day_index";
+    private static final String KEY_EVENT_TITLE = "event_title";
+
+    Context context;
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     private String CREATE_PAPERS_TABLE = "CREATE TABLE " + TABLE_PAPERS + "("
@@ -131,9 +141,25 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // Upgrading database
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        Map<Note, Pair<Event, Paper>> oldMap = new HashMap<>();
+
+        if (oldVersion == 1) {
+            List<Note> oldNotes = getOldNotes(db);
+            Schedule schedule = ((App)context.getApplicationContext()).getOldSchedule();
+            for (Note oldNote : oldNotes) {
+                schedule.setDayIndex(oldNote.getDayId());
+                schedule.setPaperIndex(oldNote.getPaperId());
+                schedule.setCurrentEventIndex(oldNote.getEventId());
+                Event oldEvent = schedule.getCurrentEvent();
+                Paper oldPaper = schedule.getCurrentPaper();
+                oldMap.put(oldNote, new Pair<Event, Paper>(oldEvent, oldPaper));
+            }
+            ((App) context.getApplicationContext()).setOldNotes(oldMap);
+        }
+
         // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
-        //TODO: migrate notes
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTES);
 
         // Create tables again
@@ -221,7 +247,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_EVENT_ID, note.getEventId());
         values.put(KEY_NOTE_CONTENT, note.getContent());
         values.put(KEY_PAPER_ID, note.getPaperId());
-        values.put(KEY_CREATED, note.getCreated().getTime());
+        if (note.getCreated() != null) {
+            values.put(KEY_CREATED, note.getCreated().getTime());
+        }
         if (note.getUpdated() != null) {
             values.put(KEY_UPDATED, note.getUpdated().getTime());
         }
@@ -264,6 +292,31 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         } else {
             return null;
         }
+    }
+
+    public List<Note> getOldNotes(SQLiteDatabase db) {
+        List<Note> noteList = new ArrayList<>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + TABLE_NOTES;
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndex(KEY_ID));
+                int dayId = cursor.getInt(cursor.getColumnIndex(KEY_DAY_INDEX));
+                int eventId = cursor.getInt(cursor.getColumnIndex(KEY_EVENT_ID));
+                int paperId = cursor.getInt(cursor.getColumnIndex(KEY_PAPER_ID));
+                String content = cursor.getString(cursor.getColumnIndex(KEY_NOTE_CONTENT));
+                String eventName = cursor.getString(cursor.getColumnIndex(KEY_EVENT_TITLE));;
+                Note note = new Note(id, dayId, eventId, paperId, content, eventName);
+                noteList.add(note);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        // return contact list
+        return noteList;
     }
 
     public List<BYear> getAllYears() {
@@ -340,6 +393,32 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // return contact list
         return list;
+    }
+
+    public BEvent getEventByDetails(String details) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_EVENTS, null, KEY_DETAILS + "=?",
+                new String[] {details}, null, null, null);
+
+        BEvent event = null;
+        if (cursor.moveToFirst()) {
+            event = constructEvent(cursor);
+        }
+        cursor.close();
+        return event;
+    }
+
+    public BPaper getPaperBySynopsis(String synopsis) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_PAPERS, null, KEY_SYNOPSIS + "=?",
+                new String[] {synopsis}, null, null, null);
+
+        BPaper paper = null;
+        if (cursor.moveToFirst()) {
+            paper = constructPaper(cursor);
+        }
+        cursor.close();
+        return paper;
     }
 
     public BEvent getEventById(String objectId) {
