@@ -30,6 +30,7 @@ import com.n8yn8.abma.view.adapter.PaperListAdapter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 
 public class EventActivity extends ActionBarActivity {
@@ -211,6 +212,7 @@ public class EventActivity extends ActionBarActivity {
     public void displayEvent () {
         Date date = event.getStartDate();
         SimpleDateFormat dayFormatter = new SimpleDateFormat("EEEE");
+        dayFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         dayTextView.setText(dayFormatter.format(date).toUpperCase());
         SimpleDateFormat dateFormatter = new SimpleDateFormat("d");
         dateTextView.setText(dateFormatter.format(date));
