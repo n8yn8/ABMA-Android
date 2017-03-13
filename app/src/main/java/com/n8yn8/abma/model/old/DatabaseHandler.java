@@ -17,10 +17,12 @@ import com.n8yn8.abma.model.backendless.BSponsor;
 import com.n8yn8.abma.model.backendless.BYear;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * Created by Nate on 3/14/15.
@@ -149,8 +151,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             Schedule schedule = ((App)context.getApplicationContext()).getOldSchedule();
             for (Note oldNote : oldNotes) {
                 schedule.setDayIndex(oldNote.getDayId());
-                schedule.setPaperIndex(oldNote.getPaperId());
                 schedule.setCurrentEventIndex(oldNote.getEventId());
+                schedule.setPaperIndex(oldNote.getPaperId());
                 Event oldEvent = schedule.getCurrentEvent();
                 Paper oldPaper = schedule.getCurrentPaper();
                 oldMap.put(oldNote, new Pair<Event, Paper>(oldEvent, oldPaper));
@@ -395,10 +397,30 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return list;
     }
 
-    public BEvent getEventByDetails(String details) {
+    public BEvent getMatchedEvent(Date eventDate, Event oldEvent) {
+        String timeString = oldEvent.getTime();
+        String[] parts = timeString.split("-");
+        String startString = parts[0].trim();
+        String[] timeParts = startString.split(":");
+        int hours = Integer.parseInt(timeParts[0]);
+        int minutes = Integer.parseInt(timeParts[1].substring(0,2));
+        boolean isPm = "pm".equals(timeParts[1].substring(2,4).toLowerCase());
+        if (isPm) {
+            hours += 12;
+        }
+
+        TimeZone utc = TimeZone.getTimeZone("UTC");
+
+        Calendar calendar = Calendar.getInstance(utc);
+        calendar.setTime(eventDate);
+        calendar.set(Calendar.HOUR, hours);
+        calendar.set(Calendar.MINUTE, minutes);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_EVENTS, null, KEY_DETAILS + "=?",
-                new String[] {details}, null, null, null);
+        Cursor cursor = db.query(TABLE_EVENTS, null, KEY_DETAILS + "=? AND " + KEY_TITLE + "=? AND " + KEY_START_DATE + "=?",
+                new String[] {oldEvent.getDetails(), oldEvent.getTitle(), String.valueOf(calendar.getTimeInMillis())}, null, null, null);
 
         BEvent event = null;
         if (cursor.moveToFirst()) {
@@ -408,10 +430,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return event;
     }
 
-    public BPaper getPaperBySynopsis(String synopsis) {
+    public BPaper getMatchedPaper(Paper oldPaper) {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_PAPERS, null, KEY_SYNOPSIS + "=?",
-                new String[] {synopsis}, null, null, null);
+                new String[] {oldPaper.getSynopsis()}, null, null, null);
 
         BPaper paper = null;
         if (cursor.moveToFirst()) {

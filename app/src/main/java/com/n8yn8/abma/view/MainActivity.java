@@ -23,6 +23,7 @@ import com.n8yn8.abma.model.old.DatabaseHandler;
 import com.n8yn8.abma.model.old.Event;
 import com.n8yn8.abma.model.old.Note;
 import com.n8yn8.abma.model.old.Paper;
+import com.n8yn8.abma.model.old.Schedule;
 
 import java.util.List;
 import java.util.Map;
@@ -70,20 +71,23 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
+        Schedule schedule = ((App)getApplication()).getOldSchedule();
+
         for (Note oldNote: oldMap.keySet()) {
+            schedule.setDayIndex(oldNote.getDayId());
             Pair<Event, Paper> pair = oldMap.get(oldNote);
             Event oldEvent = pair.first;
             String newEventId = null;
             Paper oldPaper = pair.second;
             String newPaperId = null;
             if (oldEvent != null) {
-                BEvent newEvent = db.getEventByDetails(oldEvent.getDetails());
+                BEvent newEvent = db.getMatchedEvent(schedule.getCurrentDate(), oldEvent);
                 if (newEvent != null) {
                     newEventId = newEvent.getObjectId();
                 }
             }
             if (oldPaper != null) {
-                BPaper newPaper = db.getPaperBySynopsis(oldPaper.getSynopsis());
+                BPaper newPaper = db.getMatchedPaper(oldPaper);
                 if (newPaper != null) {
                     newPaperId = newPaper.getObjectId();
                 }
