@@ -244,7 +244,7 @@ public class EventActivity extends ActionBarActivity {
             detailTextView.setText(paper.getSynopsis());
             detailTextView.setMovementMethod(new ScrollingMovementMethod());
             detailTextView.scrollTo(0,0);
-            note = db.getNoteByEventId(paper.getObjectId());
+            note = db.getNoteByPaperId(paper.getObjectId());
         }
         if (note != null) {
             noteEditText.setText(note.getContent());
