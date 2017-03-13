@@ -51,10 +51,10 @@ public class NoteListAdapter extends ArrayAdapter<BNote> {
         BNote note = notes.get(position);
         holder.noteTextView.setText(note.getContent());
         String title;
-        if (note.getEventId() != null) {
-            title = db.getEventById(note.getEventId()).getTitle();
-        } else {
+        if (note.getPaperId() != null) {
             title = db.getPaperById(note.getPaperId()).getTitle();
+        } else {
+            title = db.getEventById(note.getEventId()).getTitle();
         }
         holder.detailTextView.setText(title);
 
