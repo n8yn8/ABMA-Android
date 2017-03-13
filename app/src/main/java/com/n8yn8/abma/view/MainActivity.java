@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity
 
     private void checkOldNotes(DatabaseHandler db) {
         Map<Note, Pair<Event, Paper>> oldMap = ((App) getApplicationContext()).getOldNotes();
-        if (oldMap != null) {
+        if (oldMap == null) {
             return;
         }
 
