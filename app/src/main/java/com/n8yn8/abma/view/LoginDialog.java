@@ -64,7 +64,7 @@ public class LoginDialog extends LinearLayout {
 
         emailEditText = (EditText) findViewById(R.id.email_edit_text);
 
-        confirmPassEditText.setText("saigon00");
+        confirmPassEditText.setText("saigon00"); //TODO: remove
         passEditText.setText("saigon00");
         emailEditText.setText("thelostonefound@gmail.com");
 

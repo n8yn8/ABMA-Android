@@ -241,9 +241,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 //        db.close(); // Closing database connection
     }
 
-    public void addNote(BNote note) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public void addNoteSafe(BNote remoteNote) {
+        BNote prevNote = getNoteBy(remoteNote.getEventId(), remoteNote.getPaperId());
+        if (prevNote != null) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            db.updateWithOnConflict(TABLE_NOTES, getNoteContentValues(remoteNote),
+                    KEY_EVENT_ID + "=? AND " + KEY_PAPER_ID + "=?",
+                    new String[]{remoteNote.getEventId(), remoteNote.getPaperId()},
+                    SQLiteDatabase.CONFLICT_REPLACE);
+        } else {
+            addNote(remoteNote);
+        }
+    }
 
+    private ContentValues getNoteContentValues(BNote note) {
         ContentValues values = new ContentValues();
         values.put(KEY_OBJECT_ID, note.getObjectId());
         values.put(KEY_EVENT_ID, note.getEventId());
@@ -255,8 +266,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if (note.getUpdated() != null) {
             values.put(KEY_UPDATED, note.getUpdated().getTime());
         }
+        return values;
+    }
 
-        db.insert(TABLE_NOTES, null, values);
+    public void addNote(BNote note) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.insert(TABLE_NOTES, null, getNoteContentValues(note));
     }
 
     private BNote constructNote(Cursor cursor) {
@@ -271,20 +287,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return note;
     }
 
-    public BNote getNoteByEventId(String eventId) {
-        return getNote(KEY_EVENT_ID + "=? ", eventId);
-    }
-
-    public BNote getNoteByPaperId(String paperId) {
-        return getNote(KEY_PAPER_ID + "=? ", paperId);
-    }
-
-    private BNote getNote(String query, String id) {
+    public BNote getNoteBy(String eventId, String paperId) {
+        if (eventId == null) {
+            eventId = "null";
+        }
+        if (paperId == null) {
+            paperId = "null";
+        }
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_NOTES, null,
-                 query,
-                new String[] {id}, null, null, KEY_CREATED, null);
+                KEY_PAPER_ID + "=? AND " + KEY_EVENT_ID + "=?",
+                new String[] {eventId, paperId}, null, null, KEY_CREATED, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 return constructNote(cursor);

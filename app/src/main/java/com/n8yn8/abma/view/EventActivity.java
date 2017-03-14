@@ -163,7 +163,11 @@ public class EventActivity extends ActionBarActivity {
                     DbManager.getInstance().addNote(note, new DbManager.OnNoteSavedCallback() {
                         @Override
                         public void noteSaved(BNote note, String error) {
-                            db.addNote(note);
+                            if (error != null) {
+                                db.addNote(EventActivity.this.note);
+                            } else {
+                                db.addNote(note);
+                            }
                             Toast.makeText(EventActivity.this, "This note has been saved", Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -239,14 +243,14 @@ public class EventActivity extends ActionBarActivity {
                     EventActivity.start(EventActivity.this, event.getObjectId(), paper.getObjectId());
                 }
             });
-            note = db.getNoteByEventId(event.getObjectId());
+            note = db.getNoteBy(event.getObjectId(), null);
         } else {
             titleTextView.setText(paper.getTitle());
             subtitleTextView.setText(paper.getAuthor());
             detailTextView.setText(paper.getSynopsis());
             detailTextView.setMovementMethod(new ScrollingMovementMethod());
             detailTextView.scrollTo(0,0);
-            note = db.getNoteByPaperId(paper.getObjectId());
+            note = db.getNoteBy(event.getObjectId(), paper.getObjectId());
         }
         if (note != null) {
             noteEditText.setText(note.getContent());

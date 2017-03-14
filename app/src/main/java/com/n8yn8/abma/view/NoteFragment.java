@@ -19,6 +19,7 @@ import com.backendless.Backendless;
 import com.backendless.BackendlessUser;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.backendless.BNote;
+import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 import com.n8yn8.abma.view.adapter.NoteListAdapter;
 
@@ -38,6 +39,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     private OnFragmentInteractionListener mListener;
     List<BNote> noteList;
     TextView noDataTextView;
+    DatabaseHandler db;
 
     /**
      * The fragment's ListView/GridView.
@@ -68,7 +70,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DatabaseHandler db = new DatabaseHandler(getActivity().getApplicationContext());
+        db = new DatabaseHandler(getActivity().getApplicationContext());
 
         noteList = db.getAllNotes();
 
@@ -178,7 +180,30 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
             @Override
             public void loginSuccess() {
                 dialog.dismiss();
+                final DbManager manager = DbManager.getInstance();
                 Toast.makeText(getContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
+                manager.getAllNotes(new DbManager.OnGetNotesCallback() {
+                    @Override
+                    public void notesRetrieved(List<BNote> notes, String error) {
+                        if (error == null) {
+                            for (BNote note : notes) {
+                                db.addNoteSafe(note);
+                            }
+                            List<BNote> newNotes = db.getAllNotes();
+                            for (BNote note : newNotes) {
+                                manager.addNote(note, new DbManager.OnNoteSavedCallback() {
+                                    @Override
+                                    public void noteSaved(BNote savedNote, String error) {
+                                        if (savedNote != null) {
+                                            db.addNoteSafe(savedNote);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+
             }
         });
     }

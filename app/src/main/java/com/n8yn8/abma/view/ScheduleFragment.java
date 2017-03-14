@@ -123,7 +123,7 @@ public class ScheduleFragment extends Fragment {
     }
 
     public void displayDay() {
-        Log.d("Nate", "start = " + displayDateMillis + " end = " + displayDateMillis + TimeUnit.HOURS.toMillis(24));
+        Log.d("Nate", "start = " + displayDateMillis + " end = " + (displayDateMillis + TimeUnit.HOURS.toMillis(24)));
         day = db.getAllEventsFor(displayDateMillis, displayDateMillis + TimeUnit.HOURS.toMillis(24));
         if (day.size() > 0) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");

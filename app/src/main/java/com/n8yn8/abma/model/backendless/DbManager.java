@@ -8,6 +8,7 @@ import com.backendless.BackendlessCollection;
 import com.backendless.BackendlessUser;
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
+import com.backendless.persistence.BackendlessDataQuery;
 
 import java.util.List;
 
@@ -81,10 +82,11 @@ public class DbManager {
     public interface OnNoteSavedCallback {
         void noteSaved(BNote note, String error);
     }
+
     public void addNote(BNote note, final OnNoteSavedCallback callback) {
         BackendlessUser user = Backendless.UserService.CurrentUser();
         if (user == null) {
-            callback.noteSaved(note, null);
+            callback.noteSaved(null, "No User");
             return;
         }
         note.setUser(user);
@@ -98,6 +100,26 @@ public class DbManager {
             public void handleFault(BackendlessFault fault) {
                 Log.e("DbManager", "Note save error: " + fault.getMessage());
                 callback.noteSaved(null, fault.getMessage());
+            }
+        });
+    }
+
+    public interface OnGetNotesCallback {
+        void notesRetrieved(List<BNote> notes, String error);
+    }
+
+    public void getAllNotes(final OnGetNotesCallback callback) {
+        BackendlessUser user = Backendless.UserService.CurrentUser();
+        BackendlessDataQuery query = new BackendlessDataQuery("user.objectId = \'" + user.getObjectId() + "\'");
+        Backendless.Persistence.of(BNote.class).find(query, new AsyncCallback<BackendlessCollection<BNote>>() {
+            @Override
+            public void handleResponse(BackendlessCollection<BNote> response) {
+                callback.notesRetrieved(response.getCurrentPage(), null);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                callback.notesRetrieved(null, fault.getMessage());
             }
         });
     }
