@@ -15,12 +15,15 @@ import android.widget.TextView;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.backendless.BEvent;
+import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 import com.n8yn8.abma.view.adapter.ScheduleListAdapter;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -39,6 +42,7 @@ public class ScheduleFragment extends Fragment {
     ListView scheduleListView;
 
     List<BEvent> day;
+    long displayDateMillis;
 
     /**
      * Use this factory method to create a new instance of
@@ -78,21 +82,15 @@ public class ScheduleFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "back button clicked");
-                day = db.getAllEventsFor(0, new Date().getTime()); //TODO: get actual dates
-                if (day != null) {
-                    displayDay();
-                }
+                displayDateMillis -= TimeUnit.HOURS.toMillis(24);
+                displayDay();
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "next button clicked");
-                day = db.getAllEventsFor(0, new Date().getTime());//TODO: get actual dates
-                if (day != null) {
-                    displayDay();
-                }
+                displayDateMillis += TimeUnit.HOURS.toMillis(24);
+                displayDay();
             }
         });
 
@@ -110,15 +108,27 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        day = db.getAllEventsFor(0, new Date().getTime());//TODO: get actual dates
+        BYear year = db.getLastYear();
+        if (year != null) {
+            List<BEvent> events = year.getEvents();
+            BEvent firstEvent = events.get(0);
+            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            calendar.setTime(firstEvent.getStartDate());
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            displayDateMillis = calendar.getTimeInMillis();
+        }
         displayDay();
     }
 
     public void displayDay() {
-        //TODO: figure out why adapter.notifdatasetchanged doesn't work
+        Log.d("Nate", "start = " + displayDateMillis + " end = " + displayDateMillis + TimeUnit.HOURS.toMillis(24));
+        day = db.getAllEventsFor(displayDateMillis, displayDateMillis + TimeUnit.HOURS.toMillis(24));
         if (day.size() > 0) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
-            dateTextView.setText(dateFormat.format(day.get(0).getStartDate())); //TODO: fix date
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            dateTextView.setText(dateFormat.format(day.get(0).getStartDate()));
             dateTextView.setVisibility(View.VISIBLE);
         } else {
             dateTextView.setVisibility(View.INVISIBLE);

@@ -332,21 +332,39 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                BYear year = new BYear();
-                year.setName(cursor.getInt(cursor.getColumnIndex(KEY_NAME)));
-                year.setObjectId(cursor.getString(cursor.getColumnIndex(KEY_OBJECT_ID)));
-                year.setInfo(cursor.getString(cursor.getColumnIndex(KEY_INFO)));
-                year.setWelcome(cursor.getString(cursor.getColumnIndex(KEY_WELCOME)));
-                List<BSponsor> sponsors = getAllSponsorsFor(year.getObjectId());
-                year.setSponsors(sponsors);
-                //TODO: set events
-                yearList.add(year);
+                yearList.add(constructYear(cursor));
             } while (cursor.moveToNext());
         }
         cursor.close();
 
         // return contact list
         return yearList;
+    }
+
+    public BYear getLastYear() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_YEARS, null, null,
+                null, null, null, KEY_NAME + " DESC", "1");
+
+        BYear year = null;
+        if (cursor.moveToFirst()) {
+            year = constructYear(cursor);
+        }
+        cursor.close();
+        return year;
+    }
+
+    private BYear constructYear(Cursor cursor) {
+        BYear year = new BYear();
+        year.setName(cursor.getInt(cursor.getColumnIndex(KEY_NAME)));
+        year.setObjectId(cursor.getString(cursor.getColumnIndex(KEY_OBJECT_ID)));
+        year.setInfo(cursor.getString(cursor.getColumnIndex(KEY_INFO)));
+        year.setWelcome(cursor.getString(cursor.getColumnIndex(KEY_WELCOME)));
+        List<BSponsor> sponsors = getAllSponsorsFor(year.getObjectId());
+        year.setSponsors(sponsors);
+        List<BEvent> events = getAllEventsFor(year.getObjectId());
+        year.setEvents(events);
+        return year;
     }
 
     public List<BSponsor> getAllSponsors() {
@@ -490,11 +508,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public List<BEvent> getAllEventsFor(String yearId) {
         List<BEvent> list = new ArrayList<>();
-        // Select All Query
-        String selectQuery = "SELECT  * FROM " + TABLE_EVENTS + " WHERE (" + KEY_YEAR_ID + " == '" + yearId + "')";
 
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null); //TODO: sort
+        Cursor cursor = db.query(TABLE_EVENTS, null, KEY_YEAR_ID + "=?",
+                new String[] {yearId}, null, null, KEY_START_DATE);
 
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
