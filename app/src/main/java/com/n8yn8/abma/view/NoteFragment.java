@@ -15,8 +15,8 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.backendless.Backendless;
-import com.backendless.BackendlessUser;
+import com.backendless.async.callback.AsyncCallback;
+import com.backendless.exceptions.BackendlessFault;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.DbManager;
@@ -156,18 +156,31 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     private void updateLoginVisibility() {
-        BackendlessUser user = Backendless.UserService.CurrentUser();
-        if (user == null) {
-            Snackbar loginSnackbar = Snackbar.make(getView(), "Log in to save your notes online", Snackbar.LENGTH_INDEFINITE);
-            loginSnackbar.setAction("Log In", new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    showLogin();
+        DbManager.getInstance().isValidLogin(new AsyncCallback<Boolean>() {
+            @Override
+            public void handleResponse(Boolean response) {
+                if (!response) {
+                    showSnackBar();
                 }
-            });
-            loginSnackbar.show();
-        }
+            }
 
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                showSnackBar();
+            }
+        });
+
+    }
+
+    private void showSnackBar() {
+        Snackbar loginSnackbar = Snackbar.make(getView(), "Log in to save your notes online", Snackbar.LENGTH_INDEFINITE);
+        loginSnackbar.setAction("Log In", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showLogin();
+            }
+        });
+        loginSnackbar.show();
     }
 
     private void showLogin() {

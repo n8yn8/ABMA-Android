@@ -8,6 +8,7 @@ import com.backendless.Backendless;
 import com.crashlytics.android.Crashlytics;
 import com.dd.plist.NSDictionary;
 import com.dd.plist.PropertyListParser;
+import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.old.Event;
 import com.n8yn8.abma.model.old.Note;
 import com.n8yn8.abma.model.old.Paper;
@@ -35,6 +36,7 @@ public class App extends Application {
         }
 
         Backendless.initApp(this, "6AC37915-D986-26C2-FF1C-B0B3ACCB6A00", "145212DB-A903-6C49-FF02-1C70A1BD0A00", "v1");
+        DbManager.getInstance().checkUser();
     }
 
     public Schedule getOldSchedule() {

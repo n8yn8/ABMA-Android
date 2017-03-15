@@ -1,6 +1,7 @@
 package com.n8yn8.abma.model.backendless;
 
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.backendless.Backendless;
@@ -9,6 +10,8 @@ import com.backendless.BackendlessUser;
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
 import com.backendless.persistence.BackendlessDataQuery;
+import com.backendless.persistence.local.UserIdStorageFactory;
+import com.backendless.persistence.local.UserTokenStorageFactory;
 
 import java.util.List;
 
@@ -60,6 +63,33 @@ public class DbManager {
         }, true);
     }
 
+    public void checkUser() {
+        String currentUserObjectId = UserIdStorageFactory.instance().getStorage().get();
+        if (!TextUtils.isEmpty(currentUserObjectId)) {
+            Backendless.Data.of( BackendlessUser.class ).findById(currentUserObjectId, new AsyncCallback<BackendlessUser>() {
+                @Override
+                public void handleResponse(BackendlessUser response) {
+                    Backendless.UserService.setCurrentUser(response);
+                    Log.d("Nate", "logged in");
+                }
+
+                @Override
+                public void handleFault(BackendlessFault fault) {
+                    Log.d("Nate", "error");
+                }
+            });
+        }
+    }
+
+    public void isValidLogin(AsyncCallback<Boolean> callback) {
+        String userToken = UserTokenStorageFactory.instance().getStorage().get();
+        if (!TextUtils.isEmpty(userToken)) {
+            Backendless.UserService.isValidLogin(callback);
+        } else {
+            callback.handleResponse(false);
+        }
+    }
+
     public interface YearsResponse {
         void onYearsReceived(List<BYear> years);
     }
@@ -109,8 +139,8 @@ public class DbManager {
     }
 
     public void getAllNotes(final OnGetNotesCallback callback) {
-        BackendlessUser user = Backendless.UserService.CurrentUser();
-        BackendlessDataQuery query = new BackendlessDataQuery("user.objectId = \'" + user.getObjectId() + "\'");
+        String userId = UserIdStorageFactory.instance().getStorage().get();
+        BackendlessDataQuery query = new BackendlessDataQuery("user.objectId = \'" + userId + "\'");
         Backendless.Persistence.of(BNote.class).find(query, new AsyncCallback<BackendlessCollection<BNote>>() {
             @Override
             public void handleResponse(BackendlessCollection<BNote> response) {
