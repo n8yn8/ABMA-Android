@@ -1,5 +1,6 @@
 package com.n8yn8.abma.model.backendless;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -12,7 +13,9 @@ import com.backendless.exceptions.BackendlessFault;
 import com.backendless.persistence.BackendlessDataQuery;
 import com.backendless.persistence.local.UserIdStorageFactory;
 import com.backendless.persistence.local.UserTokenStorageFactory;
+import com.n8yn8.abma.Utils;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -94,8 +97,14 @@ public class DbManager {
         void onYearsReceived(List<BYear> years);
     }
 
-    public void getYears(final YearsResponse callback) {
-        Backendless.Persistence.of(BYear.class).find(new AsyncCallback<BackendlessCollection<BYear>>() {
+    public void getYears(Context context, final YearsResponse callback) {
+        String queryString = "publishedAt is not null";
+        Date lastUpdate = Utils.getLastUpdated(context);
+        if (lastUpdate != null) {
+            queryString += " AND updated > " + lastUpdate.getTime();
+        }
+        BackendlessDataQuery query = new BackendlessDataQuery(queryString);
+        Backendless.Persistence.of(BYear.class).find(query, new AsyncCallback<BackendlessCollection<BYear>>() {
             @Override
             public void handleResponse(BackendlessCollection<BYear> response) {
                 Log.d("Nate", "" + response);
@@ -150,6 +159,20 @@ public class DbManager {
             @Override
             public void handleFault(BackendlessFault fault) {
                 callback.notesRetrieved(null, fault.getMessage());
+            }
+        });
+    }
+
+    public void registerPush() {
+        Backendless.Messaging.registerDevice("1099001155411", new AsyncCallback<Void>() {
+            @Override
+            public void handleResponse(Void response) {
+                Log.d("Nate", "push reg response: " + response);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Log.d("Nate", "push reg fault: " + fault.getMessage());
             }
         });
     }

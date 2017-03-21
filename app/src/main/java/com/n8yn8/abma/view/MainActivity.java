@@ -9,7 +9,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 
 import com.n8yn8.abma.App;
@@ -51,14 +50,20 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.container, ScheduleFragment.newInstance())
                 .commit();
 
-        DbManager.getInstance().getYears(new DbManager.YearsResponse() {
+        DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+        List<BYear> saveYears = db.getAllYears();
+        if (saveYears.size() == 0) {
+            loadBackendless(db);
+        }
+    }
+
+    private void loadBackendless(final DatabaseHandler db) {
+        DbManager.getInstance().getYears(this, new DbManager.YearsResponse() {
             @Override
             public void onYearsReceived(List<BYear> years) {
-                DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+
                 for (BYear year: years) {
                     db.addYear(year);
-                    List<BYear> saveYears = db.getAllYears();
-                    Log.d("Nate", "saved = " + saveYears);
                 }
                 checkOldNotes(db);
             }

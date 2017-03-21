@@ -69,7 +69,9 @@ public class SponsorsFragment extends Fragment {
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 String urlString = sponsors.get(position).getUrl();
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(urlString)));
+                if (urlString != null) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(urlString)));
+                }
             }
         });
 
