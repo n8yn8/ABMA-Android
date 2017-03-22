@@ -1,4 +1,4 @@
-package com.n8yn8.abma;
+package com.n8yn8.abma.view;
 
 
 import android.os.Bundle;
@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.n8yn8.abma.R;
 
 
 /**
@@ -27,7 +29,6 @@ public class WelcomeFragment extends Fragment {
      * this fragment using the provided parameters.
      * @return A new instance of fragment WelcomeFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static WelcomeFragment newInstance() {
         WelcomeFragment fragment = new WelcomeFragment();
         return fragment;

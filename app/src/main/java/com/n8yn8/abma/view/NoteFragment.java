@@ -1,10 +1,10 @@
-package com.n8yn8.abma;
+package com.n8yn8.abma.view;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +14,14 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.backendless.async.callback.AsyncCallback;
+import com.backendless.exceptions.BackendlessFault;
+import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.backendless.BNote;
+import com.n8yn8.abma.model.backendless.DbManager;
+import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.view.adapter.NoteListAdapter;
 
 import java.util.List;
 
@@ -29,8 +37,9 @@ import java.util.List;
 public class NoteFragment extends Fragment implements AbsListView.OnItemClickListener, AbsListView.OnItemLongClickListener {
 
     private OnFragmentInteractionListener mListener;
-    List<Note> noteList;
+    List<BNote> noteList;
     TextView noDataTextView;
+    DatabaseHandler db;
 
     /**
      * The fragment's ListView/GridView.
@@ -43,7 +52,6 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
      */
     private NoteListAdapter mAdapter;
 
-    // TODO: Rename and change types of parameters
     public static NoteFragment newInstance() {
         NoteFragment fragment = new NoteFragment();
         Bundle args = new Bundle();
@@ -62,7 +70,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DatabaseHandler db = new DatabaseHandler(getActivity().getApplicationContext());
+        db = new DatabaseHandler(getActivity().getApplicationContext());
 
         noteList = db.getAllNotes();
 
@@ -97,6 +105,12 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        updateLoginVisibility();
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
@@ -105,14 +119,8 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Note note = mAdapter.getItem(position);
-        Schedule schedule = Cache.getInstance().getSchedule();
-        schedule.setDayIndex(note.getDayId());
-        schedule.setPaperIndex(note.getPaperId());
-        schedule.setCurrentEventIndex(note.getEventId());
-        Cache.getInstance().cacheSchedule(schedule);
-        Intent intent = new Intent(getActivity().getApplicationContext(), EventActivity.class);
-        startActivity(intent);
+        BNote note = mAdapter.getItem(position);
+        EventActivity.start(getContext(), note.getEventId(), note.getPaperId());
     }
 
     @Override
@@ -124,7 +132,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Note note = mAdapter.getItem(position);
+                BNote note = mAdapter.getItem(position);
                 DatabaseHandler db = new DatabaseHandler(getActivity());
                 db.deleteNote(note);
                 noteList.remove(position);
@@ -145,6 +153,72 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         alertDialog.show();
 
         return true;
+    }
+
+    private void updateLoginVisibility() {
+        DbManager.getInstance().isValidLogin(new AsyncCallback<Boolean>() {
+            @Override
+            public void handleResponse(Boolean response) {
+                if (!response) {
+                    showSnackBar();
+                }
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                showSnackBar();
+            }
+        });
+
+    }
+
+    private void showSnackBar() {
+        Snackbar loginSnackbar = Snackbar.make(getView(), "Log in to save your notes online", Snackbar.LENGTH_INDEFINITE);
+        loginSnackbar.setAction("Log In", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showLogin();
+            }
+        });
+        loginSnackbar.show();
+    }
+
+    private void showLogin() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Log In");
+        LoginDialog view = new LoginDialog(getActivity());
+        builder.setView(view);
+        final AlertDialog dialog = builder.show();
+        view.setCallback(new LoginDialog.OnLoginSuccess() {
+            @Override
+            public void loginSuccess() {
+                dialog.dismiss();
+                final DbManager manager = DbManager.getInstance();
+                Toast.makeText(getContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
+                manager.getAllNotes(new DbManager.OnGetNotesCallback() {
+                    @Override
+                    public void notesRetrieved(List<BNote> notes, String error) {
+                        if (error == null) {
+                            for (BNote note : notes) {
+                                db.addNoteSafe(note);
+                            }
+                            List<BNote> newNotes = db.getAllNotes();
+                            for (BNote note : newNotes) {
+                                manager.addNote(note, new DbManager.OnNoteSavedCallback() {
+                                    @Override
+                                    public void noteSaved(BNote savedNote, String error) {
+                                        if (savedNote != null) {
+                                            db.addNoteSafe(savedNote);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+
+            }
+        });
     }
 
     /**
@@ -171,7 +245,6 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-//        // TODO: Update argument type and name
 //        public void onFragmentInteraction(String id);
     }
 

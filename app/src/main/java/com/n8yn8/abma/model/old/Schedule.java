@@ -1,4 +1,4 @@
-package com.n8yn8.abma;
+package com.n8yn8.abma.model.old;
 
 import android.util.Log;
 
@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * Created by Nate on 2/15/15.
@@ -44,6 +45,7 @@ public class Schedule extends Object{
                 ArrayList<Event> day = new ArrayList<>();
                 try {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("LLL d, y");
+                    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
                     Date date = dateFormat.parse(dayKey);
                     eventDates.add(date);
                 } catch (ParseException ex) {

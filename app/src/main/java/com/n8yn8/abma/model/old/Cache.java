@@ -1,4 +1,4 @@
-package com.n8yn8.abma;
+package com.n8yn8.abma.model.old;
 
 import android.util.LruCache;
 
@@ -25,14 +25,6 @@ public class Cache {
 
     public LruCache<Object, Object> getLruCache() {
         return lruCache;
-    }
-
-    public void cacheSchedule(Schedule schedule) {
-        getLruCache().put("schedule", schedule);
-    }
-
-    public Schedule getSchedule() {
-        return (Schedule)getLruCache().get("schedule");
     }
 
 }

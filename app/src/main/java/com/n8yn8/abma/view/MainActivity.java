@@ -1,14 +1,31 @@
-package com.n8yn8.abma;
+package com.n8yn8.abma.view;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.util.Pair;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+
+import com.n8yn8.abma.App;
+import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.backendless.BEvent;
+import com.n8yn8.abma.model.backendless.BNote;
+import com.n8yn8.abma.model.backendless.BPaper;
+import com.n8yn8.abma.model.backendless.BYear;
+import com.n8yn8.abma.model.backendless.DbManager;
+import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.old.Event;
+import com.n8yn8.abma.model.old.Note;
+import com.n8yn8.abma.model.old.Paper;
+import com.n8yn8.abma.model.old.Schedule;
+
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -32,6 +49,60 @@ public class MainActivity extends AppCompatActivity
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, ScheduleFragment.newInstance())
                 .commit();
+
+        DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+        List<BYear> saveYears = db.getAllYears();
+        if (saveYears.size() == 0) {
+            loadBackendless(db);
+        }
+    }
+
+    private void loadBackendless(final DatabaseHandler db) {
+        DbManager.getInstance().getYears(this, new DbManager.YearsResponse() {
+            @Override
+            public void onYearsReceived(List<BYear> years) {
+
+                for (BYear year: years) {
+                    db.addYear(year);
+                }
+                checkOldNotes(db);
+            }
+        });
+    }
+
+    private void checkOldNotes(DatabaseHandler db) {
+        Map<Note, Pair<Event, Paper>> oldMap = ((App) getApplicationContext()).getOldNotes();
+        if (oldMap == null) {
+            return;
+        }
+
+        Schedule schedule = ((App)getApplication()).getOldSchedule();
+
+        for (Note oldNote: oldMap.keySet()) {
+            schedule.setDayIndex(oldNote.getDayId());
+            Pair<Event, Paper> pair = oldMap.get(oldNote);
+            Event oldEvent = pair.first;
+            String newEventId = null;
+            Paper oldPaper = pair.second;
+            String newPaperId = null;
+            if (oldEvent != null) {
+                BEvent newEvent = db.getMatchedEvent(schedule.getCurrentDate(), oldEvent);
+                if (newEvent != null) {
+                    newEventId = newEvent.getObjectId();
+                }
+            }
+            if (oldPaper != null) {
+                BPaper newPaper = db.getMatchedPaper(oldPaper);
+                if (newPaper != null) {
+                    newPaperId = newPaper.getObjectId();
+                }
+            }
+            BNote newNote = new BNote();
+            newNote.setContent(oldNote.getContent());
+            newNote.setEventId(newEventId);
+            newNote.setPaperId(newPaperId);
+            db.addNote(newNote);
+        }
     }
 
     @Override

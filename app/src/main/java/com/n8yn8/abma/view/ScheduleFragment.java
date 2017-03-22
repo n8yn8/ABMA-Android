@@ -1,7 +1,6 @@
-package com.n8yn8.abma;
+package com.n8yn8.abma.view;
 
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,7 +13,17 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.backendless.BEvent;
+import com.n8yn8.abma.model.backendless.BYear;
+import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.view.adapter.ScheduleListAdapter;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -25,14 +34,15 @@ import java.util.ArrayList;
 public class ScheduleFragment extends Fragment {
     private final String TAG = "Schedule";
     ScheduleListAdapter adapter;
+    DatabaseHandler db;
 
     ImageButton backButton;
     ImageButton nextButton;
     TextView dateTextView;
     ListView scheduleListView;
 
-    Schedule schedule;
-    ArrayList<Event> day;
+    List<BEvent> day;
+    long displayDateMillis;
 
     /**
      * Use this factory method to create a new instance of
@@ -56,6 +66,8 @@ public class ScheduleFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
+
+        db = new DatabaseHandler(getActivity());
     }
 
     @Override
@@ -70,31 +82,23 @@ public class ScheduleFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "back button clicked");
-                day = schedule.getPrevDay();
-                if (day != null) {
-                    displayDay(day);
-                }
+                displayDateMillis -= TimeUnit.HOURS.toMillis(24);
+                displayDay();
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "next button clicked");
-                day = schedule.getNextDay();
-                if (day != null) {
-                    displayDay(day);
-                }
+                displayDateMillis += TimeUnit.HOURS.toMillis(24);
+                displayDay();
             }
         });
 
         scheduleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                schedule.setCurrentEventIndex(position);
-                Cache.getInstance().cacheSchedule(schedule);
-                Intent intent = new Intent(getActivity().getApplicationContext(), EventActivity.class);
-                startActivity(intent);
+                BEvent event = adapter.getItem(position);
+                EventActivity.start(getActivity(), event.getObjectId(), null);
             }
         });
 
@@ -104,16 +108,31 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        schedule = Cache.getInstance().getSchedule();
-        day = schedule.getCurrentDay();
-        displayDay(day);
-
-
+        BYear year = db.getLastYear();
+        if (year != null) {
+            List<BEvent> events = year.getEvents();
+            BEvent firstEvent = events.get(0);
+            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            calendar.setTime(firstEvent.getStartDate());
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            displayDateMillis = calendar.getTimeInMillis();
+        }
+        displayDay();
     }
 
-    public void displayDay(ArrayList<Event> day) {
-        //TODO: figure out why adapter.notifdatasetchanged doesn't work
-        dateTextView.setText(schedule.getCurrentDateString());
+    public void displayDay() {
+        Log.d("Nate", "start = " + displayDateMillis + " end = " + (displayDateMillis + TimeUnit.HOURS.toMillis(24)));
+        day = db.getAllEventsFor(displayDateMillis, displayDateMillis + TimeUnit.HOURS.toMillis(24));
+        if (day.size() > 0) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            dateTextView.setText(dateFormat.format(day.get(0).getStartDate()));
+            dateTextView.setVisibility(View.VISIBLE);
+        } else {
+            dateTextView.setVisibility(View.INVISIBLE);
+        }
         adapter = new ScheduleListAdapter(getActivity(), day);
         scheduleListView.setAdapter(adapter);
     }
