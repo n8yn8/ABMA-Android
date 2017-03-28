@@ -355,10 +355,41 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return yearList;
     }
 
+    public List<String> getAlYearNames() {
+        List<String> names = new ArrayList<>();
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_YEARS, new String[] {KEY_NAME}, null, null, null, null, KEY_NAME + " DESC");
+
+        if (cursor.moveToFirst()) {
+            do {
+                String name = cursor.getString(cursor.getColumnIndex(KEY_NAME));
+                names.add(name);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        // return contact list
+        return names;
+    }
+
     public BYear getLastYear() {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_YEARS, null, null,
                 null, null, null, KEY_NAME + " DESC", "1");
+
+        BYear year = null;
+        if (cursor.moveToFirst()) {
+            year = constructYear(cursor);
+        }
+        cursor.close();
+        return year;
+    }
+
+    public BYear getYearByName(String name) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_YEARS, null, KEY_NAME + "=?",
+                new String[] {name}, null, null, KEY_NAME + " DESC", "1");
 
         BYear year = null;
         if (cursor.moveToFirst()) {

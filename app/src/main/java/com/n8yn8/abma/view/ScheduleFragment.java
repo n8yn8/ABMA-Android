@@ -32,7 +32,8 @@ import java.util.concurrent.TimeUnit;
  * create an instance of this fragment.
  */
 public class ScheduleFragment extends Fragment {
-    private final String TAG = "Schedule";
+    public static final String TAG = "ScheduleFragment";
+
     ScheduleListAdapter adapter;
     DatabaseHandler db;
 
@@ -109,6 +110,10 @@ public class ScheduleFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         BYear year = db.getLastYear();
+        setUpYear(year);
+    }
+
+    private void setUpYear(BYear year) {
         if (year != null) {
             List<BEvent> events = year.getEvents();
             BEvent firstEvent = events.get(0);
@@ -135,5 +140,10 @@ public class ScheduleFragment extends Fragment {
         }
         adapter = new ScheduleListAdapter(getActivity(), day);
         scheduleListView.setAdapter(adapter);
+    }
+
+    public void setYear(String name) {
+        BYear selectedYear = db.getYearByName(name);
+        setUpYear(selectedYear);
     }
 }

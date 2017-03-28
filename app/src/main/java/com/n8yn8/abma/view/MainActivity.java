@@ -1,7 +1,10 @@
 package com.n8yn8.abma.view;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.util.Pair;
 import android.support.v4.view.GravityCompat;
@@ -9,6 +12,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.n8yn8.abma.App;
@@ -27,8 +32,12 @@ import com.n8yn8.abma.model.old.Schedule;
 import java.util.List;
 import java.util.Map;
 
+import static com.n8yn8.abma.R.id.years;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    MenuItem yearsMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +64,23 @@ public class MainActivity extends AppCompatActivity
         if (saveYears.size() == 0) {
             loadBackendless(db);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        yearsMenuItem = menu.findItem(years);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case years:
+                showYearsPicker();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void loadBackendless(final DatabaseHandler db) {
@@ -121,12 +147,15 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        yearsMenuItem.setVisible(false);
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (id == R.id.welcome) {
             fragmentManager.beginTransaction()
                     .replace(R.id.container, WelcomeFragment.newInstance())
                     .commit();
         } else if (id == R.id.schedule) {
+            yearsMenuItem.setVisible(true);
             fragmentManager.beginTransaction()
                     .replace(R.id.container, ScheduleFragment.newInstance())
                     .commit();
@@ -147,9 +176,35 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.container, ContactFragment.newInstance())
                     .commit();
         }
+        fragmentManager.executePendingTransactions();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void showYearsPicker() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Year");
+        final YearSelectorView view = new YearSelectorView(this);
+        builder.setView(view);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                String selectedYear = view.getSelectedYear();
+                MainActivity.this.updateSelectedYear(selectedYear);
+            }
+        });
+        builder.show();
+    }
+
+    private void updateSelectedYear(String year) {
+        FragmentManager manager = getSupportFragmentManager();
+        List<Fragment> fragments = manager.getFragments();
+        for (Fragment fragment : fragments) {
+            if (fragment != null && fragment instanceof ScheduleFragment) {
+                ((ScheduleFragment) fragment).setYear(year);
+            }
+        }
     }
 }
