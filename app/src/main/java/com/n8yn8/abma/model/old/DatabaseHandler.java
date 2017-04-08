@@ -10,6 +10,7 @@ import android.support.v4.util.Pair;
 import android.text.TextUtils;
 
 import com.n8yn8.abma.App;
+import com.n8yn8.abma.model.Survey;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
@@ -387,6 +388,27 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // return contact list
         return names;
+    }
+
+    public Survey getLatestSurvey() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_YEARS,
+                new String[] {KEY_SURVEY_URL, KEY_SURVEY_START, KEY_SURVEY_END},
+                null, null, null, null, KEY_NAME + " DESC", "1");
+        Survey survey = null;
+        if (cursor.moveToFirst()) {
+            survey = new Survey();
+            survey.setSurveyUrl(cursor.getString(cursor.getColumnIndex(KEY_SURVEY_URL)));
+            long endMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_END));
+            if (endMillis != 0) {
+                survey.setSurveyEnd(new Date(endMillis));
+            }
+            long startMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_START));
+            if (endMillis != 0) {
+                survey.setSurveyStart(new Date(startMillis));
+            }
+        }
+        return survey;
     }
 
     public BYear getLastYear() {

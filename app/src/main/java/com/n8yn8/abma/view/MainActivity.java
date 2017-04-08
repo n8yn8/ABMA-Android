@@ -2,6 +2,8 @@ package com.n8yn8.abma.view;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -18,6 +20,7 @@ import android.view.MenuItem;
 
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.Survey;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
@@ -29,6 +32,7 @@ import com.n8yn8.abma.model.old.Note;
 import com.n8yn8.abma.model.old.Paper;
 import com.n8yn8.abma.model.old.Schedule;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +41,9 @@ import static com.n8yn8.abma.R.id.years;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    NavigationView navigationView;
     MenuItem yearsMenuItem;
+    Survey survey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +58,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         getSupportFragmentManager().beginTransaction()
@@ -63,6 +69,8 @@ public class MainActivity extends AppCompatActivity
         List<BYear> saveYears = db.getAllYears();
         if (saveYears.size() == 0) {
             loadBackendless(db);
+        } else {
+            updateSurvey();
         }
     }
 
@@ -92,6 +100,7 @@ public class MainActivity extends AppCompatActivity
                     db.addYear(year);
                 }
                 checkOldNotes(db);
+                updateSurvey();
             }
         });
     }
@@ -175,8 +184,12 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.beginTransaction()
                     .replace(R.id.container, ContactFragment.newInstance())
                     .commit();
+        } else if (id == R.id.survey) {
+            String urlString = survey.getSurveyUrl();
+            if (urlString != null) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(urlString)));
+            }
         }
-        fragmentManager.executePendingTransactions();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -205,6 +218,15 @@ public class MainActivity extends AppCompatActivity
             if (fragment != null && fragment instanceof ScheduleFragment) {
                 ((ScheduleFragment) fragment).setYear(year);
             }
+        }
+    }
+
+    private void updateSurvey() {
+        DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+        survey = db.getLatestSurvey();
+        Date now = new Date();
+        if (now.after(survey.getSurveyStart()) && now.before(survey.getSurveyEnd())) {
+            navigationView.getMenu().findItem(R.id.survey).setVisible(true);
         }
     }
 }
