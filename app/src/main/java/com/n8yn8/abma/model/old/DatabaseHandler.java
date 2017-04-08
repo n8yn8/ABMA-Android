@@ -65,6 +65,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_NOTE_CONTENT = "note_content";
     private static final String KEY_CREATED = "created_at";
     private static final String KEY_UPDATED = "updated_at";
+    private static final String KEY_SURVEY_URL = "survey_url";
+    private static final String KEY_SURVEY_START = "survey_start";
+    private static final String KEY_SURVEY_END = "survey_end";
+
     //old Notes:
     private static final String KEY_DAY_INDEX = "day_index";
     private static final String KEY_EVENT_TITLE = "event_title";
@@ -116,6 +120,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + KEY_NAME + " INTEGER,"
             + KEY_INFO + " TEXT,"
             + KEY_WELCOME + " TEXT,"
+            + KEY_SURVEY_URL + " TEXT,"
+            + KEY_SURVEY_START + " INT,"
+            + KEY_SURVEY_END + " INT,"
             + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
             + ")";
 
@@ -176,6 +183,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_NAME, year.getName());
         values.put(KEY_INFO, year.getInfo());
         values.put(KEY_WELCOME, year.getWelcome());
+        if (year.getSurveyUrl() != null) {
+            values.put(KEY_SURVEY_URL, year.getSurveyUrl());
+        }
+        if (year.getSurveyStart() != null) {
+            values.put(KEY_SURVEY_START, year.getSurveyStart().getTime());
+        }
+        if (year.getSurveyEnd() != null) {
+            values.put(KEY_SURVEY_END, year.getSurveyEnd().getTime());
+        }
 
         for (BSponsor sponsor: year.getSponsors()) {
             addSponsor(sponsor, year.getObjectId());
@@ -409,6 +425,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         year.setSponsors(sponsors);
         List<BEvent> events = getAllEventsFor(year.getObjectId());
         year.setEvents(events);
+        year.setSurveyUrl(cursor.getString(cursor.getColumnIndex(KEY_SURVEY_URL)));
+        long endMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_END));
+        if (endMillis != 0) {
+            year.setSurveyEnd(new Date(endMillis));
+        }
+        long startMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_START));
+        if (endMillis != 0) {
+            year.setSurveyStart(new Date(startMillis));
+        }
         return year;
     }
 
