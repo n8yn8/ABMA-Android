@@ -20,6 +20,7 @@ import android.view.MenuItem;
 
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.Utils;
 import com.n8yn8.abma.model.Survey;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BNote;
@@ -188,6 +189,7 @@ public class MainActivity extends AppCompatActivity
             String urlString = survey.getSurveyUrl();
             if (urlString != null) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(urlString)));
+                Utils.logSurvey();
             }
         }
 

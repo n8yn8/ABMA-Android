@@ -84,4 +84,12 @@ public class Utils {
             Log.e("Utils", method + " had error: " + error);
         }
     }
+
+    public static void logSurvey() {
+        if (!BuildConfig.DEBUG) {
+            Answers.getInstance().logCustom(new CustomEvent("Survey"));
+        } else {
+            Log.e("Utils", "survey clicked");
+        }
+    }
 }
