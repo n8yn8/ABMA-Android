@@ -3,7 +3,12 @@ package com.n8yn8.abma;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
+import com.crashlytics.android.answers.LoginEvent;
+import com.crashlytics.android.answers.SignUpEvent;
 import com.n8yn8.abma.model.backendless.BEvent;
 
 import java.text.SimpleDateFormat;
@@ -52,5 +57,39 @@ public class Utils {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putLong(LAST_UPDATED, date.getTime());
         editor.apply();
+    }
+
+    public static void logSignUp(boolean success) {
+        if (!BuildConfig.DEBUG) {
+            Answers.getInstance().logSignUp(new SignUpEvent()
+                    .putMethod("Email")
+                    .putSuccess(success));
+        }
+    }
+
+    public static void logLogIn(boolean success) {
+        if (!BuildConfig.DEBUG) {
+            Answers.getInstance().logLogin(new LoginEvent()
+                    .putMethod("Email")
+                    .putSuccess(success));
+        }
+    }
+
+    public static void logError(String method, String error) {
+        if (!BuildConfig.DEBUG) {
+            Answers.getInstance().logCustom(new CustomEvent("Error")
+                    .putCustomAttribute("method", method)
+                    .putCustomAttribute("error", error));
+        } else {
+            Log.e("Utils", method + " had error: " + error);
+        }
+    }
+
+    public static void logSurvey() {
+        if (!BuildConfig.DEBUG) {
+            Answers.getInstance().logCustom(new CustomEvent("Survey"));
+        } else {
+            Log.e("Utils", "survey clicked");
+        }
     }
 }

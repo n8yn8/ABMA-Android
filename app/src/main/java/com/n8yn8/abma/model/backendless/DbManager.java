@@ -42,11 +42,14 @@ public class DbManager {
         Backendless.UserService.register(user, new AsyncCallback<BackendlessUser>() {
             @Override
             public void handleResponse(BackendlessUser response) {
+                Utils.logSignUp(true);
                 login(email, password, callback);
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
+                Utils.logSignUp(false);
+                Utils.logError("Register", fault.getMessage());
                 callback.onLogin(fault.getMessage());
             }
         });
@@ -56,14 +59,31 @@ public class DbManager {
         Backendless.UserService.login(email, password, new AsyncCallback<BackendlessUser>() {
             @Override
             public void handleResponse(BackendlessUser response) {
+                Utils.logLogIn(true);
                 callback.onLogin(null);
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
+                Utils.logLogIn(false);
+                Utils.logError("Login", fault.getMessage());
                 callback.onLogin(fault.getMessage());
             }
         }, true);
+    }
+
+    public void logout() {
+        Backendless.UserService.logout(new AsyncCallback<Void>() {
+            @Override
+            public void handleResponse(Void response) {
+
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Utils.logError("Logout", fault.getMessage());
+            }
+        });
     }
 
     public void checkUser() {
@@ -73,15 +93,18 @@ public class DbManager {
                 @Override
                 public void handleResponse(BackendlessUser response) {
                     Backendless.UserService.setCurrentUser(response);
-                    Log.d("Nate", "logged in");
                 }
 
                 @Override
                 public void handleFault(BackendlessFault fault) {
-                    Log.d("Nate", "error");
+                    Utils.logError("CheckUser", fault.getMessage());
                 }
             });
         }
+    }
+
+    public BackendlessUser getCurrentUser() {
+        return Backendless.UserService.CurrentUser();
     }
 
     public void isValidLogin(AsyncCallback<Boolean> callback) {
@@ -107,13 +130,12 @@ public class DbManager {
         Backendless.Persistence.of(BYear.class).find(query, new AsyncCallback<BackendlessCollection<BYear>>() {
             @Override
             public void handleResponse(BackendlessCollection<BYear> response) {
-                Log.d("Nate", "" + response);
                 callback.onYearsReceived(response.getCurrentPage());
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
-                Log.d("Nate", "" + fault);
+                Utils.logError("GetYears", fault.getMessage());
             }
         });
     }
@@ -137,7 +159,7 @@ public class DbManager {
 
             @Override
             public void handleFault(BackendlessFault fault) {
-                Log.e("DbManager", "Note save error: " + fault.getMessage());
+                Utils.logError("AddNote", fault.getMessage());
                 callback.noteSaved(null, fault.getMessage());
             }
         });
@@ -158,6 +180,7 @@ public class DbManager {
 
             @Override
             public void handleFault(BackendlessFault fault) {
+                Utils.logError("GetAllNotes", fault.getMessage());
                 callback.notesRetrieved(null, fault.getMessage());
             }
         });
@@ -172,7 +195,7 @@ public class DbManager {
 
             @Override
             public void handleFault(BackendlessFault fault) {
-                Log.d("Nate", "push reg fault: " + fault.getMessage());
+                Utils.logError("RegisterPush", fault.getMessage());
             }
         });
     }

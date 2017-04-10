@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.n8yn8.abma.BuildConfig;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.backendless.DbManager;
 
@@ -64,9 +65,11 @@ public class LoginDialog extends LinearLayout {
 
         emailEditText = (EditText) findViewById(R.id.email_edit_text);
 
-        confirmPassEditText.setText("saigon00"); //TODO: remove
-        passEditText.setText("saigon00");
-        emailEditText.setText("thelostonefound@gmail.com");
+        if (BuildConfig.DEBUG) {
+            confirmPassEditText.setText("saigon00"); //TODO: remove
+            passEditText.setText("saigon00");
+            emailEditText.setText("thelostonefound@gmail.com");
+        }
 
         newAccountCheckbox = (CheckBox) findViewById(R.id.newAccountCheckBox);
         newAccountCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

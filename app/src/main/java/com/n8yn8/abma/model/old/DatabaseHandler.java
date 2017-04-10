@@ -10,6 +10,7 @@ import android.support.v4.util.Pair;
 import android.text.TextUtils;
 
 import com.n8yn8.abma.App;
+import com.n8yn8.abma.model.Survey;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
@@ -65,6 +66,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_NOTE_CONTENT = "note_content";
     private static final String KEY_CREATED = "created_at";
     private static final String KEY_UPDATED = "updated_at";
+    private static final String KEY_SURVEY_URL = "survey_url";
+    private static final String KEY_SURVEY_START = "survey_start";
+    private static final String KEY_SURVEY_END = "survey_end";
+
     //old Notes:
     private static final String KEY_DAY_INDEX = "day_index";
     private static final String KEY_EVENT_TITLE = "event_title";
@@ -116,6 +121,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + KEY_NAME + " INTEGER,"
             + KEY_INFO + " TEXT,"
             + KEY_WELCOME + " TEXT,"
+            + KEY_SURVEY_URL + " TEXT,"
+            + KEY_SURVEY_START + " INT,"
+            + KEY_SURVEY_END + " INT,"
             + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
             + ")";
 
@@ -176,6 +184,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_NAME, year.getName());
         values.put(KEY_INFO, year.getInfo());
         values.put(KEY_WELCOME, year.getWelcome());
+        if (year.getSurveyUrl() != null) {
+            values.put(KEY_SURVEY_URL, year.getSurveyUrl());
+        }
+        if (year.getSurveyStart() != null) {
+            values.put(KEY_SURVEY_START, year.getSurveyStart().getTime());
+        }
+        if (year.getSurveyEnd() != null) {
+            values.put(KEY_SURVEY_END, year.getSurveyEnd().getTime());
+        }
 
         for (BSponsor sponsor: year.getSponsors()) {
             addSponsor(sponsor, year.getObjectId());
@@ -355,10 +372,62 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return yearList;
     }
 
+    public List<String> getAlYearNames() {
+        List<String> names = new ArrayList<>();
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_YEARS, new String[] {KEY_NAME}, null, null, null, null, KEY_NAME + " DESC");
+
+        if (cursor.moveToFirst()) {
+            do {
+                String name = cursor.getString(cursor.getColumnIndex(KEY_NAME));
+                names.add(name);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        // return contact list
+        return names;
+    }
+
+    public Survey getLatestSurvey() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_YEARS,
+                new String[] {KEY_SURVEY_URL, KEY_SURVEY_START, KEY_SURVEY_END},
+                null, null, null, null, KEY_NAME + " DESC", "1");
+        Survey survey = null;
+        if (cursor.moveToFirst()) {
+            survey = new Survey();
+            survey.setSurveyUrl(cursor.getString(cursor.getColumnIndex(KEY_SURVEY_URL)));
+            long endMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_END));
+            if (endMillis != 0) {
+                survey.setSurveyEnd(new Date(endMillis));
+            }
+            long startMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_START));
+            if (endMillis != 0) {
+                survey.setSurveyStart(new Date(startMillis));
+            }
+        }
+        return survey;
+    }
+
     public BYear getLastYear() {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_YEARS, null, null,
                 null, null, null, KEY_NAME + " DESC", "1");
+
+        BYear year = null;
+        if (cursor.moveToFirst()) {
+            year = constructYear(cursor);
+        }
+        cursor.close();
+        return year;
+    }
+
+    public BYear getYearByName(String name) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_YEARS, null, KEY_NAME + "=?",
+                new String[] {name}, null, null, KEY_NAME + " DESC", "1");
 
         BYear year = null;
         if (cursor.moveToFirst()) {
@@ -378,6 +447,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         year.setSponsors(sponsors);
         List<BEvent> events = getAllEventsFor(year.getObjectId());
         year.setEvents(events);
+        year.setSurveyUrl(cursor.getString(cursor.getColumnIndex(KEY_SURVEY_URL)));
+        long endMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_END));
+        if (endMillis != 0) {
+            year.setSurveyEnd(new Date(endMillis));
+        }
+        long startMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_START));
+        if (endMillis != 0) {
+            year.setSurveyStart(new Date(startMillis));
+        }
         return year;
     }
 
