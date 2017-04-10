@@ -72,6 +72,20 @@ public class DbManager {
         }, true);
     }
 
+    public void logout() {
+        Backendless.UserService.logout(new AsyncCallback<Void>() {
+            @Override
+            public void handleResponse(Void response) {
+
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Utils.logError("Logout", fault.getMessage());
+            }
+        });
+    }
+
     public void checkUser() {
         String currentUserObjectId = UserIdStorageFactory.instance().getStorage().get();
         if (!TextUtils.isEmpty(currentUserObjectId)) {
@@ -87,6 +101,10 @@ public class DbManager {
                 }
             });
         }
+    }
+
+    public BackendlessUser getCurrentUser() {
+        return Backendless.UserService.CurrentUser();
     }
 
     public void isValidLogin(AsyncCallback<Boolean> callback) {

@@ -24,6 +24,10 @@
             android:id="@+id/survey"
             android:title="Survey"
             android:visible="false" />
+        <item
+            android:id="@+id/logout"
+            android:title="Log Out"
+            android:visible="false" />
     </group>
 
 </menu>

@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.backendless.BackendlessUser;
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
@@ -61,6 +62,9 @@ public class MainActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        BackendlessUser user = DbManager.getInstance().getCurrentUser();
+        navigationView.getMenu().findItem(R.id.logout).setVisible(user != null);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, ScheduleFragment.newInstance())
@@ -191,6 +195,9 @@ public class MainActivity extends AppCompatActivity
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(urlString)));
                 Utils.logSurvey();
             }
+        } else if (id == R.id.logout) {
+            DbManager.getInstance().logout();
+            navigationView.getMenu().findItem(R.id.logout).setVisible(false);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
