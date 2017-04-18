@@ -2,8 +2,8 @@ package com.n8yn8.abma.view;
 
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +41,7 @@ public class ScheduleFragment extends Fragment {
     ImageButton nextButton;
     TextView dateTextView;
     ListView scheduleListView;
+    SwipeRefreshLayout swipeRefreshLayout;
 
     List<BEvent> day;
     long displayDateMillis;
@@ -103,14 +104,37 @@ public class ScheduleFragment extends Fragment {
             }
         });
 
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefresh);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                reload();
+            }
+        });
+
         return rootView;
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onResume() {
+        super.onResume();
+        reload();
+    }
+
+    public void setLoading(final boolean isLoading) {
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(isLoading);
+            }
+        });
+
+    }
+
+    public void reload() {
         BYear year = db.getLastYear();
         setUpYear(year);
+        setLoading(false);
     }
 
     private void setUpYear(BYear year) {

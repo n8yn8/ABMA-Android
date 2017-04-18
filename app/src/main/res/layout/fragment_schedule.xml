@@ -41,9 +41,17 @@
             android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
-    <ListView
+    <android.support.v4.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/scheduleListView"
-        android:layout_gravity="center_horizontal" />
+        android:layout_height="match_parent"
+        android:id="@+id/swipeRefresh">
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/scheduleListView"
+            android:layout_gravity="center_horizontal" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
 </LinearLayout>
