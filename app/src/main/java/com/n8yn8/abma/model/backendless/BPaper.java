@@ -10,6 +10,7 @@ public class BPaper {
     String title;
     String author;
     String synopsis;
+    int order = 0;
 
     public BPaper() {
     }
@@ -44,5 +45,13 @@ public class BPaper {
 
     public void setSynopsis(String synopsis) {
         this.synopsis = synopsis;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 }
