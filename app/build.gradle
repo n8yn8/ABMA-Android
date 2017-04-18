@@ -1,15 +1,30 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId "com.n8yn8.abma"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 13
-        versionName "1.16.2"
+        versionCode 15
+        versionName "2.0.0"
     }
     buildTypes {
         release {
@@ -25,4 +40,9 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.googlecode.plist:dd-plist:1.8'
+    compile 'com.backendless:backendless:3.0.24'
+    compile 'com.android.volley:volley:1.0.0'
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
+        transitive = true;
+    }
 }

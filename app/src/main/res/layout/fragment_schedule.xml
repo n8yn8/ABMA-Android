@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    tools:context="com.n8yn8.abma.ScheduleFragment">
+    tools:context="com.n8yn8.abma.view.ScheduleFragment">
 
     <RelativeLayout
         android:orientation="horizontal"
