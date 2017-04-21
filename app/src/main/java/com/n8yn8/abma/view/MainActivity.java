@@ -257,8 +257,10 @@ public class MainActivity extends AppCompatActivity
         DatabaseHandler db = new DatabaseHandler(getApplicationContext());
         survey = db.getLatestSurvey();
         Date now = new Date();
-        if (now.after(survey.getSurveyStart()) && now.before(survey.getSurveyEnd())) {
-            navigationView.getMenu().findItem(R.id.survey).setVisible(true);
+        if (survey.getSurveyUrl() != null && survey.getSurveyStart() != null && survey.getSurveyEnd() != null) {
+            if (now.after(survey.getSurveyStart()) && now.before(survey.getSurveyEnd())) {
+                navigationView.getMenu().findItem(R.id.survey).setVisible(true);
+            }
         }
     }
 }
