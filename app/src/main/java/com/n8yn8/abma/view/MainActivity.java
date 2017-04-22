@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -69,7 +70,11 @@ public class MainActivity extends AppCompatActivity
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, ScheduleFragment.newInstance())
                 .commit();
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
         DatabaseHandler db = new DatabaseHandler(getApplicationContext());
         List<BYear> saveYears = db.getAllYears();
         if (saveYears.size() == 0) {
@@ -97,6 +102,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadBackendless(final DatabaseHandler db) {
+        ScheduleFragment fragment = getScheduleFragment();
+        if (fragment != null) {
+            fragment.setLoading(true);
+        }
         DbManager.getInstance().getYears(this, new DbManager.YearsResponse() {
             @Override
             public void onYearsReceived(List<BYear> years) {
@@ -106,6 +115,11 @@ public class MainActivity extends AppCompatActivity
                 }
                 checkOldNotes(db);
                 updateSurvey();
+
+                ScheduleFragment fragment = getScheduleFragment();
+                if (fragment != null) {
+                    fragment.reload();
+                }
             }
         });
     }
@@ -221,21 +235,32 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateSelectedYear(String year) {
+        ScheduleFragment fragment = getScheduleFragment();
+        if (fragment != null) {
+            fragment.setYear(year);
+        }
+    }
+
+    @Nullable
+    private ScheduleFragment getScheduleFragment() {
         FragmentManager manager = getSupportFragmentManager();
         List<Fragment> fragments = manager.getFragments();
         for (Fragment fragment : fragments) {
             if (fragment != null && fragment instanceof ScheduleFragment) {
-                ((ScheduleFragment) fragment).setYear(year);
+                return (ScheduleFragment) fragment;
             }
         }
+        return null;
     }
 
     private void updateSurvey() {
         DatabaseHandler db = new DatabaseHandler(getApplicationContext());
         survey = db.getLatestSurvey();
         Date now = new Date();
-        if (now.after(survey.getSurveyStart()) && now.before(survey.getSurveyEnd())) {
-            navigationView.getMenu().findItem(R.id.survey).setVisible(true);
+        if (survey.getSurveyUrl() != null && survey.getSurveyStart() != null && survey.getSurveyEnd() != null) {
+            if (now.after(survey.getSurveyStart()) && now.before(survey.getSurveyEnd())) {
+                navigationView.getMenu().findItem(R.id.survey).setVisible(true);
+            }
         }
     }
 }

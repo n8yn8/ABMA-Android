@@ -32,7 +32,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     // Database Name
     private static final String DATABASE_NAME = "abma";
@@ -63,6 +63,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_PAPER_ID = "paper_id";
     private static final String KEY_AUTHOR = "author";
     private static final String KEY_SYNOPSIS = "synopsis";
+    private static final String KEY_ORDER = "order_by";
     private static final String KEY_NOTE_CONTENT = "note_content";
     private static final String KEY_CREATED = "created_at";
     private static final String KEY_UPDATED = "updated_at";
@@ -88,6 +89,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + KEY_TITLE + " STRING,"
             + KEY_AUTHOR + " STRING,"
             + KEY_SYNOPSIS + " TEXT,"
+            + KEY_ORDER + " INT,"
             + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
             + ")";
 
@@ -152,9 +154,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
-        Map<Note, Pair<Event, Paper>> oldMap = new HashMap<>();
-
         if (oldVersion == 1) {
+
+            Map<Note, Pair<Event, Paper>> oldMap = new HashMap<>();
+
             List<Note> oldNotes = getOldNotes(db);
             Schedule schedule = ((App)context.getApplicationContext()).getOldSchedule();
             for (Note oldNote : oldNotes) {
@@ -166,14 +169,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 oldMap.put(oldNote, new Pair<Event, Paper>(oldEvent, oldPaper));
             }
             ((App) context.getApplicationContext()).setOldNotes(oldMap);
+
+            // Drop older table if existed
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTES);
+
+            // Create tables again
+            onCreate(db);
         }
 
-        // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTES);
-
-        // Create tables again
-        onCreate(db);
+        if (oldVersion == 2) {
+            db.execSQL("ALTER TABLE " + TABLE_PAPERS
+                    + " ADD COLUMN " + KEY_ORDER +
+                    " INTEGER DEFAULT 0");
+        }
     }
 
     public void addYear(BYear year) {
@@ -252,6 +261,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_TITLE, paper.getTitle());
         values.put(KEY_AUTHOR, paper.getAuthor());
         values.put(KEY_SYNOPSIS, paper.getSynopsis());
+        values.put(KEY_ORDER, paper.getOrder());
 
         // Inserting Row
         db.insert(TABLE_PAPERS, null, values);
@@ -658,11 +668,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public List<BPaper> getAllPapersFor(String eventId) {
         List<BPaper> list = new ArrayList<>();
-        // Select All Query
-        String selectQuery = "SELECT  * FROM " + TABLE_PAPERS + " WHERE (" + KEY_EVENT_ID + " == '" + eventId + "')";
 
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null); //TODO: sort
+        Cursor cursor = db.query(TABLE_PAPERS, null, KEY_EVENT_ID + "=?", new String[]{eventId},null, null, KEY_ORDER);
 
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
@@ -707,6 +715,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         paper.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
         paper.setAuthor(cursor.getString(cursor.getColumnIndex(KEY_AUTHOR)));
         paper.setSynopsis(cursor.getString(cursor.getColumnIndex(KEY_SYNOPSIS)));
+        paper.setOrder(cursor.getInt(cursor.getColumnIndex(KEY_ORDER)));
         return paper;
     }
 
