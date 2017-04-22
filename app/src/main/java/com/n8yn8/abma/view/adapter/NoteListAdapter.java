@@ -8,7 +8,10 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.Utils;
+import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BNote;
+import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
 import java.util.List;
@@ -50,12 +53,8 @@ public class NoteListAdapter extends ArrayAdapter<BNote> {
         ViewHolder holder = (ViewHolder) rowView.getTag();
         BNote note = notes.get(position);
         holder.noteTextView.setText(note.getContent());
-        String title;
-        if (note.getPaperId() != null) {
-            title = db.getPaperById(note.getPaperId()).getTitle();
-        } else {
-            title = db.getEventById(note.getEventId()).getTitle();
-        }
+        String title = getTitle(note);
+
         holder.detailTextView.setText(title);
 
         return rowView;
@@ -64,5 +63,21 @@ public class NoteListAdapter extends ArrayAdapter<BNote> {
     @Override
     public BNote getItem(int position) {
         return super.getItem(position);
+    }
+
+    private String getTitle(BNote note) {
+        if (note.getPaperId() != null) {
+            BPaper paper = db.getPaperById(note.getPaperId());
+            if (paper != null) {
+                return paper.getTitle();
+            }
+        } else {
+            BEvent event = db.getEventById(note.getEventId());
+            if (event != null) {
+                return event.getTitle();
+            }
+        }
+        Utils.logError("Set Note Title", note.toString());
+        return "";
     }
 }
