@@ -89,16 +89,15 @@ public class EventActivity extends ActionBarActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: get prev.
-//                if (paper != null) {
-//                    Paper tempPaper = schedule.getPrevPaper();
-//                    if (tempPaper != null) {
-//                        paper = tempPaper;
-//                        displayEvent();
-//                    } else {
-//                        Toast.makeText(getApplicationContext(), "First paper reached", Toast.LENGTH_SHORT).show();
-//                    }
-//                } else {
+                if (paper != null) {
+                    BPaper prevPaper = getPrevPaper();
+                    if (prevPaper != null) {
+                        paper = prevPaper;
+                        displayEvent();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "First paper reached", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
                     BEvent tempEvent = db.getEventBefore(event.getStartDate().getTime());
                     if (tempEvent != null) {
                         event = tempEvent;
@@ -106,22 +105,21 @@ public class EventActivity extends ActionBarActivity {
                     } else {
                         Toast.makeText(getApplicationContext(), "First event reached", Toast.LENGTH_SHORT).show();
                     }
-//                }
+                }
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: get next
-//                if (paper != null) {
-//                    Paper tempPaper = schedule.getNextPaper();
-//                    if (tempPaper != null) {
-//                        paper = tempPaper;
-//                        displayEvent();
-//                    } else {
-//                        Toast.makeText(getApplicationContext(), "Last paper reached", Toast.LENGTH_SHORT).show();
-//                    }
-//                } else {
+                if (paper != null) {
+                    BPaper nextPaper = getNextPaper();
+                    if (nextPaper != null) {
+                        paper = nextPaper;
+                        displayEvent();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Last paper reached", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
                     BEvent tempEvent = db.getEventAfter(event.getStartDate().getTime());
                     if (tempEvent != null) {
                         event = tempEvent;
@@ -129,7 +127,7 @@ public class EventActivity extends ActionBarActivity {
                     } else {
                         Toast.makeText(getApplicationContext(), "Last event reached", Toast.LENGTH_SHORT).show();
                     }
-//                }
+                }
 
             }
         });
@@ -257,5 +255,35 @@ public class EventActivity extends ActionBarActivity {
         } else {
             noteEditText.setText("");
         }
+    }
+
+    @Nullable
+    private BPaper getPrevPaper() {
+        for (int i = 0; i < event.getPapers().size(); i++) {
+            BPaper checkPaper = event.getPapers().get(i);
+            if (checkPaper.getObjectId().equals(paper.getObjectId())) {
+                if (i > 0) {
+                    return paper = event.getPapers().get(i - 1);
+                } else {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private BPaper getNextPaper() {
+        for (int i = 0; i < event.getPapers().size(); i++) {
+            BPaper checkPaper = event.getPapers().get(i);
+            if (checkPaper.getObjectId().equals(paper.getObjectId())) {
+                if (i < event.getPapers().size() - 1) {
+                    return paper = event.getPapers().get(i + 1);
+                } else {
+                    return null;
+                }
+            }
+        }
+        return null;
     }
 }
