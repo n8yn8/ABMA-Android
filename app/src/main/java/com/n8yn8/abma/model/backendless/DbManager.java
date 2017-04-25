@@ -15,6 +15,7 @@ import com.backendless.persistence.local.UserIdStorageFactory;
 import com.backendless.persistence.local.UserTokenStorageFactory;
 import com.n8yn8.abma.Utils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -117,7 +118,7 @@ public class DbManager {
     }
 
     public interface YearsResponse {
-        void onYearsReceived(List<BYear> years);
+        void onYearsReceived(List<BYear> years, String error);
     }
 
     public void getYears(Context context, final YearsResponse callback) {
@@ -130,12 +131,13 @@ public class DbManager {
         Backendless.Persistence.of(BYear.class).find(query, new AsyncCallback<BackendlessCollection<BYear>>() {
             @Override
             public void handleResponse(BackendlessCollection<BYear> response) {
-                callback.onYearsReceived(response.getCurrentPage());
+                callback.onYearsReceived(response.getCurrentPage(), null);
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
                 Utils.logError("GetYears", fault.getMessage());
+                callback.onYearsReceived(new ArrayList<BYear>(), fault.getMessage());
             }
         });
     }
