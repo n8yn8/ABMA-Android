@@ -40,6 +40,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     List<BNote> noteList;
     TextView noDataTextView;
     DatabaseHandler db;
+    Snackbar loginSnackbar;
 
     /**
      * The fragment's ListView/GridView.
@@ -111,6 +112,14 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        if (loginSnackbar != null && loginSnackbar.isShown()) {
+            loginSnackbar.dismiss();
+        }
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
@@ -173,7 +182,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     private void showSnackBar() {
-        Snackbar loginSnackbar = Snackbar.make(getView(), "Log in to save your notes online", Snackbar.LENGTH_INDEFINITE);
+        loginSnackbar = Snackbar.make(getView(), "Log in to save your notes online", Snackbar.LENGTH_INDEFINITE);
         loginSnackbar.setAction("Log In", new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -188,6 +197,12 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         builder.setTitle("Log In");
         LoginDialog view = new LoginDialog(getActivity());
         builder.setView(view);
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                updateLoginVisibility();
+            }
+        });
         final AlertDialog dialog = builder.show();
         view.setCallback(new LoginDialog.OnLoginSuccess() {
             @Override
