@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.backendless.BackendlessUser;
 import com.n8yn8.abma.App;
@@ -108,7 +109,11 @@ public class MainActivity extends AppCompatActivity
         }
         DbManager.getInstance().getYears(this, new DbManager.YearsResponse() {
             @Override
-            public void onYearsReceived(List<BYear> years) {
+            public void onYearsReceived(List<BYear> years, String error) {
+
+                if (error != null) {
+                    Toast.makeText(MainActivity.this, "Error: " + error, Toast.LENGTH_LONG).show();
+                }
 
                 for (BYear year: years) {
                     db.addYear(year);
