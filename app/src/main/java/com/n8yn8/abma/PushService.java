@@ -7,7 +7,6 @@ import android.util.Log;
 import com.backendless.push.BackendlessPushService;
 import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.backendless.DbManager;
-import com.n8yn8.abma.model.old.DatabaseHandler;
 
 import java.util.List;
 
@@ -37,10 +36,9 @@ public class PushService extends BackendlessPushService {
 
         DbManager.getInstance().getYears(context, new DbManager.YearsResponse() {
             @Override
-            public void onYearsReceived(List<BYear> years) {
-                DatabaseHandler db = new DatabaseHandler(context);
-                for (BYear year: years) {
-                    db.addYear(year);
+            public void onYearsReceived(List<BYear> years, String error) {
+                if (error == null) {
+                    Utils.saveYears(context, years);
                 }
             }
         });

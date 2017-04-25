@@ -12,15 +12,17 @@ import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.Utils;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BYear;
+import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 import com.n8yn8.abma.view.adapter.ScheduleListAdapter;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -108,17 +110,25 @@ public class ScheduleFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                reload();
+                DbManager.getInstance().getYears(getContext(), new DbManager.YearsResponse() {
+                    @Override
+                    public void onYearsReceived(List<BYear> years, String error) {
+                        setLoading(false);
+
+                        if (error != null) {
+                            Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                        }
+
+                        Utils.saveYears(getContext(), years);
+                        reload();
+                    }
+                });
             }
         });
 
-        return rootView;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
         reload();
+
+        return rootView;
     }
 
     public void setLoading(final boolean isLoading) {
@@ -134,19 +144,13 @@ public class ScheduleFragment extends Fragment {
     public void reload() {
         BYear year = db.getLastYear();
         setUpYear(year);
-        setLoading(false);
     }
 
     private void setUpYear(BYear year) {
         if (year != null) {
             List<BEvent> events = year.getEvents();
             BEvent firstEvent = events.get(0);
-            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-            calendar.setTime(firstEvent.getStartDate());
-            calendar.set(Calendar.HOUR, 0);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            displayDateMillis = calendar.getTimeInMillis();
+            displayDateMillis = Utils.getStartOfDay(firstEvent.getStartDate());
         }
         displayDay();
     }
