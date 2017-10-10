@@ -84,6 +84,9 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         View view = inflater.inflate(R.layout.fragment_note, container, false);
 
         noDataTextView = (TextView) view.findViewById(R.id.emptyNoteListTextView);
+        if (noDataTextView == null) {
+            noDataTextView = (TextView) view.findViewById(android.R.id.empty);
+        }
         if (noteList.size() == 0) {
             noDataTextView.setText("No notes have been saved yet.");
         } else {
