@@ -140,7 +140,6 @@ public class EventActivity extends ActionBarActivity {
                 InputMethodManager imm = (InputMethodManager)getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(noteEditText.getWindowToken(), 0);
 
-                //TODO: save note
                 String eventId = null;
                 if (event != null) {
                     eventId = event.getObjectId();
