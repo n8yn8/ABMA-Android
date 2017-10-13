@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadBackendless(final DatabaseHandler db) {
-        ScheduleFragment fragment = getScheduleFragment();
+        final ScheduleFragment fragment = getScheduleFragment();
         if (fragment != null) {
             fragment.setLoading(true);
         }
@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity
 
                 ScheduleFragment fragment = getScheduleFragment();
                 if (fragment != null) {
+                    fragment.setLoading(false);
                     fragment.reload();
                 }
             }
