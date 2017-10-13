@@ -6,11 +6,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.backendless.Backendless;
-import com.backendless.BackendlessCollection;
 import com.backendless.BackendlessUser;
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
-import com.backendless.persistence.BackendlessDataQuery;
+import com.backendless.persistence.DataQueryBuilder;
 import com.backendless.persistence.local.UserIdStorageFactory;
 import com.backendless.persistence.local.UserTokenStorageFactory;
 import com.n8yn8.abma.Utils;
@@ -128,11 +127,12 @@ public class DbManager {
         if (lastUpdate != null) {
             queryString += " AND updated > " + lastUpdate.getTime();
         }
-        BackendlessDataQuery query = new BackendlessDataQuery(queryString);
-        Backendless.Persistence.of(BYear.class).find(query, new AsyncCallback<BackendlessCollection<BYear>>() {
+        DataQueryBuilder queryBuilder = DataQueryBuilder.create();
+        queryBuilder.setWhereClause(queryString);
+        Backendless.Persistence.of(BYear.class).find(queryBuilder, new AsyncCallback<List<BYear>>() {
             @Override
-            public void handleResponse(BackendlessCollection<BYear> response) {
-                callback.onYearsReceived(response.getCurrentPage(), null);
+            public void handleResponse(List<BYear> response) {
+                callback.onYearsReceived(response, null);
             }
 
             @Override
@@ -174,11 +174,12 @@ public class DbManager {
 
     public void getAllNotes(final OnGetNotesCallback callback) {
         String userId = UserIdStorageFactory.instance().getStorage().get();
-        BackendlessDataQuery query = new BackendlessDataQuery("user.objectId = \'" + userId + "\'");
-        Backendless.Persistence.of(BNote.class).find(query, new AsyncCallback<BackendlessCollection<BNote>>() {
+        DataQueryBuilder queryBuilder = DataQueryBuilder.create();
+        queryBuilder.setWhereClause("user.objectId = \'" + userId + "\'");
+        Backendless.Persistence.of(BNote.class).find(queryBuilder, new AsyncCallback<List<BNote>>() {
             @Override
-            public void handleResponse(BackendlessCollection<BNote> response) {
-                callback.notesRetrieved(response.getCurrentPage(), null);
+            public void handleResponse(List<BNote> response) {
+                callback.notesRetrieved(response, null);
             }
 
             @Override

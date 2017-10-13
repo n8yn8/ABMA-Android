@@ -35,7 +35,7 @@ public class App extends Application {
             Fabric.with(this, new Crashlytics());
         }
 
-        Backendless.initApp(this, "6AC37915-D986-26C2-FF1C-B0B3ACCB6A00", "145212DB-A903-6C49-FF02-1C70A1BD0A00", "v1");
+        Backendless.initApp(this, "627F9018-4483-B50E-FFCA-0E42A1E33F00", "33D8A4D8-B77A-F2C0-FF87-9B09E164C200");
         DbManager.getInstance().checkUser();
         DbManager.getInstance().registerPush();
     }
