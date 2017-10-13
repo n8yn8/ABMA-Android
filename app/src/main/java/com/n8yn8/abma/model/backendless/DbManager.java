@@ -99,6 +99,7 @@ public class DbManager {
                 @Override
                 public void handleFault(BackendlessFault fault) {
                     Utils.logError("CheckUser", fault.getMessage());
+                    logout();
                 }
             });
         }
