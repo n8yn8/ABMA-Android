@@ -36,8 +36,12 @@ public class App extends Application {
         }
 
         Backendless.initApp(this, "7D06F708-89FA-DD86-FF95-C51A10425A00", "AA32ED18-4FEC-569C-FF5F-AE0F2F571E00");
-        DbManager.getInstance().checkUser();
-        DbManager.getInstance().registerPush();
+        DbManager.getInstance().checkUser(new DbManager.CheckUserCallback() {
+            @Override
+            public void onDone() {
+                DbManager.getInstance().registerPush();
+            }
+        });
     }
 
     public Schedule getOldSchedule() {

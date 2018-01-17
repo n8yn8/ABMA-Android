@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity
                 Utils.logSurvey();
             }
         } else if (id == R.id.logout) {
-            DbManager.getInstance().logout();
+            DbManager.getInstance().logout(null);
             navigationView.getMenu().findItem(R.id.logout).setVisible(false);
         }
 

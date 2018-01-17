@@ -72,33 +72,42 @@ public class DbManager {
         }, true);
     }
 
-    public void logout() {
+    public void logout(@Nullable final CheckUserCallback callback) {
         Backendless.UserService.logout(new AsyncCallback<Void>() {
             @Override
             public void handleResponse(Void response) {
-
+                if (callback != null) {
+                    callback.onDone();
+                }
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
                 Utils.logError("Logout", fault.getMessage());
+                if (callback != null) {
+                    callback.onDone();
+                }
             }
         });
     }
 
-    public void checkUser() {
+    public interface CheckUserCallback {
+        void onDone();
+    }
+    public void checkUser(final CheckUserCallback callback) {
         String currentUserObjectId = UserIdStorageFactory.instance().getStorage().get();
         if (!TextUtils.isEmpty(currentUserObjectId)) {
             Backendless.Data.of( BackendlessUser.class ).findById(currentUserObjectId, new AsyncCallback<BackendlessUser>() {
                 @Override
                 public void handleResponse(BackendlessUser response) {
                     Backendless.UserService.setCurrentUser(response);
+                    callback.onDone();
                 }
 
                 @Override
                 public void handleFault(BackendlessFault fault) {
                     Utils.logError("CheckUser", fault.getMessage());
-                    logout();
+                    logout(callback);
                 }
             });
         }
