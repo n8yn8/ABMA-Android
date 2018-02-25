@@ -35,9 +35,13 @@ public class App extends Application {
             Fabric.with(this, new Crashlytics());
         }
 
-        Backendless.initApp(this, "627F9018-4483-B50E-FFCA-0E42A1E33F00", "33D8A4D8-B77A-F2C0-FF87-9B09E164C200");
-        DbManager.getInstance().checkUser();
-        DbManager.getInstance().registerPush();
+        Backendless.initApp(this, "7D06F708-89FA-DD86-FF95-C51A10425A00", "AA32ED18-4FEC-569C-FF5F-AE0F2F571E00");
+        DbManager.getInstance().checkUser(new DbManager.CheckUserCallback() {
+            @Override
+            public void onDone() {
+                DbManager.getInstance().registerPush();
+            }
+        });
     }
 
     public Schedule getOldSchedule() {

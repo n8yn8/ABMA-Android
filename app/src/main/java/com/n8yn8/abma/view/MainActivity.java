@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity
 
     NavigationView navigationView;
     MenuItem yearsMenuItem;
+    MenuItem yearInfoMenuItem;
     Survey survey;
 
     @Override
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity
 
         BackendlessUser user = DbManager.getInstance().getCurrentUser();
         navigationView.getMenu().findItem(R.id.logout).setVisible(user != null);
+        yearInfoMenuItem = navigationView.getMenu().findItem(R.id.conference_info);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, ScheduleFragment.newInstance())
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity
             loadBackendless(db);
         } else {
             updateSurvey();
+            updateYearInfo();
         }
     }
 
@@ -120,6 +123,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 checkOldNotes(db);
                 updateSurvey();
+                updateYearInfo();
 
                 ScheduleFragment fragment = getScheduleFragment();
                 if (fragment != null) {
@@ -216,7 +220,7 @@ public class MainActivity extends AppCompatActivity
                 Utils.logSurvey();
             }
         } else if (id == R.id.logout) {
-            DbManager.getInstance().logout();
+            DbManager.getInstance().logout(null);
             navigationView.getMenu().findItem(R.id.logout).setVisible(false);
         }
 
@@ -268,5 +272,15 @@ public class MainActivity extends AppCompatActivity
                 navigationView.getMenu().findItem(R.id.survey).setVisible(true);
             }
         }
+    }
+
+    private void updateYearInfo() {
+        DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+        BYear latestYear = db.getLastYear();
+        if (latestYear == null || yearInfoMenuItem == null) {
+            return;
+        }
+        int year = latestYear.getName();
+        yearInfoMenuItem.setTitle(year + " Info");
     }
 }

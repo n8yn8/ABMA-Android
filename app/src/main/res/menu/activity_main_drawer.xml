@@ -13,7 +13,7 @@
             android:title="Notes" />
         <item
             android:id="@+id/conference_info"
-            android:title="2016 Info" />
+            android:title="Info" />
         <item
             android:id="@+id/sponsors"
             android:title="Sponsors" />
