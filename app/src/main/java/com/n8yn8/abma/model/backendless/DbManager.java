@@ -153,6 +153,25 @@ public class DbManager {
         });
     }
 
+    public void getSponsors(String yearId, final Callback<List<BSponsor>> callback) {
+        LoadRelationsQueryBuilder<BSponsor> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BSponsor.class )
+                .setRelationName( "sponsors" )
+                .setPageSize(100);
+
+        Backendless.Data.of( BYear.class ).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BSponsor>>() {
+            @Override
+            public void handleResponse(List<BSponsor> response) {
+                callback.onDone(response, null);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Utils.logError("GetSponsors", fault.getMessage());
+                callback.onDone(new ArrayList<BSponsor>(), fault.getMessage());
+            }
+        });
+    }
+
     public void getEvents(String yearId, final Callback<List<BEvent>> callback) {
         LoadRelationsQueryBuilder<BEvent> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BEvent.class )
                 .setRelationName( "events" )

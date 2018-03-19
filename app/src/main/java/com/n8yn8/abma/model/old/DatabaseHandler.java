@@ -203,12 +203,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(KEY_SURVEY_END, year.getSurveyEnd().getTime());
         }
 
-//        for (BSponsor sponsor: year.getSponsors()) {
-//            addSponsor(sponsor, year.getObjectId());
-//        }
-
         // Inserting Row
         db.insert(TABLE_YEARS, null, values);
+        db.close();
+    }
+
+    public void addSponsors(String yearId, List<BSponsor> sponsors) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        for (BSponsor sponsor: sponsors) {
+            addSponsor(db, sponsor, yearId);
+        }
         db.close();
     }
 
@@ -220,8 +224,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    private void addSponsor(BSponsor sponsor, String yearId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    private void addSponsor(SQLiteDatabase db, BSponsor sponsor, String yearId) {
         ContentValues values = new ContentValues();
         values.put(KEY_OBJECT_ID, sponsor.getObjectId());
         values.put(KEY_URL, sponsor.getUrl());
@@ -230,7 +233,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // Inserting Row
         db.insert(TABLE_SPONSORS, null, values);
-//        db.close();
     }
 
     private void addEvent(SQLiteDatabase db, BEvent event, String yearId) {
@@ -379,6 +381,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
 
         // return contact list
         return yearList;
@@ -397,6 +400,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
 
         // return contact list
         return names;
@@ -420,6 +424,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 survey.setSurveyStart(new Date(startMillis));
             }
         }
+        cursor.close();
+        db.close();
         return survey;
     }
 
@@ -433,6 +439,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             year = constructYear(cursor);
         }
         cursor.close();
+        db.close();
         return year;
     }
 
@@ -446,6 +453,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             year = constructYear(cursor);
         }
         cursor.close();
+        db.close();
         return year;
     }
 
@@ -495,7 +503,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return list;
     }
 
-    public List<BSponsor> getAllSponsorsFor(String yearId) {
+    private List<BSponsor> getAllSponsorsFor(String yearId) {
         List<BSponsor> list = new ArrayList<>();
         // Select All Query
         String selectQuery = "SELECT  * FROM " + TABLE_SPONSORS + " WHERE (" + KEY_YEAR_ID + " == '" + yearId + "')";
@@ -514,6 +522,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
 
         // return contact list
         return list;
@@ -549,6 +558,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             event = constructEvent(cursor);
         }
         cursor.close();
+        db.close();
         return event;
     }
 
@@ -562,6 +572,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             paper = constructPaper(cursor);
         }
         cursor.close();
+        db.close();
         return paper;
     }
 
@@ -583,6 +594,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 return event;
             } else {
                 cursor.close();
+                db.close();
                 return null;
             }
         } else {
@@ -605,12 +617,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
 
         // return contact list
         return list;
     }
 
-    public List<BEvent> getAllEventsFor(String yearId) {
+    private List<BEvent> getAllEventsFor(String yearId) {
         List<BEvent> list = new ArrayList<>();
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -624,6 +637,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
 
         // return contact list
         return list;
@@ -649,6 +663,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             event = constructEvent(cursor);
         }
         cursor.close();
+        db.close();
         return event;
     }
 
@@ -668,7 +683,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return event;
     }
 
-    public List<BPaper> getAllPapersFor(String eventId) {
+    private List<BPaper> getAllPapersFor(String eventId) {
         List<BPaper> list = new ArrayList<>();
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -681,6 +696,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
 
         // return contact list
         return list;
@@ -704,6 +720,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 return paper;
             } else {
                 cursor.close();
+                db.close();
                 return null;
             }
         } else {
