@@ -224,6 +224,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void addPapers(String eventId, List<BPaper> papers) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        for (BPaper paper: papers) {
+            addPaper(db, paper, eventId);
+        }
+        db.close();
+    }
+
     private void addSponsor(SQLiteDatabase db, BSponsor sponsor, String yearId) {
         ContentValues values = new ContentValues();
         values.put(KEY_OBJECT_ID, sponsor.getObjectId());
@@ -248,16 +256,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_START_DATE, event.getStartDate().getTime());
         values.put(KEY_SUBTITLE, event.getSubtitle());
         values.put(KEY_TITLE, event.getTitle());
-        for (BPaper paper : event.getPapers()) {
-            addPaper(paper, event.getObjectId());
-        }
 
         // Inserting Row
         db.insert(TABLE_EVENTS, null, values);
     }
 
-    private void addPaper(BPaper paper, String eventId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    private void addPaper(SQLiteDatabase db, BPaper paper, String eventId) {
         ContentValues values = new ContentValues();
 
         values.put(KEY_OBJECT_ID, paper.getObjectId());
@@ -269,7 +273,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // Inserting Row
         db.insert(TABLE_PAPERS, null, values);
-//        db.close(); // Closing database connection
     }
 
     public void addNoteSafe(BNote remoteNote) {

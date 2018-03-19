@@ -18,6 +18,7 @@ public class BEvent {
     String subtitle;
     String title;
     List<BPaper> papers = new ArrayList<>();
+    int papersCount = 0;
 
     public BEvent() {
     }
@@ -84,5 +85,13 @@ public class BEvent {
 
     public void setPapers(List<BPaper> papers) {
         this.papers = papers;
+    }
+
+    public int getPapersCount() {
+        return papersCount;
+    }
+
+    public void setPapersCount(int papersCount) {
+        this.papersCount = papersCount;
     }
 }

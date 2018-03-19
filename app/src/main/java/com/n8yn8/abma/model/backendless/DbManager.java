@@ -191,6 +191,25 @@ public class DbManager {
         });
     }
 
+    public void getPapers(String eventId, final Callback<List<BPaper>> callback) {
+        LoadRelationsQueryBuilder<BPaper> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BPaper.class )
+                .setRelationName( "papers" )
+                .setPageSize(100);
+
+        Backendless.Data.of( BEvent.class ).loadRelations(eventId, loadRelationsQueryBuilder, new AsyncCallback<List<BPaper>>() {
+            @Override
+            public void handleResponse(List<BPaper> response) {
+                callback.onDone(response, null);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Utils.logError("GetEvents", fault.getMessage());
+                callback.onDone(new ArrayList<BPaper>(), fault.getMessage());
+            }
+        });
+    }
+
     public interface OnNoteSavedCallback {
         void noteSaved(BNote note, String error);
     }
