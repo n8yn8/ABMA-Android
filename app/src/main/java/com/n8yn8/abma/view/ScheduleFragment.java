@@ -4,6 +4,7 @@ package com.n8yn8.abma.view;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +48,7 @@ public class ScheduleFragment extends Fragment {
 
     List<BEvent> day;
     long displayDateMillis;
+    String selectedYearName;
 
     /**
      * Use this factory method to create a new instance of
@@ -142,7 +144,12 @@ public class ScheduleFragment extends Fragment {
     }
 
     public void reload() {
-        BYear year = db.getLastYear();
+        BYear year;
+        if (TextUtils.isEmpty(selectedYearName)) {
+            year = db.getLastYear();
+        } else {
+            year = db.getYearByName(selectedYearName);
+        }
         setUpYear(year);
     }
 
@@ -183,7 +190,7 @@ public class ScheduleFragment extends Fragment {
     }
 
     public void setYear(String name) {
-        BYear selectedYear = db.getYearByName(name);
-        setUpYear(selectedYear);
+        selectedYearName = name;
+        reload();
     }
 }
