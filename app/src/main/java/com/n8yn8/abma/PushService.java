@@ -38,9 +38,9 @@ public class PushService extends BackendlessPushService {
         String message = intent.getStringExtra( "message" );
         Log.d("Nate", "onMessaage = " + message);
 
-        DbManager.getInstance().getYears(context, new DbManager.YearsResponse() {
+        DbManager.getInstance().getYears(context, new DbManager.Callback<List<BYear>>() {
             @Override
-            public void onYearsReceived(List<BYear> years, String error) {
+            public void onDone(List<BYear> years, String error) {
                 if (error == null) {
                     Utils.saveYears(context, years);
                 }

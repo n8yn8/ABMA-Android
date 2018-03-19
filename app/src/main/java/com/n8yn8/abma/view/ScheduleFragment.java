@@ -4,6 +4,7 @@ package com.n8yn8.abma.view;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +48,7 @@ public class ScheduleFragment extends Fragment {
 
     List<BEvent> day;
     long displayDateMillis;
+    String selectedYearName;
 
     /**
      * Use this factory method to create a new instance of
@@ -110,9 +112,9 @@ public class ScheduleFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                DbManager.getInstance().getYears(getContext(), new DbManager.YearsResponse() {
+                DbManager.getInstance().getYears(getContext(), new DbManager.Callback<List<BYear>>() {
                     @Override
-                    public void onYearsReceived(List<BYear> years, String error) {
+                    public void onDone(List<BYear> years, String error) {
                         setLoading(false);
 
                         if (error != null) {
@@ -142,15 +144,32 @@ public class ScheduleFragment extends Fragment {
     }
 
     public void reload() {
-        BYear year = db.getLastYear();
+        BYear year;
+        if (TextUtils.isEmpty(selectedYearName)) {
+            year = db.getLastYear();
+        } else {
+            year = db.getYearByName(selectedYearName);
+        }
         setUpYear(year);
     }
 
-    private void setUpYear(BYear year) {
+    private void setUpYear(final BYear year) {
         if (year != null) {
             List<BEvent> events = year.getEvents();
-            BEvent firstEvent = events.get(0);
-            displayDateMillis = Utils.getStartOfDay(firstEvent.getStartDate());
+            if (events.size() == 0) {
+                setLoading(true);
+                DbManager.getInstance().getEvents(year.getObjectId(), new DbManager.Callback<List<BEvent>>() {
+                    @Override
+                    public void onDone(List<BEvent> bEvents, String error) {
+                        Utils.saveEvents(getContext(), year.getObjectId(), bEvents);
+                        setLoading(false);
+                        reload();
+                    }
+                });
+            } else {
+                BEvent firstEvent = events.get(0);
+                displayDateMillis = Utils.getStartOfDay(firstEvent.getStartDate());
+            }
         }
         displayDay();
     }
@@ -171,7 +190,7 @@ public class ScheduleFragment extends Fragment {
     }
 
     public void setYear(String name) {
-        BYear selectedYear = db.getYearByName(name);
-        setUpYear(selectedYear);
+        selectedYearName = name;
+        reload();
     }
 }
