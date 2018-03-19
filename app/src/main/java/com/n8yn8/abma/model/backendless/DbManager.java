@@ -10,6 +10,7 @@ import com.backendless.BackendlessUser;
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
 import com.backendless.persistence.DataQueryBuilder;
+import com.backendless.persistence.LoadRelationsQueryBuilder;
 import com.backendless.persistence.local.UserIdStorageFactory;
 import com.backendless.persistence.local.UserTokenStorageFactory;
 import com.n8yn8.abma.Utils;
@@ -126,11 +127,11 @@ public class DbManager {
         }
     }
 
-    public interface YearsResponse {
-        void onYearsReceived(List<BYear> years, String error);
+    public interface Callback<T> {
+        public void onDone(T t, String error);
     }
 
-    public void getYears(Context context, final YearsResponse callback) {
+    public void getYears(Context context, final Callback<List<BYear>> callback) {
         String queryString = "publishedAt is not null";
         Date lastUpdate = Utils.getLastUpdated(context);
         if (lastUpdate != null) {
@@ -141,13 +142,70 @@ public class DbManager {
         Backendless.Persistence.of(BYear.class).find(queryBuilder, new AsyncCallback<List<BYear>>() {
             @Override
             public void handleResponse(List<BYear> response) {
-                callback.onYearsReceived(response, null);
+                callback.onDone(response, null);
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
                 Utils.logError("GetYears", fault.getMessage());
-                callback.onYearsReceived(new ArrayList<BYear>(), fault.getMessage());
+                callback.onDone(new ArrayList<BYear>(), fault.getMessage());
+            }
+        });
+    }
+
+    public void getSponsors(String yearId, final Callback<List<BSponsor>> callback) {
+        LoadRelationsQueryBuilder<BSponsor> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BSponsor.class )
+                .setRelationName( "sponsors" )
+                .setPageSize(100);
+
+        Backendless.Data.of( BYear.class ).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BSponsor>>() {
+            @Override
+            public void handleResponse(List<BSponsor> response) {
+                callback.onDone(response, null);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Utils.logError("GetSponsors", fault.getMessage());
+                callback.onDone(new ArrayList<BSponsor>(), fault.getMessage());
+            }
+        });
+    }
+
+    public void getEvents(String yearId, final Callback<List<BEvent>> callback) {
+        LoadRelationsQueryBuilder<BEvent> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BEvent.class )
+                .setRelationName( "events" )
+                .setPageSize(100);
+
+        Backendless.Data.of( BYear.class ).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BEvent>>() {
+            @Override
+            public void handleResponse(List<BEvent> response) {
+                callback.onDone(response, null);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Utils.logError("GetEvents", fault.getMessage());
+                callback.onDone(new ArrayList<BEvent>(), fault.getMessage());
+            }
+        });
+    }
+
+    public void getPapers(String eventId, final Callback<List<BPaper>> callback) {
+        LoadRelationsQueryBuilder<BPaper> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BPaper.class )
+                .setRelationName( "papers" )
+                .setPageSize(100);
+
+        Backendless.Data.of( BEvent.class ).loadRelations(eventId, loadRelationsQueryBuilder, new AsyncCallback<List<BPaper>>() {
+            @Override
+            public void handleResponse(List<BPaper> response) {
+                callback.onDone(response, null);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Utils.logError("GetEvents", fault.getMessage());
+                callback.onDone(new ArrayList<BPaper>(), fault.getMessage());
             }
         });
     }

@@ -10,7 +10,9 @@ import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.LoginEvent;
 import com.crashlytics.android.answers.SignUpEvent;
 import com.n8yn8.abma.model.backendless.BEvent;
+import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.backendless.BYear;
+import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
 import java.text.SimpleDateFormat;
@@ -101,6 +103,21 @@ public class Utils {
         DatabaseHandler db = new DatabaseHandler(context);
         for (BYear year: years) {
             db.addYear(year);
+        }
+    }
+
+    public static void saveEvents(Context context, String yearId, List<BEvent> events) {
+        final DatabaseHandler db = new DatabaseHandler(context);
+        db.addEvents(yearId, events);
+        for (final BEvent event : events) {
+            if (event.getPapersCount() != 0) {
+                DbManager.getInstance().getPapers(event.getObjectId(), new DbManager.Callback<List<BPaper>>() {
+                    @Override
+                    public void onDone(List<BPaper> bPapers, String error) {
+                        db.addPapers(event.getObjectId(), bPapers);
+                    }
+                });
+            }
         }
     }
 
