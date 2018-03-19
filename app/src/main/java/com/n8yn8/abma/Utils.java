@@ -104,6 +104,11 @@ public class Utils {
         }
     }
 
+    public static void saveEvents(Context context, String yearId, List<BEvent> events) {
+        DatabaseHandler db = new DatabaseHandler(context);
+        db.addEvents(yearId, events);
+    }
+
     public static long getStartOfDay(Date date) {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.setTime(date);

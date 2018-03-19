@@ -110,9 +110,9 @@ public class MainActivity extends AppCompatActivity
         if (fragment != null) {
             fragment.setLoading(true);
         }
-        DbManager.getInstance().getYears(this, new DbManager.YearsResponse() {
+        DbManager.getInstance().getYears(this, new DbManager.Callback<List<BYear>>() {
             @Override
-            public void onYearsReceived(List<BYear> years, String error) {
+            public void onDone(List<BYear> years, String error) {
 
                 if (error != null) {
                     Toast.makeText(MainActivity.this, "Error: " + error, Toast.LENGTH_LONG).show();

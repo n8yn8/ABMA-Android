@@ -203,16 +203,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(KEY_SURVEY_END, year.getSurveyEnd().getTime());
         }
 
-        for (BSponsor sponsor: year.getSponsors()) {
-            addSponsor(sponsor, year.getObjectId());
-        }
-
-        for (BEvent event: year.getEvents()) {
-            addEvent(event, year.getObjectId());
-        }
+//        for (BSponsor sponsor: year.getSponsors()) {
+//            addSponsor(sponsor, year.getObjectId());
+//        }
 
         // Inserting Row
         db.insert(TABLE_YEARS, null, values);
+        db.close();
+    }
+
+    public void addEvents(String yearId, List<BEvent> events) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        for (BEvent event: events) {
+            addEvent(db, event, yearId);
+        }
         db.close();
     }
 
@@ -229,8 +233,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 //        db.close();
     }
 
-    private void addEvent(BEvent event, String yearId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    private void addEvent(SQLiteDatabase db, BEvent event, String yearId) {
         ContentValues values = new ContentValues();
 
         values.put(KEY_OBJECT_ID, event.getObjectId());
@@ -249,7 +252,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // Inserting Row
         db.insert(TABLE_EVENTS, null, values);
-//        db.close(); // Closing database connection
     }
 
     private void addPaper(BPaper paper, String eventId) {
