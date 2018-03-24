@@ -111,6 +111,8 @@ public class DbManager {
                     logout(callback);
                 }
             });
+        } else {
+            callback.onDone();
         }
     }
 
