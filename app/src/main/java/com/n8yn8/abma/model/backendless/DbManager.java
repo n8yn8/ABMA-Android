@@ -260,7 +260,7 @@ public class DbManager {
     }
 
     public void registerPush() {
-        Backendless.Messaging.registerDevice("1099001155411", new AsyncCallback<Void>() {
+        Backendless.Messaging.registerDevice("634420626363", new AsyncCallback<Void>() {
             @Override
             public void handleResponse(Void response) {
                 Log.d("Nate", "push reg response: " + response);
