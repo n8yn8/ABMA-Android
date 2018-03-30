@@ -232,6 +232,9 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
                                 });
                             }
                         }
+                        noteList.clear();
+                        noteList.addAll(db.getAllNotes());
+                        mAdapter.notifyDataSetChanged();
                     }
                 });
 
