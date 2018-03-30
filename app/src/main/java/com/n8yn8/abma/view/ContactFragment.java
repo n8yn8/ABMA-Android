@@ -1,16 +1,22 @@
 package com.n8yn8.abma.view;
 
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.backendless.BSurvey;
+import com.n8yn8.abma.model.backendless.BYear;
+import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.view.adapter.SurveyListAdapter;
+
+import java.util.List;
 
 
 /**
@@ -20,6 +26,8 @@ import com.n8yn8.abma.R;
  */
 public class ContactFragment extends Fragment {
 
+    private RecyclerView listView;
+    List<BSurvey> surveys;
 
     /**
      * Use this factory method to create a new instance of
@@ -41,8 +49,9 @@ public class ContactFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
+        DatabaseHandler db = new DatabaseHandler(getContext());
+        BYear latestYear = db.getLastYear();
+        surveys = db.getSurveys(latestYear.getObjectId());
     }
 
     @Override
@@ -50,23 +59,31 @@ public class ContactFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_contact, container, false);
-        Button siteButton = (Button) view.findViewById(R.id.siteButton);
-        Button contactButton = (Button) view.findViewById(R.id.contactButton);
+        listView = (RecyclerView) view.findViewById(R.id.surveyListView);
+        SurveyListAdapter adapter = new SurveyListAdapter(surveys);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext().getApplicationContext());
+        listView.setLayoutManager(mLayoutManager);
+        listView.setItemAnimator(new DefaultItemAnimator());
 
-        siteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.theabma.org"));
-                startActivity(browserIntent);
-            }
-        });
-        contactButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://theabma.org/contact/"));
-                startActivity(browserIntent);
-            }
-        });
+        listView.setAdapter(adapter);
+
+//        Button siteButton = (Button) view.findViewById(R.id.siteButton);
+//        Button contactButton = (Button) view.findViewById(R.id.contactButton);
+//
+//        siteButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.theabma.org"));
+//                startActivity(browserIntent);
+//            }
+//        });
+//        contactButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://theabma.org/contact/"));
+//                startActivity(browserIntent);
+//            }
+//        });
         return view;
     }
 
