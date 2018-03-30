@@ -23,25 +23,11 @@
 
     </RelativeLayout>
 
-    <Button
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ABMA Website"
-        android:id="@+id/siteButton"
+        android:id="@+id/surveyListView"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp" />
+        android:layout_margin="15dp"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Contact ABMA"
-        android:id="@+id/contactButton"
-        android:layout_gravity="center_horizontal" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView4"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/abma_logo" />
 </LinearLayout>

@@ -9,12 +9,17 @@ import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.n8yn8.abma.App;
+import com.n8yn8.abma.model.MyDateTypeAdapter;
 import com.n8yn8.abma.model.Survey;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.backendless.BSponsor;
+import com.n8yn8.abma.model.backendless.BSurvey;
 import com.n8yn8.abma.model.backendless.BYear;
 
 import java.util.ArrayList;
@@ -32,7 +37,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     // Database Name
     private static final String DATABASE_NAME = "abma";
@@ -43,6 +48,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String TABLE_EVENTS = "events";
     private static final String TABLE_PAPERS = "papers";
     private static final String TABLE_NOTES = "notes";
+    private static final String TABLE_SURVEYS = "surveys";
 
     // Contacts Table Columns names
     private static final String KEY_ID = "id";
@@ -138,6 +144,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
             + ")";
 
+    private String CREATE_SURVEYS_TABLE = "CREATE TABLE " + TABLE_SURVEYS + "("
+            + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_YEAR_ID + " STRING,"
+            + KEY_TITLE + " STRING,"
+            + KEY_DETAILS + " STRING,"
+            + KEY_URL + " TEXT,"
+            + KEY_SURVEY_START + " INTEGER,"
+            + KEY_SURVEY_END + " INTEGER,"
+            + "UNIQUE (" + KEY_URL + ") ON CONFLICT REPLACE"
+            + ")";
+
     // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -147,6 +164,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(CREATE_EVENTS_TABLE);
         db.execSQL(CREATE_NOTES_TABLE);
         db.execSQL(CREATE_PAPERS_TABLE);
+        db.execSQL(CREATE_SURVEYS_TABLE);
 
     }
 
@@ -183,6 +201,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     + " ADD COLUMN " + KEY_ORDER +
                     " INTEGER DEFAULT 0");
         }
+
+        if (oldVersion == 3) {
+            db.execSQL(CREATE_SURVEYS_TABLE);
+        }
     }
 
     public void addYear(BYear year) {
@@ -193,19 +215,38 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_NAME, year.getName());
         values.put(KEY_INFO, year.getInfo());
         values.put(KEY_WELCOME, year.getWelcome());
-        if (year.getSurveyUrl() != null) {
-            values.put(KEY_SURVEY_URL, year.getSurveyUrl());
-        }
-        if (year.getSurveyStart() != null) {
-            values.put(KEY_SURVEY_START, year.getSurveyStart().getTime());
-        }
-        if (year.getSurveyEnd() != null) {
-            values.put(KEY_SURVEY_END, year.getSurveyEnd().getTime());
+
+        String surveysString = year.getSurveys();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class,new MyDateTypeAdapter())
+                .create();
+        List<BSurvey> surveys = gson.fromJson(surveysString, new TypeToken<List<BSurvey>>(){}.getType());
+        if (surveys != null) {
+            addSurveys(db, year.getObjectId(), surveys);
         }
 
         // Inserting Row
         db.insert(TABLE_YEARS, null, values);
         db.close();
+    }
+
+    private void addSurveys(SQLiteDatabase db, String yearId, List<BSurvey> surveys) {
+        for (BSurvey survey : surveys) {
+            addSurvey(db, survey, yearId);
+        }
+    }
+
+    private void addSurvey(SQLiteDatabase db, BSurvey survey, String yearId) {
+        ContentValues values = new ContentValues();
+        values.put(KEY_TITLE, survey.getTitle());
+        values.put(KEY_DETAILS, survey.getDetails());
+        values.put(KEY_URL, survey.getUrl());
+        values.put(KEY_SURVEY_START, survey.getStart().getTime());
+        values.put(KEY_SURVEY_END, survey.getEnd().getTime());
+        values.put(KEY_YEAR_ID, yearId);
+
+        // Inserting Row
+        db.insert(TABLE_SURVEYS, null, values);
     }
 
     public void addSponsors(String yearId, List<BSponsor> sponsors) {
@@ -470,16 +511,36 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         year.setSponsors(sponsors);
         List<BEvent> events = getAllEventsFor(year.getObjectId());
         year.setEvents(events);
-        year.setSurveyUrl(cursor.getString(cursor.getColumnIndex(KEY_SURVEY_URL)));
-        long endMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_END));
-        if (endMillis != 0) {
-            year.setSurveyEnd(new Date(endMillis));
-        }
-        long startMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_START));
-        if (endMillis != 0) {
-            year.setSurveyStart(new Date(startMillis));
-        }
         return year;
+    }
+
+    public List<BSurvey> getSurveys(String yearId) {
+        List<BSurvey> list = new ArrayList<>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + TABLE_SURVEYS + " WHERE (" + KEY_YEAR_ID + " == '" + yearId + "')";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null); //TODO: sort
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                BSurvey survey = new BSurvey();
+                survey.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
+                survey.setDetails(cursor.getString(cursor.getColumnIndex(KEY_DETAILS)));
+                survey.setUrl(cursor.getString(cursor.getColumnIndex(KEY_URL)));
+                long start = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_START));
+                long end = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_END));
+                survey.setStart(new Date(start));
+                survey.setEnd(new Date(end));
+                list.add(survey);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+
+        // return contact list
+        return list;
     }
 
     public List<BSponsor> getAllSponsors() {
