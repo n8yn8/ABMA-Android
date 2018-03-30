@@ -59,7 +59,7 @@ public class ContactFragment extends Fragment {
         List <BSurvey> allSurveys = db.getSurveys(latestYear.getObjectId());
         Date now = new Date();
         for (BSurvey survey : allSurveys) {
-            if (survey.getStart().after(now) && survey.getEnd().before(now)) {
+            if (now.after(survey.getStart()) && now.before(survey.getEnd())) {
                 surveys.add(survey);
             }
         }
