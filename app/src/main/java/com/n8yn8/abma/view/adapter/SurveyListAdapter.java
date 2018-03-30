@@ -1,6 +1,7 @@
 package com.n8yn8.abma.view.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,9 +21,10 @@ import java.util.List;
 public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final static String TAG = SurveyListAdapter.class.getSimpleName();
+    private final static String NO_SURVEY_TITLE = "No Surveys Available";
 
     private enum ViewType {
-        SURVEY, LINK, SEPARATOR;
+        NO_SURVEY, SURVEY, LINK, SEPARATOR;
 
     }
 
@@ -36,7 +38,7 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public SurveyListAdapter(List<BSurvey> surveys, OnLinkClickedListener onLinkClickedListener) {
         objects.add("Surveys");
         if (surveys.isEmpty()) {
-            objects.add("No Surveys Available");
+            objects.add(NO_SURVEY_TITLE);
         } else {
             objects.addAll(surveys);
         }
@@ -55,6 +57,10 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.item_list_survey, parent, false);
                 return new SurveyViewHolder(view);
+            case NO_SURVEY:
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_list_link, parent, false);
+                return new NoSurveyViewHolder(view);
             case LINK:
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.item_list_link, parent, false);
@@ -79,6 +85,13 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     ((SurveyViewHolder) holder).onBind((BSurvey) item, onLinkClickedListener);
                 } else {
                     Log.e(TAG, "Not survey");
+                }
+                break;
+            case NO_SURVEY:
+                if (item instanceof String && holder instanceof NoSurveyViewHolder) {
+                    ((NoSurveyViewHolder) holder).onBind((String) item, onLinkClickedListener);
+                } else {
+                    Log.e(TAG, "Not No Survey Available");
                 }
                 break;
             case LINK:
@@ -106,9 +119,11 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return ViewType.SURVEY.ordinal();
         } else if (object instanceof Link){
             return ViewType.LINK.ordinal();
-        } else {
-            return ViewType.SEPARATOR.ordinal();
+        } else if (object instanceof String && TextUtils.equals(NO_SURVEY_TITLE, (String) object)) {
+            return ViewType.NO_SURVEY.ordinal();
         }
+        return ViewType.SEPARATOR.ordinal();
+
     }
 
     @Override
@@ -184,6 +199,22 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         void onBind(Link link, OnLinkClickedListener onLinkClickedListener) {
             super.onBind(link, onLinkClickedListener);
             titleTextView.setText(link.title);
+        }
+    }
+
+    public class NoSurveyViewHolder extends CommonViewHolder<String> {
+
+        TextView titleTextView;
+
+        NoSurveyViewHolder(View itemView) {
+            super(itemView);
+            titleTextView = (TextView) itemView.findViewById(R.id.linkTextView);
+        }
+
+        @Override
+        void onBind(String object, OnLinkClickedListener onLinkClickedListener) {
+            super.onBind(object, onLinkClickedListener);
+            titleTextView.setText(object);
         }
     }
 

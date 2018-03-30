@@ -20,6 +20,8 @@ import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 import com.n8yn8.abma.view.adapter.SurveyListAdapter;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -30,8 +32,7 @@ import java.util.List;
  */
 public class ContactFragment extends Fragment {
 
-    private RecyclerView listView;
-    List<BSurvey> surveys;
+    List<BSurvey> surveys = new ArrayList<>();
 
     /**
      * Use this factory method to create a new instance of
@@ -55,7 +56,13 @@ public class ContactFragment extends Fragment {
         super.onCreate(savedInstanceState);
         DatabaseHandler db = new DatabaseHandler(getContext());
         BYear latestYear = db.getLastYear();
-        surveys = db.getSurveys(latestYear.getObjectId());
+        List <BSurvey> allSurveys = db.getSurveys(latestYear.getObjectId());
+        Date now = new Date();
+        for (BSurvey survey : allSurveys) {
+            if (survey.getStart().after(now) && survey.getEnd().before(now)) {
+                surveys.add(survey);
+            }
+        }
     }
 
     @Override
@@ -63,7 +70,7 @@ public class ContactFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_contact, container, false);
-        listView = (RecyclerView) view.findViewById(R.id.surveyListView);
+        RecyclerView listView = (RecyclerView) view.findViewById(R.id.surveyListView);
         SurveyListAdapter adapter = new SurveyListAdapter(surveys, new SurveyListAdapter.OnLinkClickedListener() {
             @Override
             public void onClick(String url) {
