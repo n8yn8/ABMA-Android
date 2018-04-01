@@ -197,6 +197,10 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.beginTransaction()
                     .replace(R.id.container, InfoFragment.newInstance())
                     .commit();
+        } else if (id == R.id.maps) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, MapsFragment.newInstance())
+                    .commit();
         } else if (id == R.id.sponsors) {
             fragmentManager.beginTransaction()
                     .replace(R.id.container, SponsorsFragment.newInstance())

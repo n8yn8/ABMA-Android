@@ -26,14 +26,13 @@ public class ImageAdapter extends BaseAdapter {
     private Context mContext;
     private List<BSponsor> sponsors;
 
-    private RequestQueue mRequestQueue;
     private ImageLoader mImageLoader;
 
     public ImageAdapter(Context c, List<BSponsor> sponsors) {
         mContext = c;
         this.sponsors = sponsors;
 
-        mRequestQueue = Volley.newRequestQueue(c);
+        RequestQueue mRequestQueue = Volley.newRequestQueue(c);
         mImageLoader = new ImageLoader(mRequestQueue, new ImageLoader.ImageCache() {
             private final LruCache<String, Bitmap> mCache = new LruCache<>(4 * 1024 * 1024); //4MB
             public void putBitmap(String url, Bitmap bitmap) {
