@@ -15,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.model.MyDateTypeAdapter;
 import com.n8yn8.abma.model.backendless.BEvent;
+import com.n8yn8.abma.model.backendless.BMap;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.backendless.BSponsor;
@@ -36,7 +37,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     // Database Name
     private static final String DATABASE_NAME = "abma";
@@ -48,6 +49,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String TABLE_PAPERS = "papers";
     private static final String TABLE_NOTES = "notes";
     private static final String TABLE_SURVEYS = "surveys";
+    private static final String TABLE_MAPS = "maps";
 
     // Contacts Table Columns names
     private static final String KEY_ID = "id";
@@ -154,6 +156,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + "UNIQUE (" + KEY_URL + ") ON CONFLICT REPLACE"
             + ")";
 
+    private String CREATE_MAPS_TABLE = "CREATE TABLE " + TABLE_MAPS + "("
+            + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_YEAR_ID + " STRING,"
+            + KEY_TITLE + " STRING,"
+            + KEY_URL + " TEXT,"
+            + "UNIQUE (" + KEY_URL + ") ON CONFLICT REPLACE"
+            + ")";
+
     // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -164,6 +174,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(CREATE_NOTES_TABLE);
         db.execSQL(CREATE_PAPERS_TABLE);
         db.execSQL(CREATE_SURVEYS_TABLE);
+        db.execSQL(CREATE_MAPS_TABLE);
 
     }
 
@@ -195,14 +206,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             onCreate(db);
         }
 
-        if (oldVersion == 2) {
+        if (oldVersion <= 2) {
             db.execSQL("ALTER TABLE " + TABLE_PAPERS
                     + " ADD COLUMN " + KEY_ORDER +
                     " INTEGER DEFAULT 0");
         }
 
-        if (oldVersion == 3) {
+        if (oldVersion <= 3) {
             db.execSQL(CREATE_SURVEYS_TABLE);
+        }
+
+        if (oldVersion <= 4) {
+            db.execSQL(CREATE_MAPS_TABLE);
         }
     }
 
@@ -222,6 +237,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         List<BSurvey> surveys = gson.fromJson(surveysString, new TypeToken<List<BSurvey>>(){}.getType());
         if (surveys != null) {
             addSurveys(db, year.getObjectId(), surveys);
+        }
+
+        List<BMap> maps = gson.fromJson(year.getMaps(), new TypeToken<List<BMap>>(){}.getType());
+        if (maps != null) {
+            addMaps(db, year.getObjectId(), maps);
         }
 
         // Inserting Row
@@ -246,6 +266,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // Inserting Row
         db.insert(TABLE_SURVEYS, null, values);
+    }
+
+    private void addMaps(SQLiteDatabase db, String yearId, List<BMap> maps) {
+        for (BMap map : maps) {
+            addMap(db, map, yearId);
+        }
+    }
+
+    private void addMap(SQLiteDatabase db, BMap map, String yearId) {
+        ContentValues values = new ContentValues();
+        values.put(KEY_TITLE, map.getTitle());
+        values.put(KEY_URL, map.getUrl());
+        values.put(KEY_YEAR_ID, yearId);
+        db.insert(TABLE_MAPS, null, values);
     }
 
     public void addSponsors(String yearId, List<BSponsor> sponsors) {
@@ -517,6 +551,28 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // return contact list
         return list;
+    }
+
+    public List<BMap> getMaps(String yearId) {
+        List<BMap> maps = new ArrayList<>();
+
+        String selectQuery = "SELECT  * FROM " + TABLE_MAPS + " WHERE (" + KEY_YEAR_ID + " == '" + yearId + "')";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                BMap map = new BMap();
+                map.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
+                map.setUrl(cursor.getString(cursor.getColumnIndex(KEY_URL)));
+                maps.add(map);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+
+        return maps;
     }
 
     public List<BSponsor> getAllSponsors() {

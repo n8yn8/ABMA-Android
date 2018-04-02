@@ -15,6 +15,7 @@ public class BYear {
     String info;
     List<BSponsor> sponsors;
     String surveys;
+    String maps;
 
     public BYear() {
     }
@@ -73,5 +74,13 @@ public class BYear {
 
     public void setSurveys(String surveys) {
         this.surveys = surveys;
+    }
+
+    public String getMaps() {
+        return maps;
+    }
+
+    public void setMaps(String maps) {
+        this.maps = maps;
     }
 }

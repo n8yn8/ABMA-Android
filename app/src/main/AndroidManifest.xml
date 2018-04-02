@@ -3,12 +3,14 @@
     package="com.n8yn8.abma">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
-    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE"/>
-    <permission android:name="${applicationId}.permission.C2D_MESSAGE"
-        android:protectionLevel="signature"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
+
+    <permission
+        android:name="${applicationId}.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
 
     <application
         android:name=".App"
@@ -30,23 +32,26 @@
         <activity
             android:name=".view.EventActivity"
             android:label="@string/title_activity_event"
-            android:windowSoftInputMode="adjustPan|stateHidden" >
-        </activity>
+            android:windowSoftInputMode="adjustPan|stateHidden"/>
 
-        <receiver android:name=".PushReceiver"
+        <receiver
+            android:name=".PushReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
-                <category android:name="${applicationId}"/>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
 
-        <service android:name=".PushService"/>
+        <service android:name=".PushService" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="8d96e50ad3aa3a14f2bc63cc1f2ecefb807e2099" />
+
+        <activity android:name=".view.MapDetailActivity"/>
     </application>
 
 </manifest>
