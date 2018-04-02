@@ -27,8 +27,9 @@ public class MapDetailActivity extends AppCompatActivity {
 
         BMap map = getIntent().getParcelableExtra(EXTRA_MAP);
 
-        NetworkImageView imageView = (NetworkImageView) findViewById(R.id.imageView);
+        TouchNetworkImageView imageView = (TouchNetworkImageView) findViewById(R.id.imageView);
 
         imageView.setImageUrl(map.getUrl(), ((App) getApplicationContext()).getImageLoader());
+        imageView.setMaxZoom(4f);
     }
 }
