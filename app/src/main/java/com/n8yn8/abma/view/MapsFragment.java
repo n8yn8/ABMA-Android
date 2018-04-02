@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.backendless.BMap;
 import com.n8yn8.abma.model.backendless.BYear;
@@ -43,10 +44,10 @@ public class MapsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_maps, container, false);
         RecyclerView listView = (RecyclerView) view.findViewById(R.id.mapsListView);
-        MapsAdapter adapter = new MapsAdapter(getContext(), maps, new MapsAdapter.OnMapClickListener() {
+        MapsAdapter adapter = new MapsAdapter(((App)getContext().getApplicationContext()).getImageLoader(), maps, new MapsAdapter.OnMapClickListener() {
             @Override
             public void onClick(BMap map) {
-
+                MapDetailActivity.start(getContext(), map);
             }
         });
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext().getApplicationContext());

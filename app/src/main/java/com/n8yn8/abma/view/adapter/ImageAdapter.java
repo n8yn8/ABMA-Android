@@ -1,9 +1,7 @@
 package com.n8yn8.abma.view.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
-import android.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -11,10 +9,9 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
-import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
-import com.android.volley.toolbox.Volley;
+import com.n8yn8.abma.App;
 import com.n8yn8.abma.model.backendless.BSponsor;
 
 import java.util.List;
@@ -32,16 +29,7 @@ public class ImageAdapter extends BaseAdapter {
         mContext = c;
         this.sponsors = sponsors;
 
-        RequestQueue mRequestQueue = Volley.newRequestQueue(c);
-        mImageLoader = new ImageLoader(mRequestQueue, new ImageLoader.ImageCache() {
-            private final LruCache<String, Bitmap> mCache = new LruCache<>(4 * 1024 * 1024); //4MB
-            public void putBitmap(String url, Bitmap bitmap) {
-                mCache.put(url, bitmap);
-            }
-            public Bitmap getBitmap(String url) {
-                return mCache.get(url);
-            }
-        });
+        mImageLoader = ((App)c.getApplicationContext()).getImageLoader();
     }
 
     public int getCount() {

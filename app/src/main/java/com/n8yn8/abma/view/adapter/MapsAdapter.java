@@ -1,18 +1,13 @@
 package com.n8yn8.abma.view.adapter;
 
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
-import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
-import com.android.volley.toolbox.Volley;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.backendless.BMap;
 
@@ -22,22 +17,12 @@ public class MapsAdapter extends RecyclerView.Adapter<MapsAdapter.MapViewHolder>
 
     private List<BMap> maps;
     private OnMapClickListener onMapClickListener;
-    private ImageLoader mImageLoader;
+    private ImageLoader imageLoader;
 
-    public MapsAdapter(Context context, List<BMap> maps, OnMapClickListener onMapClickListener) {
+    public MapsAdapter(ImageLoader imageLoader, List<BMap> maps, OnMapClickListener onMapClickListener) {
         this.maps = maps;
         this.onMapClickListener = onMapClickListener;
-
-        RequestQueue mRequestQueue = Volley.newRequestQueue(context);
-        mImageLoader = new ImageLoader(mRequestQueue, new ImageLoader.ImageCache() {
-            private final LruCache<String, Bitmap> mCache = new LruCache<>(4 * 1024 * 1024); //4MB
-            public void putBitmap(String url, Bitmap bitmap) {
-                mCache.put(url, bitmap);
-            }
-            public Bitmap getBitmap(String url) {
-                return mCache.get(url);
-            }
-        });
+        this.imageLoader = imageLoader;
     }
 
     @Override
@@ -49,7 +34,7 @@ public class MapsAdapter extends RecyclerView.Adapter<MapsAdapter.MapViewHolder>
 
     @Override
     public void onBindViewHolder(MapViewHolder holder, int position) {
-        holder.onBind(maps.get(position), onMapClickListener, mImageLoader);
+        holder.onBind(maps.get(position), onMapClickListener, imageLoader);
     }
 
     @Override
