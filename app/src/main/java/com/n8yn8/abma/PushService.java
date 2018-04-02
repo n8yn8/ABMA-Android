@@ -43,6 +43,8 @@ public class PushService extends BackendlessPushService {
             public void onDone(List<BYear> years, String error) {
                 if (error == null) {
                     Utils.saveYears(context, years);
+                } else {
+                    Utils.logError("Get Years Push", error);
                 }
             }
         });
@@ -71,6 +73,6 @@ public class PushService extends BackendlessPushService {
     @Override
     public void onError(Context context, String message) {
         super.onError(context, message);
-        Log.d("Nate", "onError");
+        Utils.logError("Push service", message);
     }
 }

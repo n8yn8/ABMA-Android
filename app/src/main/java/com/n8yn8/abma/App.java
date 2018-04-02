@@ -1,9 +1,14 @@
 package com.n8yn8.abma;
 
 import android.app.Application;
+import android.graphics.Bitmap;
 import android.support.v4.util.Pair;
 import android.util.Log;
+import android.util.LruCache;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
 import com.backendless.Backendless;
 import com.crashlytics.android.Crashlytics;
 import com.dd.plist.NSDictionary;
@@ -27,6 +32,7 @@ public class App extends Application {
     private final String TAG = "App";
 
     private Map<Note, Pair<Event, Paper>> oldNotes = null;
+    private ImageLoader imageLoader;
 
     @Override
     public void onCreate() {
@@ -42,6 +48,21 @@ public class App extends Application {
                 DbManager.getInstance().registerPush();
             }
         });
+
+        RequestQueue mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+        imageLoader = new ImageLoader(mRequestQueue, new ImageLoader.ImageCache() {
+            private final LruCache<String, Bitmap> mCache = new LruCache<>(4 * 1024 * 1024); //4MB
+            public void putBitmap(String url, Bitmap bitmap) {
+                mCache.put(url, bitmap);
+            }
+            public Bitmap getBitmap(String url) {
+                return mCache.get(url);
+            }
+        });
+    }
+
+    public ImageLoader getImageLoader() {
+        return imageLoader;
     }
 
     public Schedule getOldSchedule() {

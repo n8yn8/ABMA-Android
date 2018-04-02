@@ -15,15 +15,14 @@
             android:id="@+id/conference_info"
             android:title="Info" />
         <item
+            android:id="@+id/maps"
+            android:title="Maps" />
+        <item
             android:id="@+id/sponsors"
             android:title="Sponsors" />
         <item
             android:id="@+id/contact"
             android:title="Contact" />
-        <item
-            android:id="@+id/survey"
-            android:title="Survey"
-            android:visible="false" />
         <item
             android:id="@+id/logout"
             android:title="Log Out"

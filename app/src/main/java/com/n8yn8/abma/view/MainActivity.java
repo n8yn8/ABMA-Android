@@ -2,8 +2,6 @@ package com.n8yn8.abma.view;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -23,8 +21,6 @@ import android.widget.Toast;
 import com.backendless.BackendlessUser;
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.Utils;
-import com.n8yn8.abma.model.Survey;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
@@ -36,7 +32,6 @@ import com.n8yn8.abma.model.old.Note;
 import com.n8yn8.abma.model.old.Paper;
 import com.n8yn8.abma.model.old.Schedule;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +43,6 @@ public class MainActivity extends AppCompatActivity
     NavigationView navigationView;
     MenuItem yearsMenuItem;
     MenuItem yearInfoMenuItem;
-    Survey survey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +77,6 @@ public class MainActivity extends AppCompatActivity
         if (saveYears.size() == 0) {
             loadBackendless(db);
         } else {
-            updateSurvey();
             updateYearInfo();
         }
     }
@@ -122,7 +115,6 @@ public class MainActivity extends AppCompatActivity
                     db.addYear(year);
                 }
                 checkOldNotes(db);
-                updateSurvey();
                 updateYearInfo();
 
                 ScheduleFragment fragment = getScheduleFragment();
@@ -205,6 +197,10 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.beginTransaction()
                     .replace(R.id.container, InfoFragment.newInstance())
                     .commit();
+        } else if (id == R.id.maps) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, MapsFragment.newInstance())
+                    .commit();
         } else if (id == R.id.sponsors) {
             fragmentManager.beginTransaction()
                     .replace(R.id.container, SponsorsFragment.newInstance())
@@ -213,12 +209,6 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.beginTransaction()
                     .replace(R.id.container, ContactFragment.newInstance())
                     .commit();
-        } else if (id == R.id.survey) {
-            String urlString = survey.getSurveyUrl();
-            if (urlString != null) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(urlString)));
-                Utils.logSurvey();
-            }
         } else if (id == R.id.logout) {
             DbManager.getInstance().logout(null);
             navigationView.getMenu().findItem(R.id.logout).setVisible(false);
@@ -261,17 +251,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return null;
-    }
-
-    private void updateSurvey() {
-        DatabaseHandler db = new DatabaseHandler(getApplicationContext());
-        survey = db.getLatestSurvey();
-        Date now = new Date();
-        if (survey != null && survey.getSurveyUrl() != null && survey.getSurveyStart() != null && survey.getSurveyEnd() != null) {
-            if (now.after(survey.getSurveyStart()) && now.before(survey.getSurveyEnd())) {
-                navigationView.getMenu().findItem(R.id.survey).setVisible(true);
-            }
-        }
     }
 
     private void updateYearInfo() {

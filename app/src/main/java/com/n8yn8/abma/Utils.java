@@ -83,8 +83,7 @@ public class Utils {
 
     public static void logError(String method, String error) {
         if (!BuildConfig.DEBUG) {
-            Answers.getInstance().logCustom(new CustomEvent("Error")
-                    .putCustomAttribute("method", method)
+            Answers.getInstance().logCustom(new CustomEvent("Error " + method)
                     .putCustomAttribute("error", error));
         } else {
             Log.e("Utils", method + " had error: " + error);
