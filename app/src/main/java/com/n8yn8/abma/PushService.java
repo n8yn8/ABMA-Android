@@ -4,15 +4,13 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.backendless.push.BackendlessPushService;
-import com.n8yn8.abma.model.backendless.BYear;
-import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.view.MainActivity;
-
-import java.util.List;
 
 /**
  * Created by Nate on 3/16/17.
@@ -38,14 +36,13 @@ public class PushService extends BackendlessPushService {
         String message = intent.getStringExtra( "message" );
         Log.d("Nate", "onMessaage = " + message);
 
-        DbManager.getInstance().getYears(context, new DbManager.YearsResponse() {
-            @Override
-            public void onYearsReceived(List<BYear> years, String error) {
-                if (error == null) {
-                    Utils.saveYears(context, years);
-                }
-            }
-        });
+        SharedPreferences preferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("PushReceived", true);
+        editor.apply();
+
+        Intent localIntent = new Intent("PushReceived");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_notification)
@@ -71,6 +68,6 @@ public class PushService extends BackendlessPushService {
     @Override
     public void onError(Context context, String message) {
         super.onError(context, message);
-        Log.d("Nate", "onError");
+        Utils.logError("Push service", message);
     }
 }

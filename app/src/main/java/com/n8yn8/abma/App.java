@@ -1,9 +1,14 @@
 package com.n8yn8.abma;
 
 import android.app.Application;
+import android.graphics.Bitmap;
 import android.support.v4.util.Pair;
 import android.util.Log;
+import android.util.LruCache;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
 import com.backendless.Backendless;
 import com.crashlytics.android.Crashlytics;
 import com.dd.plist.NSDictionary;
@@ -27,6 +32,7 @@ public class App extends Application {
     private final String TAG = "App";
 
     private Map<Note, Pair<Event, Paper>> oldNotes = null;
+    private ImageLoader imageLoader;
 
     @Override
     public void onCreate() {
@@ -35,9 +41,28 @@ public class App extends Application {
             Fabric.with(this, new Crashlytics());
         }
 
-        Backendless.initApp(this, "6AC37915-D986-26C2-FF1C-B0B3ACCB6A00", "145212DB-A903-6C49-FF02-1C70A1BD0A00", "v1");
-        DbManager.getInstance().checkUser();
-        DbManager.getInstance().registerPush();
+        Backendless.initApp(this, "7D06F708-89FA-DD86-FF95-C51A10425A00", "AA32ED18-4FEC-569C-FF5F-AE0F2F571E00");
+        DbManager.getInstance().checkUser(new DbManager.CheckUserCallback() {
+            @Override
+            public void onDone() {
+                DbManager.getInstance().registerPush();
+            }
+        });
+
+        RequestQueue mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+        imageLoader = new ImageLoader(mRequestQueue, new ImageLoader.ImageCache() {
+            private final LruCache<String, Bitmap> mCache = new LruCache<>(4 * 1024 * 1024); //4MB
+            public void putBitmap(String url, Bitmap bitmap) {
+                mCache.put(url, bitmap);
+            }
+            public Bitmap getBitmap(String url) {
+                return mCache.get(url);
+            }
+        });
+    }
+
+    public ImageLoader getImageLoader() {
+        return imageLoader;
     }
 
     public Schedule getOldSchedule() {

@@ -1,6 +1,5 @@
 package com.n8yn8.abma.model.backendless;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,9 +14,8 @@ public class BYear {
     String welcome;
     String info;
     List<BSponsor> sponsors;
-    String surveyUrl;
-    Date surveyStart;
-    Date surveyEnd;
+    String surveys;
+    String maps;
 
     public BYear() {
     }
@@ -70,27 +68,19 @@ public class BYear {
         this.sponsors = sponsors;
     }
 
-    public String getSurveyUrl() {
-        return surveyUrl;
+    public String getSurveys() {
+        return surveys;
     }
 
-    public void setSurveyUrl(String surveyUrl) {
-        this.surveyUrl = surveyUrl;
+    public void setSurveys(String surveys) {
+        this.surveys = surveys;
     }
 
-    public Date getSurveyStart() {
-        return surveyStart;
+    public String getMaps() {
+        return maps;
     }
 
-    public void setSurveyStart(Date surveyStart) {
-        this.surveyStart = surveyStart;
-    }
-
-    public Date getSurveyEnd() {
-        return surveyEnd;
-    }
-
-    public void setSurveyEnd(Date surveyEnd) {
-        this.surveyEnd = surveyEnd;
+    public void setMaps(String maps) {
+        this.maps = maps;
     }
 }

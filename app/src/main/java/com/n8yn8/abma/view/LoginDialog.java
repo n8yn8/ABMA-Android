@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
@@ -24,7 +25,7 @@ import com.n8yn8.abma.model.backendless.DbManager;
 
 public class LoginDialog extends LinearLayout {
 
-    TextInputLayout confirmInput;
+    TextInputLayout confirmInput, passInput, emailInput;
     CheckBox newAccountCheckbox;
     ProgressBar progressBar;
     EditText confirmPassEditText, passEditText, emailEditText;
@@ -62,8 +63,10 @@ public class LoginDialog extends LinearLayout {
         confirmInput = (TextInputLayout) findViewById(R.id.confirmTextInput);
 
         passEditText = (EditText) findViewById(R.id.pass_edit_text);
+        passInput = (TextInputLayout) findViewById(R.id.passwordInput);
 
         emailEditText = (EditText) findViewById(R.id.email_edit_text);
+        emailInput = (TextInputLayout) findViewById(R.id.emalInput);
 
         if (BuildConfig.DEBUG) {
             confirmPassEditText.setText("saigon00"); //TODO: remove
@@ -86,6 +89,12 @@ public class LoginDialog extends LinearLayout {
                 updateError(null);
                 updateWorking(true);
                 String password = passEditText.getText().toString();
+                if (TextUtils.isEmpty(password)) {
+                    passInput.setError("Password can't be empty");
+                    return;
+                } else {
+                    passInput.setError(null);
+                }
                 if (newAccountCheckbox.isChecked()) {
                     String confirmPass = confirmPassEditText.getText().toString();
                     if (!password.equals(confirmPass)) {
@@ -97,6 +106,12 @@ public class LoginDialog extends LinearLayout {
                 }
 
                 String email = emailEditText.getText().toString();
+                if (TextUtils.isEmpty(email)) {
+                    emailInput.setError("Email can't be empty");
+                    return;
+                } else {
+                    emailInput.setError(null);
+                }
 
                 DbManager.OnLoginResponse callback = new DbManager.OnLoginResponse() {
                     @Override

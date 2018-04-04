@@ -9,12 +9,17 @@ import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.n8yn8.abma.App;
-import com.n8yn8.abma.model.Survey;
+import com.n8yn8.abma.model.MyDateTypeAdapter;
 import com.n8yn8.abma.model.backendless.BEvent;
+import com.n8yn8.abma.model.backendless.BMap;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.backendless.BSponsor;
+import com.n8yn8.abma.model.backendless.BSurvey;
 import com.n8yn8.abma.model.backendless.BYear;
 
 import java.util.ArrayList;
@@ -32,7 +37,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 5;
 
     // Database Name
     private static final String DATABASE_NAME = "abma";
@@ -43,6 +48,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String TABLE_EVENTS = "events";
     private static final String TABLE_PAPERS = "papers";
     private static final String TABLE_NOTES = "notes";
+    private static final String TABLE_SURVEYS = "surveys";
+    private static final String TABLE_MAPS = "maps";
 
     // Contacts Table Columns names
     private static final String KEY_ID = "id";
@@ -138,6 +145,25 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
             + ")";
 
+    private String CREATE_SURVEYS_TABLE = "CREATE TABLE " + TABLE_SURVEYS + "("
+            + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_YEAR_ID + " STRING,"
+            + KEY_TITLE + " STRING,"
+            + KEY_DETAILS + " STRING,"
+            + KEY_URL + " TEXT,"
+            + KEY_SURVEY_START + " INTEGER,"
+            + KEY_SURVEY_END + " INTEGER,"
+            + "UNIQUE (" + KEY_URL + ") ON CONFLICT REPLACE"
+            + ")";
+
+    private String CREATE_MAPS_TABLE = "CREATE TABLE " + TABLE_MAPS + "("
+            + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_YEAR_ID + " STRING,"
+            + KEY_TITLE + " STRING,"
+            + KEY_URL + " TEXT,"
+            + "UNIQUE (" + KEY_URL + ") ON CONFLICT REPLACE"
+            + ")";
+
     // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -147,6 +173,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(CREATE_EVENTS_TABLE);
         db.execSQL(CREATE_NOTES_TABLE);
         db.execSQL(CREATE_PAPERS_TABLE);
+        db.execSQL(CREATE_SURVEYS_TABLE);
+        db.execSQL(CREATE_MAPS_TABLE);
 
     }
 
@@ -178,10 +206,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             onCreate(db);
         }
 
-        if (oldVersion == 2) {
+        if (oldVersion <= 2) {
             db.execSQL("ALTER TABLE " + TABLE_PAPERS
                     + " ADD COLUMN " + KEY_ORDER +
                     " INTEGER DEFAULT 0");
+        }
+
+        if (oldVersion <= 3) {
+            db.execSQL(CREATE_SURVEYS_TABLE);
+        }
+
+        if (oldVersion <= 4) {
+            db.execSQL(CREATE_MAPS_TABLE);
         }
     }
 
@@ -193,22 +229,19 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_NAME, year.getName());
         values.put(KEY_INFO, year.getInfo());
         values.put(KEY_WELCOME, year.getWelcome());
-        if (year.getSurveyUrl() != null) {
-            values.put(KEY_SURVEY_URL, year.getSurveyUrl());
-        }
-        if (year.getSurveyStart() != null) {
-            values.put(KEY_SURVEY_START, year.getSurveyStart().getTime());
-        }
-        if (year.getSurveyEnd() != null) {
-            values.put(KEY_SURVEY_END, year.getSurveyEnd().getTime());
+
+        String surveysString = year.getSurveys();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class,new MyDateTypeAdapter())
+                .create();
+        List<BSurvey> surveys = gson.fromJson(surveysString, new TypeToken<List<BSurvey>>(){}.getType());
+        if (surveys != null) {
+            addSurveys(db, year.getObjectId(), surveys);
         }
 
-        for (BSponsor sponsor: year.getSponsors()) {
-            addSponsor(sponsor, year.getObjectId());
-        }
-
-        for (BEvent event: year.getEvents()) {
-            addEvent(event, year.getObjectId());
+        List<BMap> maps = gson.fromJson(year.getMaps(), new TypeToken<List<BMap>>(){}.getType());
+        if (maps != null) {
+            addMaps(db, year.getObjectId(), maps);
         }
 
         // Inserting Row
@@ -216,8 +249,64 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    private void addSponsor(BSponsor sponsor, String yearId) {
+    private void addSurveys(SQLiteDatabase db, String yearId, List<BSurvey> surveys) {
+        for (BSurvey survey : surveys) {
+            addSurvey(db, survey, yearId);
+        }
+    }
+
+    private void addSurvey(SQLiteDatabase db, BSurvey survey, String yearId) {
+        ContentValues values = new ContentValues();
+        values.put(KEY_TITLE, survey.getTitle());
+        values.put(KEY_DETAILS, survey.getDetails());
+        values.put(KEY_URL, survey.getUrl());
+        values.put(KEY_SURVEY_START, survey.getStart().getTime());
+        values.put(KEY_SURVEY_END, survey.getEnd().getTime());
+        values.put(KEY_YEAR_ID, yearId);
+
+        // Inserting Row
+        db.insert(TABLE_SURVEYS, null, values);
+    }
+
+    private void addMaps(SQLiteDatabase db, String yearId, List<BMap> maps) {
+        for (BMap map : maps) {
+            addMap(db, map, yearId);
+        }
+    }
+
+    private void addMap(SQLiteDatabase db, BMap map, String yearId) {
+        ContentValues values = new ContentValues();
+        values.put(KEY_TITLE, map.getTitle());
+        values.put(KEY_URL, map.getUrl());
+        values.put(KEY_YEAR_ID, yearId);
+        db.insert(TABLE_MAPS, null, values);
+    }
+
+    public void addSponsors(String yearId, List<BSponsor> sponsors) {
         SQLiteDatabase db = this.getWritableDatabase();
+        for (BSponsor sponsor: sponsors) {
+            addSponsor(db, sponsor, yearId);
+        }
+        db.close();
+    }
+
+    public void addEvents(String yearId, List<BEvent> events) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        for (BEvent event: events) {
+            addEvent(db, event, yearId);
+        }
+        db.close();
+    }
+
+    public void addPapers(String eventId, List<BPaper> papers) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        for (BPaper paper: papers) {
+            addPaper(db, paper, eventId);
+        }
+        db.close();
+    }
+
+    private void addSponsor(SQLiteDatabase db, BSponsor sponsor, String yearId) {
         ContentValues values = new ContentValues();
         values.put(KEY_OBJECT_ID, sponsor.getObjectId());
         values.put(KEY_URL, sponsor.getUrl());
@@ -226,11 +315,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // Inserting Row
         db.insert(TABLE_SPONSORS, null, values);
-//        db.close();
     }
 
-    private void addEvent(BEvent event, String yearId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    private void addEvent(SQLiteDatabase db, BEvent event, String yearId) {
         ContentValues values = new ContentValues();
 
         values.put(KEY_OBJECT_ID, event.getObjectId());
@@ -243,17 +330,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_START_DATE, event.getStartDate().getTime());
         values.put(KEY_SUBTITLE, event.getSubtitle());
         values.put(KEY_TITLE, event.getTitle());
-        for (BPaper paper : event.getPapers()) {
-            addPaper(paper, event.getObjectId());
-        }
 
         // Inserting Row
         db.insert(TABLE_EVENTS, null, values);
-//        db.close(); // Closing database connection
     }
 
-    private void addPaper(BPaper paper, String eventId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    private void addPaper(SQLiteDatabase db, BPaper paper, String eventId) {
         ContentValues values = new ContentValues();
 
         values.put(KEY_OBJECT_ID, paper.getObjectId());
@@ -265,7 +347,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // Inserting Row
         db.insert(TABLE_PAPERS, null, values);
-//        db.close(); // Closing database connection
     }
 
     public void addNoteSafe(BNote remoteNote) {
@@ -377,6 +458,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
 
         // return contact list
         return yearList;
@@ -395,30 +477,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
 
         // return contact list
         return names;
-    }
-
-    public Survey getLatestSurvey() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_YEARS,
-                new String[] {KEY_SURVEY_URL, KEY_SURVEY_START, KEY_SURVEY_END},
-                null, null, null, null, KEY_NAME + " DESC", "1");
-        Survey survey = null;
-        if (cursor.moveToFirst()) {
-            survey = new Survey();
-            survey.setSurveyUrl(cursor.getString(cursor.getColumnIndex(KEY_SURVEY_URL)));
-            long endMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_END));
-            if (endMillis != 0) {
-                survey.setSurveyEnd(new Date(endMillis));
-            }
-            long startMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_START));
-            if (endMillis != 0) {
-                survey.setSurveyStart(new Date(startMillis));
-            }
-        }
-        return survey;
     }
 
     public BYear getLastYear() {
@@ -431,6 +493,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             year = constructYear(cursor);
         }
         cursor.close();
+        db.close();
         return year;
     }
 
@@ -444,6 +507,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             year = constructYear(cursor);
         }
         cursor.close();
+        db.close();
         return year;
     }
 
@@ -457,16 +521,58 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         year.setSponsors(sponsors);
         List<BEvent> events = getAllEventsFor(year.getObjectId());
         year.setEvents(events);
-        year.setSurveyUrl(cursor.getString(cursor.getColumnIndex(KEY_SURVEY_URL)));
-        long endMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_END));
-        if (endMillis != 0) {
-            year.setSurveyEnd(new Date(endMillis));
-        }
-        long startMillis = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_START));
-        if (endMillis != 0) {
-            year.setSurveyStart(new Date(startMillis));
-        }
         return year;
+    }
+
+    public List<BSurvey> getSurveys(String yearId) {
+        List<BSurvey> list = new ArrayList<>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + TABLE_SURVEYS + " WHERE (" + KEY_YEAR_ID + " == '" + yearId + "')";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null); //TODO: sort
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                BSurvey survey = new BSurvey();
+                survey.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
+                survey.setDetails(cursor.getString(cursor.getColumnIndex(KEY_DETAILS)));
+                survey.setUrl(cursor.getString(cursor.getColumnIndex(KEY_URL)));
+                long start = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_START));
+                long end = cursor.getLong(cursor.getColumnIndex(KEY_SURVEY_END));
+                survey.setStart(new Date(start));
+                survey.setEnd(new Date(end));
+                list.add(survey);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+
+        // return contact list
+        return list;
+    }
+
+    public List<BMap> getMaps(String yearId) {
+        List<BMap> maps = new ArrayList<>();
+
+        String selectQuery = "SELECT  * FROM " + TABLE_MAPS + " WHERE (" + KEY_YEAR_ID + " == '" + yearId + "')";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                BMap map = new BMap();
+                map.setTitle(cursor.getString(cursor.getColumnIndex(KEY_TITLE)));
+                map.setUrl(cursor.getString(cursor.getColumnIndex(KEY_URL)));
+                maps.add(map);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+
+        return maps;
     }
 
     public List<BSponsor> getAllSponsors() {
@@ -493,7 +599,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return list;
     }
 
-    public List<BSponsor> getAllSponsorsFor(String yearId) {
+    private List<BSponsor> getAllSponsorsFor(String yearId) {
         List<BSponsor> list = new ArrayList<>();
         // Select All Query
         String selectQuery = "SELECT  * FROM " + TABLE_SPONSORS + " WHERE (" + KEY_YEAR_ID + " == '" + yearId + "')";
@@ -512,6 +618,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
 
         // return contact list
         return list;
@@ -547,6 +654,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             event = constructEvent(cursor);
         }
         cursor.close();
+        db.close();
         return event;
     }
 
@@ -560,6 +668,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             paper = constructPaper(cursor);
         }
         cursor.close();
+        db.close();
         return paper;
     }
 
@@ -581,6 +690,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 return event;
             } else {
                 cursor.close();
+                db.close();
                 return null;
             }
         } else {
@@ -603,12 +713,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
 
         // return contact list
         return list;
     }
 
-    public List<BEvent> getAllEventsFor(String yearId) {
+    private List<BEvent> getAllEventsFor(String yearId) {
         List<BEvent> list = new ArrayList<>();
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -622,6 +733,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
 
         // return contact list
         return list;
@@ -647,6 +759,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             event = constructEvent(cursor);
         }
         cursor.close();
+        db.close();
         return event;
     }
 
@@ -666,7 +779,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return event;
     }
 
-    public List<BPaper> getAllPapersFor(String eventId) {
+    private List<BPaper> getAllPapersFor(String eventId) {
         List<BPaper> list = new ArrayList<>();
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -679,6 +792,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
 
         // return contact list
         return list;
@@ -702,6 +816,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 return paper;
             } else {
                 cursor.close();
+                db.close();
                 return null;
             }
         } else {

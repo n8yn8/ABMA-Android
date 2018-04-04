@@ -6,11 +6,11 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.backendless.Backendless;
-import com.backendless.BackendlessCollection;
 import com.backendless.BackendlessUser;
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
-import com.backendless.persistence.BackendlessDataQuery;
+import com.backendless.persistence.DataQueryBuilder;
+import com.backendless.persistence.LoadRelationsQueryBuilder;
 import com.backendless.persistence.local.UserIdStorageFactory;
 import com.backendless.persistence.local.UserTokenStorageFactory;
 import com.n8yn8.abma.Utils;
@@ -73,34 +73,46 @@ public class DbManager {
         }, true);
     }
 
-    public void logout() {
+    public void logout(@Nullable final CheckUserCallback callback) {
         Backendless.UserService.logout(new AsyncCallback<Void>() {
             @Override
             public void handleResponse(Void response) {
-
+                if (callback != null) {
+                    callback.onDone();
+                }
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
                 Utils.logError("Logout", fault.getMessage());
+                if (callback != null) {
+                    callback.onDone();
+                }
             }
         });
     }
 
-    public void checkUser() {
+    public interface CheckUserCallback {
+        void onDone();
+    }
+    public void checkUser(final CheckUserCallback callback) {
         String currentUserObjectId = UserIdStorageFactory.instance().getStorage().get();
         if (!TextUtils.isEmpty(currentUserObjectId)) {
             Backendless.Data.of( BackendlessUser.class ).findById(currentUserObjectId, new AsyncCallback<BackendlessUser>() {
                 @Override
                 public void handleResponse(BackendlessUser response) {
                     Backendless.UserService.setCurrentUser(response);
+                    callback.onDone();
                 }
 
                 @Override
                 public void handleFault(BackendlessFault fault) {
                     Utils.logError("CheckUser", fault.getMessage());
+                    logout(callback);
                 }
             });
+        } else {
+            callback.onDone();
         }
     }
 
@@ -117,27 +129,85 @@ public class DbManager {
         }
     }
 
-    public interface YearsResponse {
-        void onYearsReceived(List<BYear> years, String error);
+    public interface Callback<T> {
+        public void onDone(T t, String error);
     }
 
-    public void getYears(Context context, final YearsResponse callback) {
+    public void getYears(Context context, final Callback<List<BYear>> callback) {
         String queryString = "publishedAt is not null";
         Date lastUpdate = Utils.getLastUpdated(context);
         if (lastUpdate != null) {
             queryString += " AND updated > " + lastUpdate.getTime();
         }
-        BackendlessDataQuery query = new BackendlessDataQuery(queryString);
-        Backendless.Persistence.of(BYear.class).find(query, new AsyncCallback<BackendlessCollection<BYear>>() {
+        DataQueryBuilder queryBuilder = DataQueryBuilder.create();
+        queryBuilder.setWhereClause(queryString);
+        Backendless.Persistence.of(BYear.class).find(queryBuilder, new AsyncCallback<List<BYear>>() {
             @Override
-            public void handleResponse(BackendlessCollection<BYear> response) {
-                callback.onYearsReceived(response.getCurrentPage(), null);
+            public void handleResponse(List<BYear> response) {
+                callback.onDone(response, null);
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
                 Utils.logError("GetYears", fault.getMessage());
-                callback.onYearsReceived(new ArrayList<BYear>(), fault.getMessage());
+                callback.onDone(new ArrayList<BYear>(), fault.getMessage());
+            }
+        });
+    }
+
+    public void getSponsors(String yearId, final Callback<List<BSponsor>> callback) {
+        LoadRelationsQueryBuilder<BSponsor> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BSponsor.class )
+                .setRelationName( "sponsors" )
+                .setPageSize(100);
+
+        Backendless.Data.of( BYear.class ).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BSponsor>>() {
+            @Override
+            public void handleResponse(List<BSponsor> response) {
+                callback.onDone(response, null);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Utils.logError("GetSponsors", fault.getMessage());
+                callback.onDone(new ArrayList<BSponsor>(), fault.getMessage());
+            }
+        });
+    }
+
+    public void getEvents(String yearId, final Callback<List<BEvent>> callback) {
+        LoadRelationsQueryBuilder<BEvent> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BEvent.class )
+                .setRelationName( "events" )
+                .setPageSize(100);
+
+        Backendless.Data.of( BYear.class ).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BEvent>>() {
+            @Override
+            public void handleResponse(List<BEvent> response) {
+                callback.onDone(response, null);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Utils.logError("GetEvents", fault.getMessage());
+                callback.onDone(new ArrayList<BEvent>(), fault.getMessage());
+            }
+        });
+    }
+
+    public void getPapers(String eventId, final Callback<List<BPaper>> callback) {
+        LoadRelationsQueryBuilder<BPaper> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BPaper.class )
+                .setRelationName( "papers" )
+                .setPageSize(100);
+
+        Backendless.Data.of( BEvent.class ).loadRelations(eventId, loadRelationsQueryBuilder, new AsyncCallback<List<BPaper>>() {
+            @Override
+            public void handleResponse(List<BPaper> response) {
+                callback.onDone(response, null);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Utils.logError("GetEvents", fault.getMessage());
+                callback.onDone(new ArrayList<BPaper>(), fault.getMessage());
             }
         });
     }
@@ -173,11 +243,12 @@ public class DbManager {
 
     public void getAllNotes(final OnGetNotesCallback callback) {
         String userId = UserIdStorageFactory.instance().getStorage().get();
-        BackendlessDataQuery query = new BackendlessDataQuery("user.objectId = \'" + userId + "\'");
-        Backendless.Persistence.of(BNote.class).find(query, new AsyncCallback<BackendlessCollection<BNote>>() {
+        DataQueryBuilder queryBuilder = DataQueryBuilder.create();
+        queryBuilder.setWhereClause("user.objectId = \'" + userId + "\'");
+        Backendless.Persistence.of(BNote.class).find(queryBuilder, new AsyncCallback<List<BNote>>() {
             @Override
-            public void handleResponse(BackendlessCollection<BNote> response) {
-                callback.notesRetrieved(response.getCurrentPage(), null);
+            public void handleResponse(List<BNote> response) {
+                callback.notesRetrieved(response, null);
             }
 
             @Override
@@ -189,7 +260,7 @@ public class DbManager {
     }
 
     public void registerPush() {
-        Backendless.Messaging.registerDevice("1099001155411", new AsyncCallback<Void>() {
+        Backendless.Messaging.registerDevice("634420626363", new AsyncCallback<Void>() {
             @Override
             public void handleResponse(Void response) {
                 Log.d("Nate", "push reg response: " + response);

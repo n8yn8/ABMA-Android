@@ -1,14 +1,18 @@
 package com.n8yn8.abma.view;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -23,8 +27,6 @@ import android.widget.Toast;
 import com.backendless.BackendlessUser;
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.Utils;
-import com.n8yn8.abma.model.Survey;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
@@ -36,7 +38,6 @@ import com.n8yn8.abma.model.old.Note;
 import com.n8yn8.abma.model.old.Paper;
 import com.n8yn8.abma.model.old.Schedule;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity
 
     NavigationView navigationView;
     MenuItem yearsMenuItem;
-    Survey survey;
+    MenuItem yearInfoMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity
 
         BackendlessUser user = DbManager.getInstance().getCurrentUser();
         navigationView.getMenu().findItem(R.id.logout).setVisible(user != null);
+        yearInfoMenuItem = navigationView.getMenu().findItem(R.id.conference_info);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, ScheduleFragment.newInstance())
@@ -81,8 +83,22 @@ public class MainActivity extends AppCompatActivity
         if (saveYears.size() == 0) {
             loadBackendless(db);
         } else {
-            updateSurvey();
+            SharedPreferences preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+            if (preferences.getBoolean("PushReceived", false)) {
+                loadBackendless(db);
+            } else {
+                updateYearInfo();
+            }
         }
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("PushReceived"));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
     }
 
     @Override
@@ -102,14 +118,27 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+            loadBackendless(db);
+        }
+    };
+
     private void loadBackendless(final DatabaseHandler db) {
-        ScheduleFragment fragment = getScheduleFragment();
+        SharedPreferences preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("PushReceived", false);
+        editor.apply();
+
+        final ScheduleFragment fragment = getScheduleFragment();
         if (fragment != null) {
             fragment.setLoading(true);
         }
-        DbManager.getInstance().getYears(this, new DbManager.YearsResponse() {
+        DbManager.getInstance().getYears(this, new DbManager.Callback<List<BYear>>() {
             @Override
-            public void onYearsReceived(List<BYear> years, String error) {
+            public void onDone(List<BYear> years, String error) {
 
                 if (error != null) {
                     Toast.makeText(MainActivity.this, "Error: " + error, Toast.LENGTH_LONG).show();
@@ -119,10 +148,11 @@ public class MainActivity extends AppCompatActivity
                     db.addYear(year);
                 }
                 checkOldNotes(db);
-                updateSurvey();
+                updateYearInfo();
 
                 ScheduleFragment fragment = getScheduleFragment();
                 if (fragment != null) {
+                    fragment.setLoading(false);
                     fragment.reload();
                 }
             }
@@ -200,6 +230,10 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.beginTransaction()
                     .replace(R.id.container, InfoFragment.newInstance())
                     .commit();
+        } else if (id == R.id.maps) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, MapsFragment.newInstance())
+                    .commit();
         } else if (id == R.id.sponsors) {
             fragmentManager.beginTransaction()
                     .replace(R.id.container, SponsorsFragment.newInstance())
@@ -208,14 +242,8 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.beginTransaction()
                     .replace(R.id.container, ContactFragment.newInstance())
                     .commit();
-        } else if (id == R.id.survey) {
-            String urlString = survey.getSurveyUrl();
-            if (urlString != null) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(urlString)));
-                Utils.logSurvey();
-            }
         } else if (id == R.id.logout) {
-            DbManager.getInstance().logout();
+            DbManager.getInstance().logout(null);
             navigationView.getMenu().findItem(R.id.logout).setVisible(false);
         }
 
@@ -258,14 +286,13 @@ public class MainActivity extends AppCompatActivity
         return null;
     }
 
-    private void updateSurvey() {
+    private void updateYearInfo() {
         DatabaseHandler db = new DatabaseHandler(getApplicationContext());
-        survey = db.getLatestSurvey();
-        Date now = new Date();
-        if (survey.getSurveyUrl() != null && survey.getSurveyStart() != null && survey.getSurveyEnd() != null) {
-            if (now.after(survey.getSurveyStart()) && now.before(survey.getSurveyEnd())) {
-                navigationView.getMenu().findItem(R.id.survey).setVisible(true);
-            }
+        BYear latestYear = db.getLastYear();
+        if (latestYear == null || yearInfoMenuItem == null) {
+            return;
         }
+        int year = latestYear.getName();
+        yearInfoMenuItem.setTitle(year + " Info");
     }
 }
