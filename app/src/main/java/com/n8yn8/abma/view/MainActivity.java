@@ -1,12 +1,18 @@
 package com.n8yn8.abma.view;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -77,8 +83,22 @@ public class MainActivity extends AppCompatActivity
         if (saveYears.size() == 0) {
             loadBackendless(db);
         } else {
-            updateYearInfo();
+            SharedPreferences preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+            if (preferences.getBoolean("PushReceived", false)) {
+                loadBackendless(db);
+            } else {
+                updateYearInfo();
+            }
         }
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("PushReceived"));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
     }
 
     @Override
@@ -98,7 +118,20 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            DatabaseHandler db = new DatabaseHandler(getApplicationContext());
+            loadBackendless(db);
+        }
+    };
+
     private void loadBackendless(final DatabaseHandler db) {
+        SharedPreferences preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("PushReceived", false);
+        editor.apply();
+
         final ScheduleFragment fragment = getScheduleFragment();
         if (fragment != null) {
             fragment.setLoading(true);
