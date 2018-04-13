@@ -81,11 +81,11 @@ public class MainActivity extends AppCompatActivity
         DatabaseHandler db = new DatabaseHandler(getApplicationContext());
         List<BYear> saveYears = db.getAllYears();
         if (saveYears.size() == 0) {
-            loadBackendless(db);
+            loadBackendless(db, false);
         } else {
             SharedPreferences preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
             if (preferences.getBoolean("PushReceived", false)) {
-                loadBackendless(db);
+                loadBackendless(db, true);
             } else {
                 updateYearInfo();
             }
@@ -122,11 +122,11 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onReceive(Context context, Intent intent) {
             DatabaseHandler db = new DatabaseHandler(getApplicationContext());
-            loadBackendless(db);
+            loadBackendless(db, true);
         }
     };
 
-    private void loadBackendless(final DatabaseHandler db) {
+    private void loadBackendless(final DatabaseHandler db, final boolean isUpdate) {
         SharedPreferences preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean("PushReceived", false);
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity
                 ScheduleFragment fragment = getScheduleFragment();
                 if (fragment != null) {
                     fragment.setLoading(false);
-                    fragment.reload();
+                    fragment.reload(isUpdate);
                 }
             }
         });

@@ -122,13 +122,13 @@ public class ScheduleFragment extends Fragment {
                         }
 
                         Utils.saveYears(getContext(), years);
-                        reload();
+                        reload(years.size() > 0);
                     }
                 });
             }
         });
 
-        reload();
+        reload(false);
 
         return rootView;
     }
@@ -143,27 +143,27 @@ public class ScheduleFragment extends Fragment {
 
     }
 
-    public void reload() {
+    public void reload(boolean isUpdate) {
         BYear year;
         if (TextUtils.isEmpty(selectedYearName)) {
             year = db.getLastYear();
         } else {
             year = db.getYearByName(selectedYearName);
         }
-        setUpYear(year);
+        setUpYear(year, isUpdate);
     }
 
-    private void setUpYear(final BYear year) {
+    private void setUpYear(final BYear year, boolean isUpdate) {
         if (year != null) {
             List<BEvent> events = year.getEvents();
-            if (events.size() == 0) {
+            if (events.size() == 0 || isUpdate) {
                 setLoading(true);
                 DbManager.getInstance().getEvents(year.getObjectId(), new DbManager.Callback<List<BEvent>>() {
                     @Override
                     public void onDone(List<BEvent> bEvents, String error) {
                         Utils.saveEvents(getContext(), year.getObjectId(), bEvents);
                         setLoading(false);
-                        reload();
+                        reload(false);
                     }
                 });
             } else {
@@ -191,6 +191,6 @@ public class ScheduleFragment extends Fragment {
 
     public void setYear(String name) {
         selectedYearName = name;
-        reload();
+        reload(false);
     }
 }
