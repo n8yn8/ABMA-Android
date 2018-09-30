@@ -130,7 +130,7 @@ public class DbManager {
     }
 
     public interface Callback<T> {
-        public void onDone(T t, String error);
+         void onDone(T t, String error);
     }
 
     public void getYears(Context context, final Callback<List<BYear>> callback) {

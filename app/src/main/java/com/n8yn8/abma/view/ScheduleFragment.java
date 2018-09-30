@@ -70,8 +70,6 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
 
         db = new DatabaseHandler(getActivity());
     }
@@ -80,10 +78,10 @@ public class ScheduleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_schedule, container, false);
-        backButton = (ImageButton) rootView.findViewById(R.id.prevDayButton);
-        nextButton = (ImageButton) rootView.findViewById(R.id.nextDayButton);
-        dateTextView = (TextView) rootView.findViewById(R.id.dateTextView);
-        scheduleListView = (ListView) rootView.findViewById(R.id.scheduleListView);
+        backButton = rootView.findViewById(R.id.prevDayButton);
+        nextButton = rootView.findViewById(R.id.nextDayButton);
+        dateTextView = rootView.findViewById(R.id.dateTextView);
+        scheduleListView = rootView.findViewById(R.id.scheduleListView);
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,11 +102,13 @@ public class ScheduleFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BEvent event = adapter.getItem(position);
-                EventActivity.start(getActivity(), event.getObjectId(), null);
+                if (event != null) {
+                    EventActivity.start(getActivity(), event.getObjectId(), null);
+                }
             }
         });
 
-        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefresh);
+        swipeRefreshLayout = rootView.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 
-public class EventActivity extends ActionBarActivity {
+public class EventActivity extends AppCompatActivity {
 
     private static final String EXTRA_EVENT_ID = "event_id";
     private static final String EXTRA_PAPER_ID = "paper_id";
@@ -67,25 +67,27 @@ public class EventActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         db = new DatabaseHandler(getApplicationContext());
 
-        dayTextView = (TextView) findViewById(R.id.dayTextView);
-        dateTextView = (TextView) findViewById(R.id.dateTextView);
-        titleTextView = (TextView) findViewById(R.id.titleTextView);
-        subtitleTextView = (TextView) findViewById(R.id.subtitleTextView);
-        detailTextView = (TextView) findViewById(R.id.detailTextView);
-        timeTextView = (TextView) findViewById(R.id.timeTextView);
-        placeTextView = (TextView) findViewById(R.id.placeTextView);
-        noteEditText = (EditText) findViewById(R.id.noteEditText);
+        dayTextView = findViewById(R.id.dayTextView);
+        dateTextView = findViewById(R.id.dateTextView);
+        titleTextView = findViewById(R.id.titleTextView);
+        subtitleTextView = findViewById(R.id.subtitleTextView);
+        detailTextView = findViewById(R.id.detailTextView);
+        timeTextView = findViewById(R.id.timeTextView);
+        placeTextView = findViewById(R.id.placeTextView);
+        noteEditText = findViewById(R.id.noteEditText);
 
         event = db.getEventById(getIntent().getStringExtra(EXTRA_EVENT_ID));
         paper = db.getPaperById(getIntent().getStringExtra(EXTRA_PAPER_ID));
         displayEvent();
 
-        ImageButton backButton = (ImageButton) findViewById(R.id.backEventButton);
-        ImageButton nextButton = (ImageButton) findViewById(R.id.nextEventButton);
+        ImageButton backButton = findViewById(R.id.backEventButton);
+        ImageButton nextButton = findViewById(R.id.nextEventButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,13 +134,15 @@ public class EventActivity extends ActionBarActivity {
             }
         });
 
-        saveButton = (Button) findViewById(R.id.saveNoteButton);
+        saveButton = findViewById(R.id.saveNoteButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                InputMethodManager imm = (InputMethodManager)getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(noteEditText.getWindowToken(), 0);
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(noteEditText.getWindowToken(), 0);
+                }
 
                 String eventId = null;
                 if (event != null) {
@@ -231,13 +235,15 @@ public class EventActivity extends ActionBarActivity {
             detailTextView.setMovementMethod(new ScrollingMovementMethod());
             detailTextView.scrollTo(0,0);
             final PaperListAdapter adapter = new PaperListAdapter(this, papers);
-            ListView papersListView = (ListView) findViewById(R.id.papersListView);
+            ListView papersListView = findViewById(R.id.papersListView);
             papersListView.setAdapter(adapter);
             papersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     BPaper paper = adapter.getItem(position);
-                    EventActivity.start(EventActivity.this, event.getObjectId(), paper.getObjectId());
+                    if (paper != null) {
+                        EventActivity.start(EventActivity.this, event.getObjectId(), paper.getObjectId());
+                    }
                 }
             });
             note = db.getNoteBy(event.getObjectId(), null);

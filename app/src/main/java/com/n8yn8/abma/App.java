@@ -70,8 +70,7 @@ public class App extends Application {
         try {
             InputStream is = getResources().openRawResource(R.raw.y2016);
             scheduleDict = (NSDictionary) PropertyListParser.parse(is);
-            Schedule schedule = new Schedule(scheduleDict);
-            return schedule;
+            return new Schedule(scheduleDict);
         } catch(Exception ex) {
             Log.e(TAG, "" + ex.getLocalizedMessage());
             return null;

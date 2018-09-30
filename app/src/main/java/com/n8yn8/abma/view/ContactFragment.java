@@ -70,7 +70,7 @@ public class ContactFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_contact, container, false);
-        RecyclerView listView = (RecyclerView) view.findViewById(R.id.surveyListView);
+        RecyclerView listView = view.findViewById(R.id.surveyListView);
         SurveyListAdapter adapter = new SurveyListAdapter(surveys, new SurveyListAdapter.OnLinkClickedListener() {
             @Override
             public void onClick(String url) {

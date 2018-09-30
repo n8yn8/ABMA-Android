@@ -43,7 +43,7 @@ public class MapsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_maps, container, false);
-        RecyclerView listView = (RecyclerView) view.findViewById(R.id.mapsListView);
+        RecyclerView listView = view.findViewById(R.id.mapsListView);
         MapsAdapter adapter = new MapsAdapter(((App)getContext().getApplicationContext()).getImageLoader(), maps, new MapsAdapter.OnMapClickListener() {
             @Override
             public void onClick(BMap map) {

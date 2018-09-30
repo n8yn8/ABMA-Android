@@ -1,6 +1,5 @@
 package com.n8yn8.abma.view;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -11,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +34,6 @@ import java.util.List;
  */
 public class NoteFragment extends Fragment implements AbsListView.OnItemClickListener, AbsListView.OnItemLongClickListener {
 
-    private OnFragmentInteractionListener mListener;
     List<BNote> noteList;
     TextView noDataTextView;
     DatabaseHandler db;
@@ -83,9 +80,9 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_note, container, false);
 
-        noDataTextView = (TextView) view.findViewById(R.id.emptyNoteListTextView);
+        noDataTextView = view.findViewById(R.id.emptyNoteListTextView);
         if (noDataTextView == null) {
-            noDataTextView = (TextView) view.findViewById(android.R.id.empty);
+            noDataTextView = view.findViewById(android.R.id.empty);
         }
         if (noteList.size() == 0) {
             noDataTextView.setText("No notes have been saved yet.");
@@ -93,19 +90,14 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
             noDataTextView.setText("");
         }
         // Set the adapter
-        mListView = (AbsListView) view.findViewById(android.R.id.list);
-        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+        mListView = view.findViewById(android.R.id.list);
+        mListView.setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
         mListView.setOnItemLongClickListener(this);
 
         return view;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
     }
 
     @Override
@@ -125,14 +117,15 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         BNote note = mAdapter.getItem(position);
-        EventActivity.start(getContext(), note.getEventId(), note.getPaperId());
+        if (note != null) {
+            EventActivity.start(getContext(), note.getEventId(), note.getPaperId());
+        }
     }
 
     @Override
@@ -185,14 +178,16 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     private void showSnackBar() {
-        loginSnackbar = Snackbar.make(getView(), "Log in to save your notes online", Snackbar.LENGTH_INDEFINITE);
-        loginSnackbar.setAction("Log In", new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showLogin();
-            }
-        });
-        loginSnackbar.show();
+        if (getView() != null) {
+            loginSnackbar = Snackbar.make(getView(), "Log in to save your notes online", Snackbar.LENGTH_INDEFINITE);
+            loginSnackbar.setAction("Log In", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showLogin();
+                }
+            });
+            loginSnackbar.show();
+        }
     }
 
     private void showLogin() {
@@ -253,20 +248,6 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         if (emptyView instanceof TextView) {
             ((TextView) emptyView).setText(emptyText);
         }
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-//        public void onFragmentInteraction(String id);
     }
 
 }

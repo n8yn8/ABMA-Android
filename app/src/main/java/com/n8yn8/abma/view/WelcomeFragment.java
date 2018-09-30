@@ -31,8 +31,7 @@ public class WelcomeFragment extends Fragment {
      * @return A new instance of fragment WelcomeFragment.
      */
     public static WelcomeFragment newInstance() {
-        WelcomeFragment fragment = new WelcomeFragment();
-        return fragment;
+        return new WelcomeFragment();
     }
 
     @Override
@@ -45,7 +44,7 @@ public class WelcomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_welcome, container, false);
-        TextView infoTextView = (TextView) view.findViewById(R.id.welcomeTextView);
+        TextView infoTextView = view.findViewById(R.id.welcomeTextView);
 
         DatabaseHandler db = new DatabaseHandler(getContext());
         String welcome = db.getLastYear().getWelcome();

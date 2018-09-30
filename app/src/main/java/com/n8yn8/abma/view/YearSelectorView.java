@@ -47,14 +47,13 @@ public class YearSelectorView extends LinearLayout {
 
         DatabaseHandler db = new DatabaseHandler(getContext());
         List<String> names = db.getAlYearNames();
-        final ArrayAdapter<String> adp = new ArrayAdapter<String>(getContext(),
+        final ArrayAdapter<String> adp = new ArrayAdapter<>(getContext(),
                 R.layout.item_spinner, names);
-        spinner = (Spinner) findViewById(R.id.yearSpinner);
+        spinner = findViewById(R.id.yearSpinner);
         spinner.setAdapter(adp);
     }
 
     public String getSelectedYear() {
-        String selected = (String) spinner.getSelectedItem();
-        return selected;
+        return (String) spinner.getSelectedItem();
     }
 }

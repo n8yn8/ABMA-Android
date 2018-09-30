@@ -57,16 +57,16 @@ public class LoginDialog extends LinearLayout {
     private void intiViews() {
         inflate(getContext(), R.layout.dialog_login, this);
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
 
-        confirmPassEditText = (EditText) findViewById(R.id.confirm_edit_text);
-        confirmInput = (TextInputLayout) findViewById(R.id.confirmTextInput);
+        confirmPassEditText = findViewById(R.id.confirm_edit_text);
+        confirmInput = findViewById(R.id.confirmTextInput);
 
-        passEditText = (EditText) findViewById(R.id.pass_edit_text);
-        passInput = (TextInputLayout) findViewById(R.id.passwordInput);
+        passEditText = findViewById(R.id.pass_edit_text);
+        passInput = findViewById(R.id.passwordInput);
 
-        emailEditText = (EditText) findViewById(R.id.email_edit_text);
-        emailInput = (TextInputLayout) findViewById(R.id.emalInput);
+        emailEditText = findViewById(R.id.email_edit_text);
+        emailInput = findViewById(R.id.emalInput);
 
         if (BuildConfig.DEBUG) {
             confirmPassEditText.setText("saigon00"); //TODO: remove

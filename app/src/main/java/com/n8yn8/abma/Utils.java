@@ -44,6 +44,9 @@ public class Utils {
     public static Date getLastUpdated(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         long dateMillis = sharedPref.getLong(LAST_UPDATED, 0);
+        if (dateMillis == 0) {
+            return null;
+        }
         return new Date(dateMillis);
     }
 

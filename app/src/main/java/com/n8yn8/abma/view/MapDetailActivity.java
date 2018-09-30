@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.android.volley.toolbox.NetworkImageView;
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.backendless.BMap;
@@ -27,7 +26,7 @@ public class MapDetailActivity extends AppCompatActivity {
 
         BMap map = getIntent().getParcelableExtra(EXTRA_MAP);
 
-        TouchNetworkImageView imageView = (TouchNetworkImageView) findViewById(R.id.imageView);
+        TouchNetworkImageView imageView = findViewById(R.id.imageView);
 
         imageView.setImageUrl(map.getUrl(), ((App) getApplicationContext()).getImageLoader());
         imageView.setMaxZoom(4f);
