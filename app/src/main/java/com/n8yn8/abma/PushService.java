@@ -42,9 +42,9 @@ public class PushService extends BackendlessPushService {
         editor.apply();
 
         Intent localIntent = new Intent("PushReceived");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, "default")
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("ABMA Update")
                 .setContentText(message)
@@ -58,7 +58,7 @@ public class PushService extends BackendlessPushService {
         int mNotificationId = 001;
 // Gets an instance of the NotificationManager service
         NotificationManager mNotifyMgr =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 // Builds the notification and issues it.
         mNotifyMgr.notify(mNotificationId, mBuilder.build());
 

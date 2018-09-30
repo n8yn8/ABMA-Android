@@ -32,10 +32,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        warning 'InvalidPackage'
+    }
 }
 
 dependencies {
-    implementation 'com.backendless:backendless:4.0.3'
+    implementation 'com.backendless:backendless:5.0.2'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     testImplementation 'junit:junit:4.12'
