@@ -7,8 +7,6 @@ import android.arch.persistence.room.PrimaryKey;
 
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
-import java.util.Objects;
-
 @Entity(tableName = DatabaseHandler.TABLE_YEARS,
         indices = {@Index(value = {DatabaseHandler.KEY_OBJECT_ID}, unique = true)})
 public class Year {
@@ -26,13 +24,13 @@ public class Year {
 //            + ")";
 
     @PrimaryKey
-    public int id;
+    public Integer id;
 
     @ColumnInfo(name = DatabaseHandler.KEY_OBJECT_ID)
     public String objectId;
 
     @ColumnInfo(name = DatabaseHandler.KEY_NAME)
-    public int name;
+    public Integer name;
 
 //    List<BEvent> events;
 
@@ -44,28 +42,16 @@ public class Year {
 
 //    List<BSponsor> sponsors;
 
-    @ColumnInfo(name = DatabaseHandler.TABLE_SURVEYS)
-    public String surveys;
-
 //    String maps;
 
-
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Year year = (Year) o;
-        return id == year.id &&
-                name == year.name &&
-                Objects.equals(objectId, year.objectId) &&
-                Objects.equals(welcome, year.welcome) &&
-                Objects.equals(info, year.info) &&
-                Objects.equals(surveys, year.surveys);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(id, objectId, name, welcome, info, surveys);
+    public String toString() {
+        return "Year{" +
+                "id=" + id +
+                ", objectId='" + objectId + '\'' +
+                ", name=" + name +
+                ", welcome='" + welcome + '\'' +
+                ", info='" + info + '\'' +
+                '}';
     }
 }

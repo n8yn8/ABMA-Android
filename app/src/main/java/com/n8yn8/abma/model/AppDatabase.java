@@ -26,7 +26,36 @@ public abstract class AppDatabase extends RoomDatabase {
     private static final Migration MIGRATION_5_6 = new Migration(5, 6) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            //No table alterations, only migrating from SQL to Room
+
+            database.execSQL("CREATE TABLE " + DatabaseHandler.TABLE_YEARS + "_new ("
+                    + DatabaseHandler.KEY_ID + " INTEGER PRIMARY KEY,"
+                    + DatabaseHandler.KEY_OBJECT_ID + " TEXT,"
+                    + DatabaseHandler.KEY_NAME + " INTEGER,"
+                    + DatabaseHandler.KEY_INFO + " TEXT,"
+                    + DatabaseHandler.KEY_WELCOME + " TEXT,"
+                    + "UNIQUE (" + DatabaseHandler.KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
+                    + ")");
+
+            database.execSQL(
+                    "INSERT INTO years_new ("
+                            + DatabaseHandler.KEY_ID + ", "
+                            + DatabaseHandler.KEY_OBJECT_ID + ", "
+                            + DatabaseHandler.KEY_NAME + ", "
+                            + DatabaseHandler.KEY_INFO + ", "
+                            + DatabaseHandler.KEY_WELCOME +
+                            ") SELECT "
+                            + DatabaseHandler.KEY_ID + ", "
+                            + DatabaseHandler.KEY_OBJECT_ID + ", "
+                            + DatabaseHandler.KEY_NAME + ", "
+                            + DatabaseHandler.KEY_INFO + ", "
+                            + DatabaseHandler.KEY_WELCOME +
+                            " FROM years");
+
+            database.execSQL("DROP TABLE years");
+
+            database.execSQL("ALTER TABLE years_new RENAME TO years");
+
+            database.execSQL("CREATE UNIQUE INDEX index_years_object_id ON years(object_id)");
         }
     };
 
