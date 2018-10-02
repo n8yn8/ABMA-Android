@@ -33,7 +33,7 @@ public class Event {
 //            + ")";
 
     @PrimaryKey
-    public int id;
+    public Integer id;
 
     @ColumnInfo(name = DatabaseHandler.KEY_OBJECT_ID)
     public String objectId;
@@ -45,10 +45,10 @@ public class Event {
     public String details;
 
     @ColumnInfo(name = DatabaseHandler.KEY_END_DATE)
-    public long endDate;
+    public Long endDate;
 
     @ColumnInfo(name = DatabaseHandler.KEY_START_DATE)
-    public long startDate;
+    public Long startDate;
 
     @ColumnInfo(name = DatabaseHandler.KEY_PLACE)
     public String place;
@@ -79,5 +79,20 @@ public class Event {
     public int hashCode() {
 
         return Objects.hash(id, objectId, yearId, details, endDate, startDate, place, title, subtitle);
+    }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id=" + id +
+                ", objectId='" + objectId + '\'' +
+                ", yearId='" + yearId + '\'' +
+                ", details='" + details + '\'' +
+                ", endDate=" + endDate +
+                ", startDate=" + startDate +
+                ", place='" + place + '\'' +
+                ", title='" + title + '\'' +
+                ", subtitle='" + subtitle + '\'' +
+                '}';
     }
 }

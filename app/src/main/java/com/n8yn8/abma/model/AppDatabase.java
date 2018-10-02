@@ -27,6 +27,7 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
 
+            //Years
             database.execSQL("CREATE TABLE " + DatabaseHandler.TABLE_YEARS + "_new ("
                     + DatabaseHandler.KEY_ID + " INTEGER PRIMARY KEY,"
                     + DatabaseHandler.KEY_OBJECT_ID + " TEXT,"
@@ -56,6 +57,50 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("ALTER TABLE years_new RENAME TO years");
 
             database.execSQL("CREATE UNIQUE INDEX index_years_object_id ON years(object_id)");
+
+            //Events
+            database.execSQL("CREATE TABLE " + DatabaseHandler.TABLE_EVENTS + "_new ("
+                    + DatabaseHandler.KEY_ID + " INTEGER PRIMARY KEY,"
+                    + DatabaseHandler.KEY_OBJECT_ID + " TEXT,"
+                    + DatabaseHandler.KEY_YEAR_ID + " TEXT,"
+                    + DatabaseHandler.KEY_DETAILS + " TEXT,"
+                    + DatabaseHandler.KEY_END_DATE + " INTEGER,"
+                    + DatabaseHandler.KEY_START_DATE + " INTEGER,"
+                    + DatabaseHandler.KEY_PLACE + " TEXT,"
+                    + DatabaseHandler.KEY_TITLE + " TEXT,"
+                    + DatabaseHandler.KEY_SUBTITLE + " TEXT,"
+                    + "UNIQUE (" + DatabaseHandler.KEY_OBJECT_ID + ") ON CONFLICT REPLACE, FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`)"
+                    + ")");
+
+            database.execSQL(
+                    "INSERT INTO events_new ("
+                            + DatabaseHandler.KEY_ID + ", "
+                            + DatabaseHandler.KEY_OBJECT_ID + ", "
+                            + DatabaseHandler.KEY_YEAR_ID + ", "
+                            + DatabaseHandler.KEY_DETAILS + ", "
+                            + DatabaseHandler.KEY_END_DATE + ", "
+                            + DatabaseHandler.KEY_START_DATE + ", "
+                            + DatabaseHandler.KEY_PLACE + ", "
+                            + DatabaseHandler.KEY_TITLE + ", "
+                            + DatabaseHandler.KEY_SUBTITLE +
+                            ") SELECT "
+                            + DatabaseHandler.KEY_ID + ", "
+                            + DatabaseHandler.KEY_OBJECT_ID + ", "
+                            + DatabaseHandler.KEY_YEAR_ID + ", "
+                            + DatabaseHandler.KEY_DETAILS + ", "
+                            + DatabaseHandler.KEY_END_DATE + ", "
+                            + DatabaseHandler.KEY_START_DATE + ", "
+                            + DatabaseHandler.KEY_PLACE + ", "
+                            + DatabaseHandler.KEY_TITLE + ", "
+                            + DatabaseHandler.KEY_SUBTITLE +
+                            " FROM events");
+
+            database.execSQL("DROP TABLE events");
+
+            database.execSQL("ALTER TABLE events_new RENAME TO events");
+
+            database.execSQL("CREATE UNIQUE INDEX index_events_object_id ON events(object_id)");
+            database.execSQL("CREATE  INDEX index_events_year_id ON events(year_id)");
         }
     };
 
