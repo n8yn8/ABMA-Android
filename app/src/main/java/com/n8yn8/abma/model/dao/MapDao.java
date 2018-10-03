@@ -5,18 +5,18 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
-import com.n8yn8.abma.model.entities.Event;
+import com.n8yn8.abma.model.entities.Map;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
 import java.util.List;
 
 @Dao
-public interface EventDao {
+public interface MapDao {
 
-    @Query("SELECT * FROM " + DatabaseHandler.TABLE_EVENTS
+    @Query("SELECT * FROM " + DatabaseHandler.TABLE_MAPS
             + " WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId")
-    List<Event> getEvents(final int yearId);
+    List<Map> getMaps(final int yearId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public void insert(Event event);
+    public void insert(Map map);
 }

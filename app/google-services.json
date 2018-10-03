@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "634420626363",
+    "firebase_url": "https://abma-1a324.firebaseio.com",
+    "project_id": "abma-1a324",
+    "storage_bucket": "abma-1a324.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:634420626363:android:d4a16880a582e9b6",
+        "android_client_info": {
+          "package_name": "com.n8yn8.abma"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "634420626363-3484mo5460m9sshas9h6k68da4iu02ci.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAeiQXPK9mrVkZDXCW5Qn7TMxH3uq7WJ7o"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

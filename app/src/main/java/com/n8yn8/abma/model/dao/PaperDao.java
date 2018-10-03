@@ -5,18 +5,18 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
-import com.n8yn8.abma.model.entities.Event;
+import com.n8yn8.abma.model.entities.Paper;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
 import java.util.List;
 
 @Dao
-public interface EventDao {
+public interface PaperDao {
 
-    @Query("SELECT * FROM " + DatabaseHandler.TABLE_EVENTS
-            + " WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId")
-    List<Event> getEvents(final int yearId);
+    @Query("SELECT * FROM " + DatabaseHandler.TABLE_PAPERS
+            + " WHERE " + DatabaseHandler.KEY_EVENT_ID + "=:eventId")
+    List<Paper> getPapers(final int eventId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public void insert(Event event);
+    public void insert(Paper paper);
 }
