@@ -15,7 +15,10 @@ public interface PaperDao {
 
     @Query("SELECT * FROM " + DatabaseHandler.TABLE_PAPERS
             + " WHERE " + DatabaseHandler.KEY_EVENT_ID + "=:eventId")
-    List<Paper> getPapers(final int eventId);
+    List<Paper> getPapers(final String eventId);
+
+    @Query("SELECT * FROM papers WHERE object_id = :objectId LIMIT 1")
+    Paper getPaperById(String objectId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insert(Paper paper);

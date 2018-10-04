@@ -14,9 +14,12 @@ import java.util.List;
 public interface SponsorDao {
 
     @Query("SELECT * FROM " + DatabaseHandler.TABLE_SPONSORS
-            + " WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:sponsorId")
-    List<Sponsor> getSponsors(final int sponsorId);
+            + " WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId")
+    List<Sponsor> getSponsors(final String yearId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public void insert(Sponsor sponsor);
+    public void insert(Sponsor... sponsor);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public void insert(List<Sponsor> sponsors);
 }

@@ -13,10 +13,21 @@ import java.util.List;
 @Dao
 public interface EventDao {
 
-    @Query("SELECT * FROM " + DatabaseHandler.TABLE_EVENTS
-            + " WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId")
-    List<Event> getEvents(final int yearId);
+    @Query("SELECT * FROM events WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId")
+    List<Event> getEvents(final String yearId);
+
+    @Query("SELECT * FROM events WHERE start_date >= :startDate AND end_date <= :endDate")
+    List<Event> getAllEventsFor(long startDate, long endDate);
+
+    @Query("SELECT * FROM events WHERE object_id = :objectId LIMIT 1")
+    Event getEventById(String objectId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public void insert(Event event);
+    void insert(Event event);
+
+    @Query("SELECT * FROM events WHERE start_date < :startDate ORDER BY start_date DESC LIMIT 1")
+    Event getEventBefore(long startDate);
+
+    @Query("SELECT * FROM events WHERE start_date > :startDate ORDER BY start_date ASC LIMIT 1")
+    Event getEventAfter(long startDate);
 }

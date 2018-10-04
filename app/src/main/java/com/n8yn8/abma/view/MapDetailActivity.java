@@ -7,13 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.backendless.BMap;
+import com.n8yn8.abma.model.entities.Map;
 
 public class MapDetailActivity extends AppCompatActivity {
 
     private static final String EXTRA_MAP = "extra_map";
 
-    public static void start(Context context, BMap map) {
+    public static void start(Context context, Map map) {
         Intent intent = new Intent(context, MapDetailActivity.class);
         intent.putExtra(EXTRA_MAP, map);
         context.startActivity(intent);
@@ -24,11 +24,11 @@ public class MapDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_detail);
 
-        BMap map = getIntent().getParcelableExtra(EXTRA_MAP);
+        Map map = getIntent().getParcelableExtra(EXTRA_MAP);
 
         TouchNetworkImageView imageView = findViewById(R.id.imageView);
 
-        imageView.setImageUrl(map.getUrl(), ((App) getApplicationContext()).getImageLoader());
+        imageView.setImageUrl(map.url, ((App) getApplicationContext()).getImageLoader());
         imageView.setMaxZoom(4f);
     }
 }

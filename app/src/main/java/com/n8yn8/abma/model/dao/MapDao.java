@@ -15,7 +15,7 @@ public interface MapDao {
 
     @Query("SELECT * FROM " + DatabaseHandler.TABLE_MAPS
             + " WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId")
-    List<Map> getMaps(final int yearId);
+    List<Map> getMaps(final String yearId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insert(Map map);

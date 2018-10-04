@@ -13,6 +13,7 @@ import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.backendless.DbManager;
+import com.n8yn8.abma.model.entities.Event;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
 import java.text.SimpleDateFormat;
@@ -27,12 +28,12 @@ import java.util.TimeZone;
 
 public class Utils {
 
-    public static String getTimes(BEvent event) {
+    public static String getTimes(Event event) {
         SimpleDateFormat timeFormatter = new SimpleDateFormat("h:mm a");
         timeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String times = timeFormatter.format(event.getStartDate());
-        if (event.getEndDate() != null) {
-            times += " - " + timeFormatter.format(event.getEndDate());
+        String times = timeFormatter.format(event.startDate);
+        if (event.endDate != null) {
+            times += " - " + timeFormatter.format(event.endDate);
         }
         return times;
     }

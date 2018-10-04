@@ -12,6 +12,7 @@ import com.n8yn8.abma.model.dao.EventDao;
 import com.n8yn8.abma.model.dao.MapDao;
 import com.n8yn8.abma.model.dao.NoteDao;
 import com.n8yn8.abma.model.dao.PaperDao;
+import com.n8yn8.abma.model.dao.SponsorDao;
 import com.n8yn8.abma.model.dao.SurveyDao;
 import com.n8yn8.abma.model.dao.YearDao;
 import com.n8yn8.abma.model.entities.Event;
@@ -33,6 +34,8 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract EventDao eventDao();
 
     public abstract PaperDao paperDao();
+
+    public abstract SponsorDao sponsorDao();
 
     public abstract MapDao mapDao();
 
@@ -302,6 +305,7 @@ public abstract class AppDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             INSTANCE = Room.databaseBuilder(context, AppDatabase.class, DatabaseHandler.DATABASE_NAME)
                     .addMigrations(MIGRATION_5_6)
+                    .allowMainThreadQueries()
                     .build();
         }
         return INSTANCE;

@@ -33,6 +33,7 @@ import java.util.TimeZone;
 /**
  * Created by Nate on 3/14/15.
  */
+@Deprecated
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables

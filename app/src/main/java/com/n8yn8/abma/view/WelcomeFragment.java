@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.AppDatabase;
 
 
 /**
@@ -46,8 +46,8 @@ public class WelcomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_welcome, container, false);
         TextView infoTextView = view.findViewById(R.id.welcomeTextView);
 
-        DatabaseHandler db = new DatabaseHandler(getContext());
-        String welcome = db.getLastYear().getWelcome();
+        AppDatabase db = AppDatabase.getInstance(getActivity().getApplicationContext());
+        String welcome = db.yearDao().getLastYear().welcome;
         infoTextView.setText(welcome);
         infoTextView.setMovementMethod(new ScrollingMovementMethod());
         return view;

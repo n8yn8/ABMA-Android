@@ -8,23 +8,23 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.backendless.BPaper;
+import com.n8yn8.abma.model.entities.Paper;
 
 import java.util.List;
 
 /**
  * Created by Nate on 3/22/15.
  */
-public class PaperListAdapter extends ArrayAdapter<BPaper> {
+public class PaperListAdapter extends ArrayAdapter<Paper> {
     private final Activity context;
-    private final List<BPaper> papers;
+    private final List<Paper> papers;
 
     static class ViewHolder {
         public TextView titleTextView;
-        public TextView authorTextView;
+        TextView authorTextView;
     }
 
-    public PaperListAdapter(Activity context, List<BPaper> papers) {
+    public PaperListAdapter(Activity context, List<Paper> papers) {
         super(context, R.layout.item_list_paper, papers);
         this.context = context;
         this.papers = papers;
@@ -38,21 +38,21 @@ public class PaperListAdapter extends ArrayAdapter<BPaper> {
             LayoutInflater inflater = context.getLayoutInflater();
             rowView = inflater.inflate(R.layout.item_list_paper, null);
             ViewHolder viewHolder = new ViewHolder();
-            viewHolder.titleTextView = (TextView) rowView.findViewById(R.id.paperTitleTextView);
-            viewHolder.authorTextView = (TextView) rowView.findViewById(R.id.paperAuthorTextView);
+            viewHolder.titleTextView = rowView.findViewById(R.id.paperTitleTextView);
+            viewHolder.authorTextView = rowView.findViewById(R.id.paperAuthorTextView);
             rowView.setTag(viewHolder);
         }
 
         ViewHolder holder = (ViewHolder) rowView.getTag();
-        BPaper paper = papers.get(position);
-        holder.titleTextView.setText(paper.getTitle());
-        holder.authorTextView.setText(paper.getAuthor());
+        Paper paper = papers.get(position);
+        holder.titleTextView.setText(paper.title);
+        holder.authorTextView.setText(paper.author);
 
         return rowView;
     }
 
     @Override
-    public BPaper getItem(int position) {
+    public Paper getItem(int position) {
         return super.getItem(position);
     }
 }

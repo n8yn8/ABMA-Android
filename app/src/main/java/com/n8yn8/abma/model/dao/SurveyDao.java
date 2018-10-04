@@ -15,7 +15,7 @@ public interface SurveyDao {
 
     @Query("SELECT * FROM " + DatabaseHandler.TABLE_SURVEYS
             + " WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId")
-    List<Survey> getSurveys(final int yearId);
+    List<Survey> getSurveys(final String yearId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insert(Survey survey);

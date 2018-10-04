@@ -16,9 +16,11 @@ import android.widget.Toast;
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.AppDatabase;
+import com.n8yn8.abma.model.ConvertUtil;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.DbManager;
-import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.entities.Note;
 import com.n8yn8.abma.view.adapter.NoteListAdapter;
 
 import java.util.List;
@@ -34,9 +36,9 @@ import java.util.List;
  */
 public class NoteFragment extends Fragment implements AbsListView.OnItemClickListener, AbsListView.OnItemLongClickListener {
 
-    List<BNote> noteList;
+    List<Note> noteList;
     TextView noDataTextView;
-    DatabaseHandler db;
+    AppDatabase db;
     Snackbar loginSnackbar;
 
     /**
@@ -68,9 +70,9 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        db = new DatabaseHandler(getActivity().getApplicationContext());
+        db = AppDatabase.getInstance(getActivity().getApplicationContext());
 
-        noteList = db.getAllNotes();
+        noteList = db.noteDao().getNotes();
 
         mAdapter = new NoteListAdapter(getActivity(), noteList);
     }
@@ -122,9 +124,9 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        BNote note = mAdapter.getItem(position);
+        Note note = mAdapter.getItem(position);
         if (note != null) {
-            EventActivity.start(getContext(), note.getEventId(), note.getPaperId());
+            EventActivity.start(getContext(), note.eventId, note.paperId);
         }
     }
 
@@ -137,10 +139,10 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                BNote note = mAdapter.getItem(position);
-                DatabaseHandler db = new DatabaseHandler(getActivity());
-                db.deleteNote(note);
+                Note note = mAdapter.getItem(position);
+                db.noteDao().delete(note);
                 noteList.remove(position);
+                //TODO: delete from server
                 mAdapter.notifyDataSetChanged();
                 Toast.makeText(getActivity(), "This note has been deleted", Toast.LENGTH_SHORT).show();
                 if (noteList.size() == 0) {
@@ -213,22 +215,22 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
                     public void notesRetrieved(List<BNote> notes, String error) {
                         if (error == null) {
                             for (BNote note : notes) {
-                                db.addNoteSafe(note);
+                                db.noteDao().insert(ConvertUtil.convert(note));
                             }
-                            List<BNote> newNotes = db.getAllNotes();
-                            for (BNote note : newNotes) {
-                                manager.addNote(note, new DbManager.OnNoteSavedCallback() {
+                            List<Note> newNotes = db.noteDao().getNotes();
+                            for (Note note : newNotes) {
+                                manager.addNote(ConvertUtil.convert(note), new DbManager.OnNoteSavedCallback() {
                                     @Override
                                     public void noteSaved(BNote savedNote, String error) {
                                         if (savedNote != null) {
-                                            db.addNoteSafe(savedNote);
+                                            db.noteDao().insert(ConvertUtil.convert(savedNote));
                                         }
                                     }
                                 });
                             }
                         }
                         noteList.clear();
-                        noteList.addAll(db.getAllNotes());
+                        noteList.addAll(db.noteDao().getNotes());
                         mAdapter.notifyDataSetChanged();
                     }
                 });

@@ -48,7 +48,6 @@ public class AppDatabaseTest {
         Assert.assertEquals(year, years.get(0));
         Assert.assertEquals(event, events.get(0));
 
-        
     }
 
     private Year getYear() {
