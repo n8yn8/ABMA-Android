@@ -16,7 +16,7 @@ public interface EventDao {
     @Query("SELECT * FROM events WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId ORDER BY start_date ASC")
     List<Event> getEvents(final String yearId);
 
-    @Query("SELECT * FROM events WHERE start_date >= :startDate AND end_date <= :endDate ORDER BY start_date ASC")
+    @Query("SELECT * FROM events WHERE start_date >= :startDate AND start_date <= :endDate ORDER BY start_date ASC")
     List<Event> getAllEventsFor(long startDate, long endDate);
 
     @Query("SELECT * FROM events WHERE object_id = :objectId LIMIT 1")
