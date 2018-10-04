@@ -19,7 +19,6 @@ import com.n8yn8.abma.model.backendless.BSponsor;
 import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.entities.Sponsor;
 import com.n8yn8.abma.model.entities.Year;
-import com.n8yn8.abma.model.old.DatabaseHandler;
 import com.n8yn8.abma.view.adapter.ImageAdapter;
 
 import java.util.ArrayList;
@@ -70,7 +69,7 @@ public class SponsorsFragment extends Fragment {
                 @Override
                 public void onDone(List<BSponsor> bSponsors, String error) {
                     Log.d("Nate", "onDone");
-                    List<Sponsor> retrievedSponsors = new ArrayList<>(ConvertUtil.convert(bSponsors, year.objectId));
+                    List<Sponsor> retrievedSponsors = new ArrayList<>(ConvertUtil.convertSponsors(bSponsors, year.objectId));
                     db.sponsorDao().insert(retrievedSponsors);
                     sponsors.clear();
                     sponsors.addAll(retrievedSponsors);

@@ -9,12 +9,13 @@ import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.LoginEvent;
 import com.crashlytics.android.answers.SignUpEvent;
+import com.n8yn8.abma.model.AppDatabase;
+import com.n8yn8.abma.model.ConvertUtil;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.entities.Event;
-import com.n8yn8.abma.model.old.DatabaseHandler;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -103,21 +104,21 @@ public class Utils {
     }
 
     public static void saveYears(Context context, List<BYear> years) {
-        DatabaseHandler db = new DatabaseHandler(context);
+        AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
         for (BYear year: years) {
-            db.addYear(year);
+            db.yearDao().insert(ConvertUtil.convert(year));
         }
     }
 
     public static void saveEvents(Context context, String yearId, List<BEvent> events) {
-        final DatabaseHandler db = new DatabaseHandler(context);
-        db.addEvents(yearId, events);
+        final AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
+        db.eventDao().insert(ConvertUtil.convertEvents(events, yearId));
         for (final BEvent event : events) {
             if (event.getPapersCount() != 0) {
                 DbManager.getInstance().getPapers(event.getObjectId(), new DbManager.Callback<List<BPaper>>() {
                     @Override
                     public void onDone(List<BPaper> bPapers, String error) {
-                        db.addPapers(event.getObjectId(), bPapers);
+                        db.paperDao().insert(ConvertUtil.convertPapers(bPapers, event.getObjectId()));
                     }
                 });
             }

@@ -50,8 +50,8 @@ public class Note {
     public String content;
 
     @ColumnInfo(name = DatabaseHandler.KEY_CREATED)
-    public Integer created;
+    public Long created;
 
     @ColumnInfo(name = DatabaseHandler.KEY_UPDATED)
-    public Integer updated;
+    public Long updated;
 }
