@@ -9,9 +9,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.backendless.BSurvey;
+import com.n8yn8.abma.model.entities.Survey;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private List<Object> objects = new ArrayList<>();
     private OnLinkClickedListener onLinkClickedListener;
 
-    public SurveyListAdapter(List<BSurvey> surveys, OnLinkClickedListener onLinkClickedListener) {
+    public SurveyListAdapter(List<Survey> surveys, OnLinkClickedListener onLinkClickedListener) {
         objects.add("Surveys");
         if (surveys.isEmpty()) {
             objects.add(NO_SURVEY_TITLE);
@@ -81,8 +82,8 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         switch (ViewType.values()[holder.getItemViewType()]) {
             case SURVEY:
-                if (item instanceof BSurvey && holder instanceof SurveyViewHolder) {
-                    ((SurveyViewHolder) holder).onBind((BSurvey) item, onLinkClickedListener);
+                if (item instanceof Survey && holder instanceof SurveyViewHolder) {
+                    ((SurveyViewHolder) holder).onBind((Survey) item, onLinkClickedListener);
                 } else {
                     Log.e(TAG, "Not survey");
                 }
@@ -115,7 +116,7 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public int getItemViewType(int position) {
         Object object = objects.get(position);
-        if (object instanceof BSurvey) {
+        if (object instanceof Survey) {
             return ViewType.SURVEY.ordinal();
         } else if (object instanceof Link){
             return ViewType.LINK.ordinal();
@@ -152,8 +153,8 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (object instanceof BSurvey) {
-                        onLinkClickedListener.onClick(((BSurvey) object).getUrl());
+                    if (object instanceof Survey) {
+                        onLinkClickedListener.onClick(((Survey) object).url);
                     } else if (object instanceof Link) {
                         onLinkClickedListener.onClick(((Link) object).url);
                     } else {
@@ -164,7 +165,7 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    public class SurveyViewHolder extends CommonViewHolder<BSurvey> {
+    public class SurveyViewHolder extends CommonViewHolder<Survey> {
 
         TextView nameTextView;
         TextView detailsTextView;
@@ -172,17 +173,17 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         SurveyViewHolder(View itemView) {
             super(itemView);
-            nameTextView = (TextView) itemView.findViewById(R.id.surveyTitleTextView);
-            detailsTextView = (TextView) itemView.findViewById(R.id.surveyDescTextView);
-            timeTextView = (TextView) itemView.findViewById(R.id.surveyTimeTextView);
+            nameTextView = itemView.findViewById(R.id.surveyTitleTextView);
+            detailsTextView = itemView.findViewById(R.id.surveyDescTextView);
+            timeTextView = itemView.findViewById(R.id.surveyTimeTextView);
         }
 
         @Override
-        void onBind(BSurvey survey, OnLinkClickedListener onLinkClickedListener) {
+        void onBind(Survey survey, OnLinkClickedListener onLinkClickedListener) {
             super.onBind(survey, onLinkClickedListener);
-            nameTextView.setText(survey.getTitle());
-            detailsTextView.setText(survey.getDetails());
-            timeTextView.setText(String.format(timeTextView.getContext().getString(R.string.available_until), survey.getEnd()));
+            nameTextView.setText(survey.title);
+            detailsTextView.setText(survey.details);
+            timeTextView.setText(String.format(timeTextView.getContext().getString(R.string.available_until), new Date(survey.endDate)));
         }
     }
 
@@ -192,7 +193,7 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         LinkViewHolder(View itemView) {
             super(itemView);
-            titleTextView = (TextView) itemView.findViewById(R.id.linkTextView);
+            titleTextView = itemView.findViewById(R.id.linkTextView);
         }
 
         @Override
@@ -208,7 +209,7 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         NoSurveyViewHolder(View itemView) {
             super(itemView);
-            titleTextView = (TextView) itemView.findViewById(R.id.linkTextView);
+            titleTextView = itemView.findViewById(R.id.linkTextView);
         }
 
         @Override
@@ -224,7 +225,7 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         SeparatorViewHolder(View itemView) {
             super(itemView);
-            titleTextView = (TextView) itemView.findViewById(R.id.separatorTitleView);
+            titleTextView = itemView.findViewById(R.id.separatorTitleView);
         }
 
         void onBind(String title) {

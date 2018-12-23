@@ -11,16 +11,16 @@ import android.view.ViewGroup;
 
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.backendless.BMap;
-import com.n8yn8.abma.model.backendless.BYear;
-import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.AppDatabase;
+import com.n8yn8.abma.model.entities.Map;
+import com.n8yn8.abma.model.entities.Year;
 import com.n8yn8.abma.view.adapter.MapsAdapter;
 
 import java.util.List;
 
 public class MapsFragment extends Fragment {
 
-    private List<BMap> maps;
+    private List<Map> maps;
 
     public static MapsFragment newInstance() {
         return new MapsFragment();
@@ -33,9 +33,9 @@ public class MapsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DatabaseHandler db = new DatabaseHandler(getContext());
-        BYear latestYear = db.getLastYear();
-        maps = db.getMaps(latestYear.getObjectId());
+        AppDatabase db = AppDatabase.getInstance(getActivity().getApplicationContext());
+        Year latestYear = db.yearDao().getLastYear();
+        maps = db.mapDao().getMaps(latestYear.objectId);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class MapsFragment extends Fragment {
         RecyclerView listView = view.findViewById(R.id.mapsListView);
         MapsAdapter adapter = new MapsAdapter(((App)getContext().getApplicationContext()).getImageLoader(), maps, new MapsAdapter.OnMapClickListener() {
             @Override
-            public void onClick(BMap map) {
+            public void onClick(Map map) {
                 MapDetailActivity.start(getContext(), map);
             }
         });

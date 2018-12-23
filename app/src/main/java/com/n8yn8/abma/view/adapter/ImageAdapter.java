@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.n8yn8.abma.App;
-import com.n8yn8.abma.model.backendless.BSponsor;
+import com.n8yn8.abma.model.entities.Sponsor;
 
 import java.util.List;
 
@@ -21,11 +21,11 @@ import java.util.List;
  */
 public class ImageAdapter extends BaseAdapter {
     private Context mContext;
-    private List<BSponsor> sponsors;
+    private List<Sponsor> sponsors;
 
     private ImageLoader mImageLoader;
 
-    public ImageAdapter(Context c, List<BSponsor> sponsors) {
+    public ImageAdapter(Context c, List<Sponsor> sponsors) {
         mContext = c;
         this.sponsors = sponsors;
 
@@ -63,7 +63,7 @@ public class ImageAdapter extends BaseAdapter {
             imageView = (NetworkImageView) convertView;
         }
 
-        imageView.setImageUrl(sponsors.get(position).getImageUrl(), mImageLoader);
+        imageView.setImageUrl(sponsors.get(position).imageUrl, mImageLoader);
         return imageView;
     }
 

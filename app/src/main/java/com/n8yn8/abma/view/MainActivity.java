@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,6 +21,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,17 +30,21 @@ import android.widget.Toast;
 import com.backendless.BackendlessUser;
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.AppDatabase;
+import com.n8yn8.abma.model.ConvertUtil;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.backendless.DbManager;
+import com.n8yn8.abma.model.entities.Year;
 import com.n8yn8.abma.model.old.DatabaseHandler;
 import com.n8yn8.abma.model.old.Event;
 import com.n8yn8.abma.model.old.Note;
 import com.n8yn8.abma.model.old.Paper;
 import com.n8yn8.abma.model.old.Schedule;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
 
@@ -79,14 +85,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        DatabaseHandler db = new DatabaseHandler(getApplicationContext());
-        List<BYear> saveYears = db.getAllYears();
-        if (saveYears.size() == 0) {
-            loadBackendless(db, false);
+
+        List<Year> savedYears = AppDatabase.getInstance(getApplicationContext()).yearDao().getYears();
+        if (savedYears.size() == 0) {
+            loadBackendless(false);
         } else {
             SharedPreferences preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
             if (preferences.getBoolean("PushReceived", false)) {
-                loadBackendless(db, true);
+                loadBackendless(true);
             } else {
                 updateYearInfo();
             }
@@ -122,12 +128,11 @@ public class MainActivity extends AppCompatActivity
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            DatabaseHandler db = new DatabaseHandler(getApplicationContext());
-            loadBackendless(db, true);
+            loadBackendless(true);
         }
     };
 
-    private void loadBackendless(final DatabaseHandler db, final boolean isUpdate) {
+    private void loadBackendless(final boolean isUpdate) {
         SharedPreferences preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean("PushReceived", false);
@@ -146,9 +151,8 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 for (BYear year: years) {
-                    db.addYear(year);
+                    AppDatabase.getInstance(getApplicationContext()).yearDao().insert(ConvertUtil.convert(year));
                 }
-                checkOldNotes(db);
                 updateYearInfo();
 
                 ScheduleFragment fragment = getScheduleFragment();
@@ -287,12 +291,40 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateYearInfo() {
-        DatabaseHandler db = new DatabaseHandler(getApplicationContext());
-        BYear latestYear = db.getLastYear();
+        Year latestYear = AppDatabase.getInstance(getApplicationContext()).yearDao().getLastYear();
         if (latestYear == null || yearInfoMenuItem == null) {
             return;
         }
-        int year = latestYear.getName();
+        int year = latestYear.name;
         yearInfoMenuItem.setTitle(year + " Info");
+    }
+
+    private static class DbTask extends AsyncTask<Void, Void, List<Year>> {
+        private WeakReference<MainActivity> activity;
+
+        public DbTask(MainActivity activity) {
+            this.activity = new WeakReference<>(activity);
+        }
+
+        @Override
+        protected List<Year> doInBackground(Void... voids) {
+            List<Year> years = AppDatabase.getInstance(activity.get()).yearDao().getYears();
+            for (Year year : years) {
+                Log.d("Nate", "year = " + year);
+            }
+//            List<com.n8yn8.abma.model.entities.Event> events = AppDatabase.getInstance(activity.get()).eventDao().getEvents();
+//            for (com.n8yn8.abma.model.entities.Event event : events) {
+//                Log.d("Nate", "event = " + event);
+//            }
+            return years;
+        }
+
+        @Override
+        protected void onPostExecute(List<Year> years) {
+
+
+
+            super.onPostExecute(years);
+        }
     }
 }

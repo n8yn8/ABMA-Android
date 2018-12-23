@@ -9,17 +9,17 @@ import android.widget.TextView;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.backendless.BMap;
+import com.n8yn8.abma.model.entities.Map;
 
 import java.util.List;
 
 public class MapsAdapter extends RecyclerView.Adapter<MapsAdapter.MapViewHolder> {
 
-    private List<BMap> maps;
+    private List<Map> maps;
     private OnMapClickListener onMapClickListener;
     private ImageLoader imageLoader;
 
-    public MapsAdapter(ImageLoader imageLoader, List<BMap> maps, OnMapClickListener onMapClickListener) {
+    public MapsAdapter(ImageLoader imageLoader, List<Map> maps, OnMapClickListener onMapClickListener) {
         this.maps = maps;
         this.onMapClickListener = onMapClickListener;
         this.imageLoader = imageLoader;
@@ -43,7 +43,7 @@ public class MapsAdapter extends RecyclerView.Adapter<MapsAdapter.MapViewHolder>
     }
 
     public interface OnMapClickListener {
-        void onClick(BMap map);
+        void onClick(Map map);
     }
 
     class MapViewHolder extends RecyclerView.ViewHolder {
@@ -54,11 +54,11 @@ public class MapsAdapter extends RecyclerView.Adapter<MapsAdapter.MapViewHolder>
         MapViewHolder(View itemView) {
             super(itemView);
 
-            networkImageView = (NetworkImageView) itemView.findViewById(R.id.mapImageView);
-            titleTextView = (TextView) itemView.findViewById(R.id.textView4);
+            networkImageView = itemView.findViewById(R.id.mapImageView);
+            titleTextView = itemView.findViewById(R.id.textView4);
         }
 
-        void onBind(final BMap map, final OnMapClickListener onMapClickListener, ImageLoader imageLoader) {
+        void onBind(final Map map, final OnMapClickListener onMapClickListener, ImageLoader imageLoader) {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -66,8 +66,8 @@ public class MapsAdapter extends RecyclerView.Adapter<MapsAdapter.MapViewHolder>
                 }
             });
 
-            networkImageView.setImageUrl(map.getUrl(), imageLoader);
-            titleTextView.setText(map.getTitle());
+            networkImageView.setImageUrl(map.url, imageLoader);
+            titleTextView.setText(map.title);
         }
     }
 }

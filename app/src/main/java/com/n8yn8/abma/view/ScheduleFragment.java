@@ -17,13 +17,16 @@ import android.widget.Toast;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
+import com.n8yn8.abma.model.AppDatabase;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.backendless.DbManager;
-import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.entities.Event;
+import com.n8yn8.abma.model.entities.Year;
 import com.n8yn8.abma.view.adapter.ScheduleListAdapter;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +41,7 @@ public class ScheduleFragment extends Fragment {
     public static final String TAG = "ScheduleFragment";
 
     ScheduleListAdapter adapter;
-    DatabaseHandler db;
+    AppDatabase db;
 
     ImageButton backButton;
     ImageButton nextButton;
@@ -46,7 +49,7 @@ public class ScheduleFragment extends Fragment {
     ListView scheduleListView;
     SwipeRefreshLayout swipeRefreshLayout;
 
-    List<BEvent> day;
+    List<Event> day;
     long displayDateMillis;
     String selectedYearName;
 
@@ -71,7 +74,7 @@ public class ScheduleFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        db = new DatabaseHandler(getActivity());
+        db = AppDatabase.getInstance(getActivity().getApplicationContext());
     }
 
     @Override
@@ -101,9 +104,9 @@ public class ScheduleFragment extends Fragment {
         scheduleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BEvent event = adapter.getItem(position);
+                Event event = adapter.getItem(position);
                 if (event != null) {
-                    EventActivity.start(getActivity(), event.getObjectId(), null);
+                    EventActivity.start(getActivity(), event.objectId, null);
                 }
             }
         });
@@ -144,31 +147,31 @@ public class ScheduleFragment extends Fragment {
     }
 
     public void reload(boolean isUpdate) {
-        BYear year;
+        Year year;
         if (TextUtils.isEmpty(selectedYearName)) {
-            year = db.getLastYear();
+            year = db.yearDao().getLastYear();
         } else {
-            year = db.getYearByName(selectedYearName);
+            year = db.yearDao().getYearByName(selectedYearName);
         }
         setUpYear(year, isUpdate);
     }
 
-    private void setUpYear(final BYear year, boolean isUpdate) {
+    private void setUpYear(final Year year, boolean isUpdate) {
         if (year != null) {
-            List<BEvent> events = year.getEvents();
+            List<Event> events = db.eventDao().getEvents(year.objectId);
             if (events.size() == 0 || isUpdate) {
                 setLoading(true);
-                DbManager.getInstance().getEvents(year.getObjectId(), new DbManager.Callback<List<BEvent>>() {
+                DbManager.getInstance().getEvents(year.objectId, new DbManager.Callback<List<BEvent>>() {
                     @Override
                     public void onDone(List<BEvent> bEvents, String error) {
-                        Utils.saveEvents(getContext(), year.getObjectId(), bEvents);
+                        Utils.saveEvents(getContext(), year.objectId, bEvents);
                         setLoading(false);
                         reload(false);
                     }
                 });
             } else {
-                BEvent firstEvent = events.get(0);
-                displayDateMillis = Utils.getStartOfDay(firstEvent.getStartDate());
+                Event firstEvent = events.get(0);
+                displayDateMillis = Utils.getStartOfDay(new Date(firstEvent.startDate));
             }
         }
         displayDay();
@@ -176,11 +179,11 @@ public class ScheduleFragment extends Fragment {
 
     public void displayDay() {
         Log.d("Nate", "start = " + displayDateMillis + " end = " + (displayDateMillis + TimeUnit.HOURS.toMillis(24)));
-        day = db.getAllEventsFor(displayDateMillis, displayDateMillis + TimeUnit.HOURS.toMillis(24));
+        day = db.eventDao().getAllEventsFor(displayDateMillis, displayDateMillis + TimeUnit.HOURS.toMillis(24));
         if (day.size() > 0) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            dateTextView.setText(dateFormat.format(day.get(0).getStartDate()));
+            dateTextView.setText(dateFormat.format(day.get(0).startDate));
             dateTextView.setVisibility(View.VISIBLE);
         } else {
             dateTextView.setVisibility(View.INVISIBLE);

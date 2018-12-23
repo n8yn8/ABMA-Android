@@ -1,6 +1,7 @@
 package com.n8yn8.abma.view.adapter;
 
 import android.app.Activity;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,35 +10,36 @@ import android.widget.TextView;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
-import com.n8yn8.abma.model.backendless.BEvent;
-import com.n8yn8.abma.model.backendless.BNote;
-import com.n8yn8.abma.model.backendless.BPaper;
-import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.AppDatabase;
+import com.n8yn8.abma.model.entities.Event;
+import com.n8yn8.abma.model.entities.Note;
+import com.n8yn8.abma.model.entities.Paper;
 
 import java.util.List;
 
 /**
  * Created by Nate on 3/15/15.
  */
-public class NoteListAdapter extends ArrayAdapter<BNote> {
+public class NoteListAdapter extends ArrayAdapter<Note> {
 
     private final Activity context;
-    private final List<BNote> notes;
-    private DatabaseHandler db;
+    private final List<Note> notes;
+    private AppDatabase db;
 
     static class ViewHolder {
-        public TextView noteTextView;
+        TextView noteTextView;
         public TextView detailTextView;
     }
 
-    public NoteListAdapter(Activity context, List<BNote> notes) {
+    public NoteListAdapter(Activity context, List<Note> notes) {
         super(context, R.layout.item_list_notes, notes);
         this.context = context;
         this.notes = notes;
-        db = new DatabaseHandler(context);
+        db = AppDatabase.getInstance(context.getApplicationContext());
     }
 
     @Override
+    @NonNull
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View rowView = convertView;
@@ -45,14 +47,14 @@ public class NoteListAdapter extends ArrayAdapter<BNote> {
             LayoutInflater inflater = context.getLayoutInflater();
             rowView = inflater.inflate(R.layout.item_list_notes, null);
             ViewHolder viewHolder = new ViewHolder();
-            viewHolder.noteTextView = (TextView) rowView.findViewById(R.id.noteTitleTextView);
-            viewHolder.detailTextView = (TextView) rowView.findViewById(R.id.noteDetailTextView);
+            viewHolder.noteTextView = rowView.findViewById(R.id.noteTitleTextView);
+            viewHolder.detailTextView = rowView.findViewById(R.id.noteDetailTextView);
             rowView.setTag(viewHolder);
         }
 
         ViewHolder holder = (ViewHolder) rowView.getTag();
-        BNote note = notes.get(position);
-        holder.noteTextView.setText(note.getContent());
+        Note note = notes.get(position);
+        holder.noteTextView.setText(note.content);
         String title = getTitle(note);
 
         holder.detailTextView.setText(title);
@@ -61,20 +63,20 @@ public class NoteListAdapter extends ArrayAdapter<BNote> {
     }
 
     @Override
-    public BNote getItem(int position) {
+    public Note getItem(int position) {
         return super.getItem(position);
     }
 
-    private String getTitle(BNote note) {
-        if (note.getPaperId() != null) {
-            BPaper paper = db.getPaperById(note.getPaperId());
+    private String getTitle(Note note) {
+        if (note.paperId != null) {
+            Paper paper = db.paperDao().getPaperById(note.paperId);
             if (paper != null) {
-                return paper.getTitle();
+                return paper.title;
             }
         } else {
-            BEvent event = db.getEventById(note.getEventId());
+            Event event = db.eventDao().getEventById(note.eventId);
             if (event != null) {
-                return event.getTitle();
+                return event.title;
             }
         }
         Utils.logError("Set Note Title", note.toString());

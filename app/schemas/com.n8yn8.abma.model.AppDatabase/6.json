@@ -1,0 +1,577 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 6,
+    "identityHash": "83412b64fdd9a1bf5faa5c7540bcb91f",
+    "entities": [
+      {
+        "tableName": "years",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `object_id` TEXT, `name` INTEGER, `welcome` TEXT, `info` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "objectId",
+            "columnName": "object_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "welcome",
+            "columnName": "welcome",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "info",
+            "columnName": "info",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_years_object_id",
+            "unique": true,
+            "columnNames": [
+              "object_id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_years_object_id` ON `${TABLE_NAME}` (`object_id`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "events",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `object_id` TEXT, `year_id` TEXT, `details` TEXT, `end_date` INTEGER, `start_date` INTEGER, `place` TEXT, `title` TEXT, `subtitle` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "objectId",
+            "columnName": "object_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "yearId",
+            "columnName": "year_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "details",
+            "columnName": "details",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "endDate",
+            "columnName": "end_date",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "startDate",
+            "columnName": "start_date",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "place",
+            "columnName": "place",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "subtitle",
+            "columnName": "subtitle",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_events_object_id",
+            "unique": true,
+            "columnNames": [
+              "object_id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_events_object_id` ON `${TABLE_NAME}` (`object_id`)"
+          },
+          {
+            "name": "index_events_year_id",
+            "unique": false,
+            "columnNames": [
+              "year_id"
+            ],
+            "createSql": "CREATE  INDEX `index_events_year_id` ON `${TABLE_NAME}` (`year_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "years",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "year_id"
+            ],
+            "referencedColumns": [
+              "object_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "papers",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `object_id` TEXT, `event_id` TEXT, `title` TEXT, `author` TEXT, `synopsis` TEXT, `order_by` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`event_id`) REFERENCES `events`(`object_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "objectId",
+            "columnName": "object_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "eventId",
+            "columnName": "event_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "author",
+            "columnName": "author",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "synopsis",
+            "columnName": "synopsis",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "order",
+            "columnName": "order_by",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_papers_object_id",
+            "unique": true,
+            "columnNames": [
+              "object_id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_papers_object_id` ON `${TABLE_NAME}` (`object_id`)"
+          },
+          {
+            "name": "index_papers_event_id",
+            "unique": false,
+            "columnNames": [
+              "event_id"
+            ],
+            "createSql": "CREATE  INDEX `index_papers_event_id` ON `${TABLE_NAME}` (`event_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "events",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "event_id"
+            ],
+            "referencedColumns": [
+              "object_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sponsors",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `object_id` TEXT, `year_id` TEXT, `image_url` TEXT, `url` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "objectId",
+            "columnName": "object_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "yearId",
+            "columnName": "year_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "imageUrl",
+            "columnName": "image_url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_sponsors_object_id",
+            "unique": true,
+            "columnNames": [
+              "object_id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_sponsors_object_id` ON `${TABLE_NAME}` (`object_id`)"
+          },
+          {
+            "name": "index_sponsors_year_id",
+            "unique": false,
+            "columnNames": [
+              "year_id"
+            ],
+            "createSql": "CREATE  INDEX `index_sponsors_year_id` ON `${TABLE_NAME}` (`year_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "years",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "year_id"
+            ],
+            "referencedColumns": [
+              "object_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "maps",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `year_id` TEXT, `title` TEXT, `url` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "yearId",
+            "columnName": "year_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_maps_url",
+            "unique": true,
+            "columnNames": [
+              "url"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_maps_url` ON `${TABLE_NAME}` (`url`)"
+          },
+          {
+            "name": "index_maps_year_id",
+            "unique": false,
+            "columnNames": [
+              "year_id"
+            ],
+            "createSql": "CREATE  INDEX `index_maps_year_id` ON `${TABLE_NAME}` (`year_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "years",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "year_id"
+            ],
+            "referencedColumns": [
+              "object_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "notes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `object_id` TEXT, `event_id` TEXT, `paper_id` TEXT, `note_content` TEXT, `created_at` INTEGER, `updated_at` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`event_id`) REFERENCES `events`(`object_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`paper_id`) REFERENCES `papers`(`object_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "objectId",
+            "columnName": "object_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "eventId",
+            "columnName": "event_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "paperId",
+            "columnName": "paper_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "note_content",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "created",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "updated",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_notes_object_id",
+            "unique": true,
+            "columnNames": [
+              "object_id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_notes_object_id` ON `${TABLE_NAME}` (`object_id`)"
+          },
+          {
+            "name": "index_notes_event_id",
+            "unique": false,
+            "columnNames": [
+              "event_id"
+            ],
+            "createSql": "CREATE  INDEX `index_notes_event_id` ON `${TABLE_NAME}` (`event_id`)"
+          },
+          {
+            "name": "index_notes_paper_id",
+            "unique": false,
+            "columnNames": [
+              "paper_id"
+            ],
+            "createSql": "CREATE  INDEX `index_notes_paper_id` ON `${TABLE_NAME}` (`paper_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "events",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "event_id"
+            ],
+            "referencedColumns": [
+              "object_id"
+            ]
+          },
+          {
+            "table": "papers",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "paper_id"
+            ],
+            "referencedColumns": [
+              "object_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "surveys",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `year_id` TEXT, `title` TEXT, `details` TEXT, `url` TEXT, `survey_start` INTEGER, `survey_end` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "yearId",
+            "columnName": "year_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "details",
+            "columnName": "details",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "startDate",
+            "columnName": "survey_start",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "endDate",
+            "columnName": "survey_end",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_surveys_url",
+            "unique": true,
+            "columnNames": [
+              "url"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_surveys_url` ON `${TABLE_NAME}` (`url`)"
+          },
+          {
+            "name": "index_surveys_year_id",
+            "unique": false,
+            "columnNames": [
+              "year_id"
+            ],
+            "createSql": "CREATE  INDEX `index_surveys_year_id` ON `${TABLE_NAME}` (`year_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "years",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "year_id"
+            ],
+            "referencedColumns": [
+              "object_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"83412b64fdd9a1bf5faa5c7540bcb91f\")"
+    ]
+  }
+}
