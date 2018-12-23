@@ -13,6 +13,7 @@ import com.backendless.persistence.DataQueryBuilder;
 import com.backendless.persistence.LoadRelationsQueryBuilder;
 import com.backendless.persistence.local.UserIdStorageFactory;
 import com.backendless.persistence.local.UserTokenStorageFactory;
+import com.backendless.push.DeviceRegistrationResult;
 import com.n8yn8.abma.Utils;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.List;
  * Created by Nate on 2/19/17.
  */
 public class DbManager {
+    private final static String TAG = "DbManager";
     private static DbManager ourInstance = new DbManager();
 
     public static DbManager getInstance() {
@@ -260,10 +262,12 @@ public class DbManager {
     }
 
     public void registerPush() {
-        Backendless.Messaging.registerDevice("634420626363", new AsyncCallback<Void>() {
+        List<String> channels = new ArrayList<>();
+        channels.add( "default" );
+        Backendless.Messaging.registerDevice(channels, new AsyncCallback<DeviceRegistrationResult>() {
             @Override
-            public void handleResponse(Void response) {
-                Log.d("Nate", "push reg response: " + response);
+            public void handleResponse(DeviceRegistrationResult response) {
+                Log.d(TAG, "response = " + response.toString());
             }
 
             @Override
