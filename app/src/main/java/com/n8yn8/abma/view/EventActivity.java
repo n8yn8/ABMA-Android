@@ -44,6 +44,7 @@ public class EventActivity extends AppCompatActivity {
     Event event;
     Note note;
     Paper paper;
+    List<Paper> eventPapers;
 
     TextView dayTextView;
     TextView dateTextView;
@@ -85,6 +86,7 @@ public class EventActivity extends AppCompatActivity {
         noteEditText = findViewById(R.id.noteEditText);
 
         event = db.eventDao().getEventById(getIntent().getStringExtra(EXTRA_EVENT_ID));
+        eventPapers = db.paperDao().getPapers(event.objectId);
         paper = db.paperDao().getPaperById(getIntent().getStringExtra(EXTRA_PAPER_ID));
         displayEvent();
 
@@ -266,31 +268,31 @@ public class EventActivity extends AppCompatActivity {
 
     @Nullable
     private Paper getPrevPaper() {
-//        for (int i = 0; i < event.getPapers().size(); i++) {
-//            BPaper checkPaper = event.getPapers().get(i);
-//            if (checkPaper.getObjectId().equals(paper.getObjectId())) {
-//                if (i > 0) {
-//                    return paper = event.getPapers().get(i - 1);
-//                } else {
-//                    return null;
-//                }
-//            }
-//        }
+        for (int i = 0; i < eventPapers.size(); i++) {
+            Paper checkPaper = eventPapers.get(i);
+            if (checkPaper.objectId.equals(paper.objectId)) {
+                if (i > 0) {
+                    return paper = eventPapers.get(i - 1);
+                } else {
+                    return null;
+                }
+            }
+        }
         return null;
     }
 
     @Nullable
     private Paper getNextPaper() {
-//        for (int i = 0; i < event.getPapers().size(); i++) {
-//            Paper checkPaper = event.getPapers().get(i);
-//            if (checkPaper.getObjectId().equals(paper.getObjectId())) {
-//                if (i < event.getPapers().size() - 1) {
-//                    return paper = event.getPapers().get(i + 1);
-//                } else {
-//                    return null;
-//                }
-//            }
-//        }
+        for (int i = 0; i < eventPapers.size(); i++) {
+            Paper checkPaper = eventPapers.get(i);
+            if (checkPaper.objectId.equals(paper.objectId)) {
+                if (i < eventPapers.size() - 1) {
+                    return paper = eventPapers.get(i + 1);
+                } else {
+                    return null;
+                }
+            }
+        }
         return null;
     }
 }
