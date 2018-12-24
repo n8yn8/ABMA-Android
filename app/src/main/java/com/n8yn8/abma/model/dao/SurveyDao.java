@@ -19,4 +19,7 @@ public interface SurveyDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insert(Survey survey);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public void insert(List<Survey> surveys);
 }

@@ -40,6 +40,9 @@ public class Map implements Parcelable {
     @ColumnInfo(name = DatabaseHandler.KEY_URL)
     public String url;
 
+    public Map() {
+    }
+
     public Map(Integer id, String yearId, String title, String url) {
         this.id = id;
         this.yearId = yearId;

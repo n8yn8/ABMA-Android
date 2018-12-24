@@ -19,4 +19,7 @@ public interface MapDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insert(Map map);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public void insert(List<Map> maps);
 }

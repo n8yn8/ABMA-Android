@@ -1,14 +1,20 @@
 package com.n8yn8.abma.model;
 
+import android.support.annotation.Nullable;
+
 import com.n8yn8.abma.model.backendless.BEvent;
+import com.n8yn8.abma.model.backendless.BMap;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.backendless.BSponsor;
+import com.n8yn8.abma.model.backendless.BSurvey;
 import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.entities.Event;
+import com.n8yn8.abma.model.entities.Map;
 import com.n8yn8.abma.model.entities.Note;
 import com.n8yn8.abma.model.entities.Paper;
 import com.n8yn8.abma.model.entities.Sponsor;
+import com.n8yn8.abma.model.entities.Survey;
 import com.n8yn8.abma.model.entities.Year;
 
 import java.util.ArrayList;
@@ -26,8 +32,11 @@ public class ConvertUtil {
         return year;
     }
 
-    public static List<Event> convertEvents(List<BEvent> bEvents, String yearId) {
-        List<Event> events = new ArrayList<>(bEvents.size());
+    public static List<Event> convertEvents(@Nullable List<BEvent> bEvents, String yearId) {
+        List<Event> events = new ArrayList<>();
+        if (bEvents == null) {
+            return events;
+        }
         for (BEvent bEvent : bEvents) {
             events.add(convert(bEvent, yearId));
         }
@@ -49,8 +58,11 @@ public class ConvertUtil {
         return event;
     }
 
-    public static List<Paper> convertPapers(List<BPaper> bPapers, String eventId) {
-        List<Paper> papers = new ArrayList<>(bPapers.size());
+    public static List<Paper> convertPapers(@Nullable List<BPaper> bPapers, String eventId) {
+        List<Paper> papers = new ArrayList<>();
+        if (bPapers == null) {
+            return papers;
+        }
         for (BPaper bPaper : bPapers) {
             papers.add(ConvertUtil.convert(bPaper, eventId));
         }
@@ -91,8 +103,11 @@ public class ConvertUtil {
         return bNote;
     }
 
-    public static List<Sponsor> convertSponsors(List<BSponsor> bSponsors, String yearId) {
+    public static List<Sponsor> convertSponsors(@Nullable List<BSponsor> bSponsors, String yearId) {
         List<Sponsor> sponsors = new ArrayList<>();
+        if (bSponsors == null) {
+            return sponsors;
+        }
         for (BSponsor bSponsor : bSponsors) {
             sponsors.add(convert(bSponsor, yearId));
         }
@@ -106,5 +121,46 @@ public class ConvertUtil {
         sponsor.url = bSponsor.getUrl();
         sponsor.yearId = yearId;
         return sponsor;
+    }
+
+    public static List<Survey> convertSurveys(@Nullable List<BSurvey> bSurveys, String yearId) {
+        List<Survey> surveys = new ArrayList<>();
+        if (bSurveys == null) {
+            return surveys;
+        }
+         for (BSurvey bSurvey : bSurveys) {
+            surveys.add(convert(bSurvey, yearId));
+        }
+        return surveys;
+    }
+
+    private static Survey convert(BSurvey bSurvey, String yearId) {
+        Survey survey = new Survey();
+        survey.details = bSurvey.getDetails();
+        survey.endDate = bSurvey.getEnd().getTime();
+        survey.startDate = bSurvey.getStart().getTime();
+        survey.title = bSurvey.getTitle();
+        survey.url = bSurvey.getUrl();
+        survey.yearId = yearId;
+        return survey;
+    }
+
+    public static List<Map> convertMaps(@Nullable List<BMap> bMaps, String yearId) {
+        List<Map> maps = new ArrayList<>();
+        if (bMaps == null) {
+            return maps;
+        }
+        for (BMap bMap : bMaps) {
+            maps.add(convert(bMap, yearId));
+        }
+        return maps;
+    }
+
+    private static Map convert(BMap bMap, String yearId) {
+        Map map = new Map();
+        map.title = bMap.getTitle();
+        map.url = bMap.getUrl();
+        map.yearId = yearId;
+        return map;
     }
 }
