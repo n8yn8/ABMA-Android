@@ -31,6 +31,12 @@ public interface EventDao {
     @Query("SELECT * FROM events WHERE start_date < :startDate ORDER BY start_date DESC LIMIT 1")
     Event getEventBefore(long startDate);
 
+    @Query("SELECT * FROM events WHERE year_id=:yearId AND start_date < :startDate ORDER BY start_date DESC LIMIT 1")
+    Event getEventBefore(String yearId, long startDate);
+
     @Query("SELECT * FROM events WHERE start_date > :startDate ORDER BY start_date ASC LIMIT 1")
     Event getEventAfter(long startDate);
+
+    @Query("SELECT * FROM events WHERE year_id=:yearId AND start_date > :startDate ORDER BY start_date ASC LIMIT 1")
+    Event getEventAfter(String yearId, long startDate);
 }
