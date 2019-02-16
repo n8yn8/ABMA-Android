@@ -19,7 +19,7 @@ public interface NoteDao {
 
     @Query("SELECT * FROM " + DatabaseHandler.TABLE_NOTES
             + " WHERE " + DatabaseHandler.KEY_EVENT_ID + "=:eventId "
-            + "AND " + DatabaseHandler.KEY_EVENT_ID + "=:paperId LIMIT 1")
+            + "AND " + DatabaseHandler.KEY_PAPER_ID + "=:paperId LIMIT 1")
     Note getNote(final String eventId, final String paperId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
