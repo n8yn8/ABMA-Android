@@ -17,6 +17,7 @@ import com.backendless.push.DeviceRegistrationResult;
 import com.n8yn8.abma.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -219,16 +220,28 @@ public class DbManager {
     }
 
     public void addNote(BNote note, final OnNoteSavedCallback callback) {
-        BackendlessUser user = Backendless.UserService.CurrentUser();
+        final BackendlessUser user = Backendless.UserService.CurrentUser();
         if (user == null) {
-            callback.noteSaved(note, "No User");
+            callback.noteSaved(null, null);
             return;
         }
         note.setUser(user);
+
         Backendless.Persistence.of(BNote.class).save(note, new AsyncCallback<BNote>() {
             @Override
-            public void handleResponse(BNote response) {
-                callback.noteSaved(response, null);
+            public void handleResponse(final BNote noteResponse) {
+                Backendless.Persistence.of(BNote.class).addRelation(noteResponse, "user", Collections.singletonList(user), new AsyncCallback<Integer>() {
+                    @Override
+                    public void handleResponse(Integer relateResponse) {
+                        callback.noteSaved(noteResponse, null);
+                    }
+
+                    @Override
+                    public void handleFault(BackendlessFault fault) {
+                        Utils.logError("AddNoteRelation", fault.getMessage());
+                        callback.noteSaved(null, fault.getMessage());
+                    }
+                });
             }
 
             @Override
