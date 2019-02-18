@@ -252,6 +252,20 @@ public class DbManager {
         });
     }
 
+    public void delete(BNote note) {
+        Backendless.Persistence.of(BNote.class).remove(note, new AsyncCallback<Long>() {
+            @Override
+            public void handleResponse(Long response) {
+                Log.d("Nate", "removed " + response);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Utils.logError("RemoveNote", fault.getMessage());
+            }
+        });
+    }
+
     public interface OnGetNotesCallback {
         void notesRetrieved(List<BNote> notes, String error);
     }

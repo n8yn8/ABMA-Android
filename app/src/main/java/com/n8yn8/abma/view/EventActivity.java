@@ -180,7 +180,7 @@ public class EventActivity extends AppCompatActivity {
                 } else {
                     if (note != null) {
                         db.noteDao().delete(note);
-                        //TODO delete from server
+                        DbManager.getInstance().delete(ConvertUtil.convert(note));
                         Toast.makeText(EventActivity.this, "This note has been deleted", Toast.LENGTH_SHORT).show();
                     }
                 }

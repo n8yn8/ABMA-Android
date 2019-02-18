@@ -140,9 +140,12 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Note note = mAdapter.getItem(position);
+                if (note == null) {
+                    return;
+                }
                 db.noteDao().delete(note);
+                DbManager.getInstance().delete(ConvertUtil.convert(note));
                 noteList.remove(position);
-                //TODO: delete from server
                 mAdapter.notifyDataSetChanged();
                 Toast.makeText(getActivity(), "This note has been deleted", Toast.LENGTH_SHORT).show();
                 if (noteList.size() == 0) {
