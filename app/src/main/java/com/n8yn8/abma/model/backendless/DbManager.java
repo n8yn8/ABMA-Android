@@ -215,13 +215,13 @@ public class DbManager {
     }
 
     public interface OnNoteSavedCallback {
-        void noteSaved(BNote note, String error);
+        void noteSaved(@Nullable BNote note, String error);
     }
 
     public void addNote(BNote note, final OnNoteSavedCallback callback) {
         BackendlessUser user = Backendless.UserService.CurrentUser();
         if (user == null) {
-            callback.noteSaved(null, "No User");
+            callback.noteSaved(note, "No User");
             return;
         }
         note.setUser(user);

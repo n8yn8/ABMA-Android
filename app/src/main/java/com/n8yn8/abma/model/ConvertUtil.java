@@ -97,8 +97,12 @@ public class ConvertUtil {
         bNote.setPaperId(note.paperId);
         bNote.setEventId(note.eventId);
         bNote.setContent(note.content);
-        bNote.setCreated(new Date(note.created));
-        bNote.setUpdated(new Date(note.updated));
+        if (note.created != null) {
+            bNote.setCreated(new Date(note.created));
+        }
+        if (note.updated != null) {
+            bNote.setUpdated(new Date(note.updated));
+        }
         bNote.setObjectId(note.objectId);
         return bNote;
     }
