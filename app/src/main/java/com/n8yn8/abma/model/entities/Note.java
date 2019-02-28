@@ -5,6 +5,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.Nullable;
 
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
@@ -50,8 +51,10 @@ public class Note {
     public String content;
 
     @ColumnInfo(name = DatabaseHandler.KEY_CREATED)
+    @Nullable
     public Long created;
 
     @ColumnInfo(name = DatabaseHandler.KEY_UPDATED)
+    @Nullable
     public Long updated;
 }

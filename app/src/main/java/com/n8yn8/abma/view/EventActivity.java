@@ -168,17 +168,19 @@ public class EventActivity extends AppCompatActivity {
                     db.noteDao().insert(note);
                     DbManager.getInstance().addNote(ConvertUtil.convert(note), new DbManager.OnNoteSavedCallback() {
                         @Override
-                        public void noteSaved(BNote note, String error) {
-                            if (error != null) {
-                                db.noteDao().insert(ConvertUtil.convert(note));
+                        public void noteSaved(@Nullable BNote note, String error) {
+                            if (error == null) {
+                                if (note != null) {
+                                    db.noteDao().insert(ConvertUtil.convert(note));
+                                }
+                                Toast.makeText(EventActivity.this, "This note has been saved", Toast.LENGTH_SHORT).show();
                             }
-                            Toast.makeText(EventActivity.this, "This note has been saved", Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {
                     if (note != null) {
                         db.noteDao().delete(note);
-                        //TODO delete from server
+                        DbManager.getInstance().delete(ConvertUtil.convert(note));
                         Toast.makeText(EventActivity.this, "This note has been deleted", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -250,7 +252,7 @@ public class EventActivity extends AppCompatActivity {
                     }
                 }
             });
-            note = db.noteDao().getNote(event.objectId, null);
+            note = db.noteDao().getNote(event.objectId);
         } else {
             titleTextView.setText(paper.title);
             subtitleTextView.setText(paper.author);

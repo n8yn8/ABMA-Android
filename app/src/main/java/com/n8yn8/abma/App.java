@@ -41,7 +41,8 @@ public class App extends Application {
             Fabric.with(this, new Crashlytics());
         }
 
-        Backendless.initApp(this, "7D06F708-89FA-DD86-FF95-C51A10425A00", "AA32ED18-4FEC-569C-FF5F-AE0F2F571E00");
+        Backendless.initApp(this, "7D06F708-89FA-DD86-FF95-C51A10425A00", "AA32ED18-4FEC-569C-FF5F-AE0F2F571E00"); //Prod
+//        Backendless.initApp(this, "05CFD853-3BFF-40F5-BAD0-E9CE8FA56630", "AA32ED18-4FEC-569C-FF5F-AE0F2F571E00"); //Test
         DbManager.getInstance().checkUser(new DbManager.CheckUserCallback() {
             @Override
             public void onDone() {
