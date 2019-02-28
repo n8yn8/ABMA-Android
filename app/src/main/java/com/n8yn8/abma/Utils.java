@@ -9,11 +9,19 @@ import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.LoginEvent;
 import com.crashlytics.android.answers.SignUpEvent;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.n8yn8.abma.model.AppDatabase;
+import com.n8yn8.abma.model.ConvertUtil;
+import com.n8yn8.abma.model.MyDateTypeAdapter;
 import com.n8yn8.abma.model.backendless.BEvent;
+import com.n8yn8.abma.model.backendless.BMap;
 import com.n8yn8.abma.model.backendless.BPaper;
+import com.n8yn8.abma.model.backendless.BSurvey;
 import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.backendless.DbManager;
-import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.entities.Event;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -27,12 +35,12 @@ import java.util.TimeZone;
 
 public class Utils {
 
-    public static String getTimes(BEvent event) {
+    public static String getTimes(Event event) {
         SimpleDateFormat timeFormatter = new SimpleDateFormat("h:mm a");
         timeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String times = timeFormatter.format(event.getStartDate());
-        if (event.getEndDate() != null) {
-            times += " - " + timeFormatter.format(event.getEndDate());
+        String times = timeFormatter.format(event.startDate);
+        if (event.endDate != null) {
+            times += " - " + timeFormatter.format(event.endDate);
         }
         return times;
     }
@@ -44,6 +52,9 @@ public class Utils {
     public static Date getLastUpdated(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         long dateMillis = sharedPref.getLong(LAST_UPDATED, 0);
+        if (dateMillis == 0) {
+            return null;
+        }
         return new Date(dateMillis);
     }
 
@@ -99,21 +110,43 @@ public class Utils {
     }
 
     public static void saveYears(Context context, List<BYear> years) {
-        DatabaseHandler db = new DatabaseHandler(context);
+        AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
         for (BYear year: years) {
-            db.addYear(year);
+            db.yearDao().insert(ConvertUtil.convert(year));
+            saveSurveys(context, year);
+            saveMaps(context, year);
         }
     }
 
+    private static void saveSurveys(Context context, BYear year) {
+        String surveysString = year.getSurveys();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class, new MyDateTypeAdapter())
+                .create();
+        List<BSurvey> surveys = gson.fromJson(surveysString, new TypeToken<List<BSurvey>>(){}.getType());
+        AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
+        db.surveyDao().insert(ConvertUtil.convertSurveys(surveys, year.getObjectId()));
+    }
+
+    private static void saveMaps(Context context, BYear year) {
+        String mapsString = year.getMaps();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class, new MyDateTypeAdapter())
+                .create();
+        List<BMap> maps = gson.fromJson(mapsString, new TypeToken<List<BMap>>(){}.getType());
+        AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
+        db.mapDao().insert(ConvertUtil.convertMaps(maps, year.getObjectId()));
+    }
+
     public static void saveEvents(Context context, String yearId, List<BEvent> events) {
-        final DatabaseHandler db = new DatabaseHandler(context);
-        db.addEvents(yearId, events);
+        final AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
+        db.eventDao().insert(ConvertUtil.convertEvents(events, yearId));
         for (final BEvent event : events) {
             if (event.getPapersCount() != 0) {
                 DbManager.getInstance().getPapers(event.getObjectId(), new DbManager.Callback<List<BPaper>>() {
                     @Override
                     public void onDone(List<BPaper> bPapers, String error) {
-                        db.addPapers(event.getObjectId(), bPapers);
+                        db.paperDao().insert(ConvertUtil.convertPapers(bPapers, event.getObjectId()));
                     }
                 });
             }

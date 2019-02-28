@@ -4,7 +4,6 @@ package com.n8yn8.abma.view;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,13 +16,16 @@ import android.widget.Toast;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
+import com.n8yn8.abma.model.AppDatabase;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.backendless.DbManager;
-import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.entities.Event;
+import com.n8yn8.abma.model.entities.Year;
 import com.n8yn8.abma.view.adapter.ScheduleListAdapter;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +40,7 @@ public class ScheduleFragment extends Fragment {
     public static final String TAG = "ScheduleFragment";
 
     ScheduleListAdapter adapter;
-    DatabaseHandler db;
+    AppDatabase db;
 
     ImageButton backButton;
     ImageButton nextButton;
@@ -46,9 +48,9 @@ public class ScheduleFragment extends Fragment {
     ListView scheduleListView;
     SwipeRefreshLayout swipeRefreshLayout;
 
-    List<BEvent> day;
+    List<Event> day;
     long displayDateMillis;
-    String selectedYearName;
+    Year selectedYear;
 
     /**
      * Use this factory method to create a new instance of
@@ -70,45 +72,56 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
 
-        db = new DatabaseHandler(getActivity());
+        db = AppDatabase.getInstance(getActivity().getApplicationContext());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_schedule, container, false);
-        backButton = (ImageButton) rootView.findViewById(R.id.prevDayButton);
-        nextButton = (ImageButton) rootView.findViewById(R.id.nextDayButton);
-        dateTextView = (TextView) rootView.findViewById(R.id.dateTextView);
-        scheduleListView = (ListView) rootView.findViewById(R.id.scheduleListView);
+        backButton = rootView.findViewById(R.id.prevDayButton);
+        nextButton = rootView.findViewById(R.id.nextDayButton);
+        dateTextView = rootView.findViewById(R.id.dateTextView);
+        scheduleListView = rootView.findViewById(R.id.scheduleListView);
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                displayDateMillis -= TimeUnit.HOURS.toMillis(24);
-                displayDay();
+                Event previousEvent = db.eventDao().getEventBefore(selectedYear.objectId, displayDateMillis);
+                if (previousEvent != null) {
+                    displayDateMillis = Utils.getStartOfDay(new Date(previousEvent.startDate));
+                    displayDay();
+                } else {
+                    Toast.makeText(getContext(), "First event reached", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                displayDateMillis += TimeUnit.HOURS.toMillis(24);
-                displayDay();
+                Event nextEvent = db.eventDao().getEventAfter(selectedYear.objectId, displayDateMillis + TimeUnit.DAYS.toMillis(1));
+                if (nextEvent != null) {
+                    displayDateMillis = Utils.getStartOfDay(new Date(nextEvent.startDate));
+                    displayDay();
+                } else {
+                    Toast.makeText(getContext(), "Last event reached", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         scheduleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BEvent event = adapter.getItem(position);
-                EventActivity.start(getActivity(), event.getObjectId(), null);
+                Event event = adapter.getItem(position);
+                if (event != null) {
+                    EventActivity.start(getActivity(), event.objectId, null);
+                }
             }
         });
 
-        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefresh);
+        swipeRefreshLayout = rootView.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -144,31 +157,28 @@ public class ScheduleFragment extends Fragment {
     }
 
     public void reload(boolean isUpdate) {
-        BYear year;
-        if (TextUtils.isEmpty(selectedYearName)) {
-            year = db.getLastYear();
-        } else {
-            year = db.getYearByName(selectedYearName);
+        if (selectedYear == null) {
+            selectedYear = db.yearDao().getLastYear();
         }
-        setUpYear(year, isUpdate);
+        setUpYear(isUpdate);
     }
 
-    private void setUpYear(final BYear year, boolean isUpdate) {
-        if (year != null) {
-            List<BEvent> events = year.getEvents();
+    private void setUpYear(boolean isUpdate) {
+        if (selectedYear != null) {
+            List<Event> events = db.eventDao().getEvents(selectedYear.objectId);
             if (events.size() == 0 || isUpdate) {
                 setLoading(true);
-                DbManager.getInstance().getEvents(year.getObjectId(), new DbManager.Callback<List<BEvent>>() {
+                DbManager.getInstance().getEvents(selectedYear.objectId, new DbManager.Callback<List<BEvent>>() {
                     @Override
                     public void onDone(List<BEvent> bEvents, String error) {
-                        Utils.saveEvents(getContext(), year.getObjectId(), bEvents);
+                        Utils.saveEvents(getContext(), selectedYear.objectId, bEvents);
                         setLoading(false);
                         reload(false);
                     }
                 });
             } else {
-                BEvent firstEvent = events.get(0);
-                displayDateMillis = Utils.getStartOfDay(firstEvent.getStartDate());
+                Event firstEvent = events.get(0);
+                displayDateMillis = Utils.getStartOfDay(new Date(firstEvent.startDate));
             }
         }
         displayDay();
@@ -176,11 +186,11 @@ public class ScheduleFragment extends Fragment {
 
     public void displayDay() {
         Log.d("Nate", "start = " + displayDateMillis + " end = " + (displayDateMillis + TimeUnit.HOURS.toMillis(24)));
-        day = db.getAllEventsFor(displayDateMillis, displayDateMillis + TimeUnit.HOURS.toMillis(24));
+        day = db.eventDao().getAllEventsFor(displayDateMillis, displayDateMillis + TimeUnit.HOURS.toMillis(24));
         if (day.size() > 0) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            dateTextView.setText(dateFormat.format(day.get(0).getStartDate()));
+            dateTextView.setText(dateFormat.format(day.get(0).startDate));
             dateTextView.setVisibility(View.VISIBLE);
         } else {
             dateTextView.setVisibility(View.INVISIBLE);
@@ -190,7 +200,7 @@ public class ScheduleFragment extends Fragment {
     }
 
     public void setYear(String name) {
-        selectedYearName = name;
+        selectedYear = db.yearDao().getYearByName(name);
         reload(false);
     }
 }

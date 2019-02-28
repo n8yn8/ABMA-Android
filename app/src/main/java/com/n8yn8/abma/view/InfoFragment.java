@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.AppDatabase;
 
 
 /**
@@ -28,16 +28,15 @@ public class InfoFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_info, container, false);
-        TextView infoTextView = (TextView) view.findViewById(R.id.infoTextView);
+        TextView infoTextView = view.findViewById(R.id.infoTextView);
 
-        DatabaseHandler db = new DatabaseHandler(getContext());
-        String info = db.getLastYear().getInfo();
+
+        String info = AppDatabase.getInstance(getActivity().getApplicationContext()).yearDao().getLastYear().info;
         infoTextView.setText(info);
         return view;
     }

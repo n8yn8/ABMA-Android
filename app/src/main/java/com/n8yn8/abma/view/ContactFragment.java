@@ -15,9 +15,10 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.AppDatabase;
 import com.n8yn8.abma.model.backendless.BSurvey;
-import com.n8yn8.abma.model.backendless.BYear;
-import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.entities.Survey;
+import com.n8yn8.abma.model.entities.Year;
 import com.n8yn8.abma.view.adapter.SurveyListAdapter;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import java.util.List;
  */
 public class ContactFragment extends Fragment {
 
-    List<BSurvey> surveys = new ArrayList<>();
+    List<Survey> surveys = new ArrayList<>();
 
     /**
      * Use this factory method to create a new instance of
@@ -54,12 +55,12 @@ public class ContactFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DatabaseHandler db = new DatabaseHandler(getContext());
-        BYear latestYear = db.getLastYear();
-        List <BSurvey> allSurveys = db.getSurveys(latestYear.getObjectId());
+        AppDatabase db = AppDatabase.getInstance(getActivity().getApplicationContext());
+        Year latestYear = db.yearDao().getLastYear();
+        List <Survey> allSurveys = db.surveyDao().getSurveys(latestYear.objectId);
         Date now = new Date();
-        for (BSurvey survey : allSurveys) {
-            if (now.after(survey.getStart()) && now.before(survey.getEnd())) {
+        for (Survey survey : allSurveys) {
+            if (now.after(new Date(survey.startDate)) && now.before(new Date(survey.endDate))) {
                 surveys.add(survey);
             }
         }
@@ -70,7 +71,7 @@ public class ContactFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_contact, container, false);
-        RecyclerView listView = (RecyclerView) view.findViewById(R.id.surveyListView);
+        RecyclerView listView = view.findViewById(R.id.surveyListView);
         SurveyListAdapter adapter = new SurveyListAdapter(surveys, new SurveyListAdapter.OnLinkClickedListener() {
             @Override
             public void onClick(String url) {

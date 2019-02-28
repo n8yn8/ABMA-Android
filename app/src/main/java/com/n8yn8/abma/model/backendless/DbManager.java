@@ -13,9 +13,11 @@ import com.backendless.persistence.DataQueryBuilder;
 import com.backendless.persistence.LoadRelationsQueryBuilder;
 import com.backendless.persistence.local.UserIdStorageFactory;
 import com.backendless.persistence.local.UserTokenStorageFactory;
+import com.backendless.push.DeviceRegistrationResult;
 import com.n8yn8.abma.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +25,7 @@ import java.util.List;
  * Created by Nate on 2/19/17.
  */
 public class DbManager {
+    private final static String TAG = "DbManager";
     private static DbManager ourInstance = new DbManager();
 
     public static DbManager getInstance() {
@@ -130,7 +133,7 @@ public class DbManager {
     }
 
     public interface Callback<T> {
-        public void onDone(T t, String error);
+         void onDone(T t, String error);
     }
 
     public void getYears(Context context, final Callback<List<BYear>> callback) {
@@ -213,26 +216,52 @@ public class DbManager {
     }
 
     public interface OnNoteSavedCallback {
-        void noteSaved(BNote note, String error);
+        void noteSaved(@Nullable BNote note, String error);
     }
 
     public void addNote(BNote note, final OnNoteSavedCallback callback) {
-        BackendlessUser user = Backendless.UserService.CurrentUser();
+        final BackendlessUser user = Backendless.UserService.CurrentUser();
         if (user == null) {
-            callback.noteSaved(null, "No User");
+            callback.noteSaved(null, null);
             return;
         }
         note.setUser(user);
+
         Backendless.Persistence.of(BNote.class).save(note, new AsyncCallback<BNote>() {
             @Override
-            public void handleResponse(BNote response) {
-                callback.noteSaved(response, null);
+            public void handleResponse(final BNote noteResponse) {
+                Backendless.Persistence.of(BNote.class).addRelation(noteResponse, "user", Collections.singletonList(user), new AsyncCallback<Integer>() {
+                    @Override
+                    public void handleResponse(Integer relateResponse) {
+                        callback.noteSaved(noteResponse, null);
+                    }
+
+                    @Override
+                    public void handleFault(BackendlessFault fault) {
+                        Utils.logError("AddNoteRelation", fault.getMessage());
+                        callback.noteSaved(null, fault.getMessage());
+                    }
+                });
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
                 Utils.logError("AddNote", fault.getMessage());
                 callback.noteSaved(null, fault.getMessage());
+            }
+        });
+    }
+
+    public void delete(BNote note) {
+        Backendless.Persistence.of(BNote.class).remove(note, new AsyncCallback<Long>() {
+            @Override
+            public void handleResponse(Long response) {
+                Log.d("Nate", "removed " + response);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Utils.logError("RemoveNote", fault.getMessage());
             }
         });
     }
@@ -260,10 +289,12 @@ public class DbManager {
     }
 
     public void registerPush() {
-        Backendless.Messaging.registerDevice("634420626363", new AsyncCallback<Void>() {
+        List<String> channels = new ArrayList<>();
+        channels.add( "default" );
+        Backendless.Messaging.registerDevice(channels, new AsyncCallback<DeviceRegistrationResult>() {
             @Override
-            public void handleResponse(Void response) {
-                Log.d("Nate", "push reg response: " + response);
+            public void handleResponse(DeviceRegistrationResult response) {
+                Log.d(TAG, "response = " + response.toString());
             }
 
             @Override

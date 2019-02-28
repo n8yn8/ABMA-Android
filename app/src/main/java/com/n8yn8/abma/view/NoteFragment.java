@@ -1,6 +1,5 @@
 package com.n8yn8.abma.view;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -11,16 +10,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.AppDatabase;
+import com.n8yn8.abma.model.ConvertUtil;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.DbManager;
-import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.entities.Note;
 import com.n8yn8.abma.view.adapter.NoteListAdapter;
 
 import java.util.List;
@@ -36,10 +36,9 @@ import java.util.List;
  */
 public class NoteFragment extends Fragment implements AbsListView.OnItemClickListener, AbsListView.OnItemLongClickListener {
 
-    private OnFragmentInteractionListener mListener;
-    List<BNote> noteList;
+    List<Note> noteList;
     TextView noDataTextView;
-    DatabaseHandler db;
+    AppDatabase db;
     Snackbar loginSnackbar;
 
     /**
@@ -71,9 +70,9 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        db = new DatabaseHandler(getActivity().getApplicationContext());
+        db = AppDatabase.getInstance(getActivity().getApplicationContext());
 
-        noteList = db.getAllNotes();
+        noteList = db.noteDao().getNotes();
 
         mAdapter = new NoteListAdapter(getActivity(), noteList);
     }
@@ -83,9 +82,9 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_note, container, false);
 
-        noDataTextView = (TextView) view.findViewById(R.id.emptyNoteListTextView);
+        noDataTextView = view.findViewById(R.id.emptyNoteListTextView);
         if (noDataTextView == null) {
-            noDataTextView = (TextView) view.findViewById(android.R.id.empty);
+            noDataTextView = view.findViewById(android.R.id.empty);
         }
         if (noteList.size() == 0) {
             noDataTextView.setText("No notes have been saved yet.");
@@ -93,19 +92,14 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
             noDataTextView.setText("");
         }
         // Set the adapter
-        mListView = (AbsListView) view.findViewById(android.R.id.list);
-        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+        mListView = view.findViewById(android.R.id.list);
+        mListView.setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
         mListView.setOnItemLongClickListener(this);
 
         return view;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
     }
 
     @Override
@@ -125,14 +119,15 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        BNote note = mAdapter.getItem(position);
-        EventActivity.start(getContext(), note.getEventId(), note.getPaperId());
+        Note note = mAdapter.getItem(position);
+        if (note != null) {
+            EventActivity.start(getContext(), note.eventId, note.paperId);
+        }
     }
 
     @Override
@@ -144,9 +139,12 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                BNote note = mAdapter.getItem(position);
-                DatabaseHandler db = new DatabaseHandler(getActivity());
-                db.deleteNote(note);
+                Note note = mAdapter.getItem(position);
+                if (note == null) {
+                    return;
+                }
+                db.noteDao().delete(note);
+                DbManager.getInstance().delete(ConvertUtil.convert(note));
                 noteList.remove(position);
                 mAdapter.notifyDataSetChanged();
                 Toast.makeText(getActivity(), "This note has been deleted", Toast.LENGTH_SHORT).show();
@@ -185,14 +183,16 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     private void showSnackBar() {
-        loginSnackbar = Snackbar.make(getView(), "Log in to save your notes online", Snackbar.LENGTH_INDEFINITE);
-        loginSnackbar.setAction("Log In", new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showLogin();
-            }
-        });
-        loginSnackbar.show();
+        if (getView() != null) {
+            loginSnackbar = Snackbar.make(getView(), "Log in to save your notes online", Snackbar.LENGTH_INDEFINITE);
+            loginSnackbar.setAction("Log In", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showLogin();
+                }
+            });
+            loginSnackbar.show();
+        }
     }
 
     private void showLogin() {
@@ -218,22 +218,22 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
                     public void notesRetrieved(List<BNote> notes, String error) {
                         if (error == null) {
                             for (BNote note : notes) {
-                                db.addNoteSafe(note);
+                                db.noteDao().insert(ConvertUtil.convert(note));
                             }
-                            List<BNote> newNotes = db.getAllNotes();
-                            for (BNote note : newNotes) {
-                                manager.addNote(note, new DbManager.OnNoteSavedCallback() {
+                            List<Note> newNotes = db.noteDao().getNotes();
+                            for (Note note : newNotes) {
+                                manager.addNote(ConvertUtil.convert(note), new DbManager.OnNoteSavedCallback() {
                                     @Override
                                     public void noteSaved(BNote savedNote, String error) {
                                         if (savedNote != null) {
-                                            db.addNoteSafe(savedNote);
+                                            db.noteDao().insert(ConvertUtil.convert(savedNote));
                                         }
                                     }
                                 });
                             }
                         }
                         noteList.clear();
-                        noteList.addAll(db.getAllNotes());
+                        noteList.addAll(db.noteDao().getNotes());
                         mAdapter.notifyDataSetChanged();
                     }
                 });
@@ -253,20 +253,6 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         if (emptyView instanceof TextView) {
             ((TextView) emptyView).setText(emptyText);
         }
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-//        public void onFragmentInteraction(String id);
     }
 
 }

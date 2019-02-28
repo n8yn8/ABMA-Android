@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,10 +13,12 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.n8yn8.abma.R;
+import com.n8yn8.abma.model.AppDatabase;
+import com.n8yn8.abma.model.ConvertUtil;
 import com.n8yn8.abma.model.backendless.BSponsor;
-import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.backendless.DbManager;
-import com.n8yn8.abma.model.old.DatabaseHandler;
+import com.n8yn8.abma.model.entities.Sponsor;
+import com.n8yn8.abma.model.entities.Year;
 import com.n8yn8.abma.view.adapter.ImageAdapter;
 
 import java.util.ArrayList;
@@ -24,7 +27,7 @@ import java.util.List;
 
 
 public class SponsorsFragment extends Fragment {
-    private List<BSponsor> sponsors = new ArrayList<>();
+    private List<Sponsor> sponsors = new ArrayList<>();
 
     /**
      * Use this factory method to create a new instance of
@@ -54,22 +57,22 @@ public class SponsorsFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_sponsors, container, false);
 
-        final GridView gridview = (GridView) rootView.findViewById(R.id.gridView);
+        final GridView gridview = rootView.findViewById(R.id.gridView);
         final ImageAdapter imageAdapter = new ImageAdapter(getActivity(), sponsors);
 
-        DatabaseHandler db = new DatabaseHandler(getActivity().getApplicationContext());
-        final BYear year = db.getLastYear();
+        final AppDatabase db = AppDatabase.getInstance(getActivity().getApplicationContext());
+        final Year year = db.yearDao().getLastYear();
         sponsors.clear();
-        sponsors.addAll(year.getSponsors());
+        sponsors.addAll(db.sponsorDao().getSponsors(year.objectId));
         if (sponsors.size() == 0) {
-            DbManager.getInstance().getSponsors(year.getObjectId(), new DbManager.Callback<List<BSponsor>>() {
+            DbManager.getInstance().getSponsors(year.objectId, new DbManager.Callback<List<BSponsor>>() {
                 @Override
                 public void onDone(List<BSponsor> bSponsors, String error) {
                     Log.d("Nate", "onDone");
-                    DatabaseHandler handler = new DatabaseHandler(getContext());
-                    handler.addSponsors(year.getObjectId(), bSponsors);
+                    List<Sponsor> retrievedSponsors = new ArrayList<>(ConvertUtil.convertSponsors(bSponsors, year.objectId));
+                    db.sponsorDao().insert(retrievedSponsors);
                     sponsors.clear();
-                    sponsors.addAll(bSponsors);
+                    sponsors.addAll(retrievedSponsors);
                     imageAdapter.notifyDataSetChanged();
                 }
             });
@@ -79,8 +82,8 @@ public class SponsorsFragment extends Fragment {
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                String urlString = sponsors.get(position).getUrl();
-                if (urlString != null) {
+                String urlString = sponsors.get(position).url;
+                if (!TextUtils.isEmpty(urlString)) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(urlString)));
                 }
             }

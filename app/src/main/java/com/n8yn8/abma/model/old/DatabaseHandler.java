@@ -33,63 +33,64 @@ import java.util.TimeZone;
 /**
  * Created by Nate on 3/14/15.
  */
+@Deprecated
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     // All Static variables
-    // Database Version
+    // AppDatabase Version
     private static final int DATABASE_VERSION = 5;
 
-    // Database Name
-    private static final String DATABASE_NAME = "abma";
+    // AppDatabase Name
+    public static final String DATABASE_NAME = "abma";
 
     // Table names
-    private static final String TABLE_YEARS = "years";
-    private static final String TABLE_SPONSORS = "sponsors";
-    private static final String TABLE_EVENTS = "events";
-    private static final String TABLE_PAPERS = "papers";
-    private static final String TABLE_NOTES = "notes";
-    private static final String TABLE_SURVEYS = "surveys";
-    private static final String TABLE_MAPS = "maps";
+    public static final String TABLE_YEARS = "years";
+    public static final String TABLE_SPONSORS = "sponsors";
+    public static final String TABLE_EVENTS = "events";
+    public static final String TABLE_PAPERS = "papers";
+    public static final String TABLE_NOTES = "notes";
+    public static final String TABLE_SURVEYS = "surveys";
+    public static final String TABLE_MAPS = "maps";
 
     // Contacts Table Columns names
-    private static final String KEY_ID = "id";
-    private static final String KEY_OBJECT_ID = "object_id";
-    private static final String KEY_NAME = "name";
-    private static final String KEY_INFO = "info";
-    private static final String KEY_WELCOME = "welcome";
-    private static final String KEY_URL = "url";
-    private static final String KEY_IMAGE_URL = "image_url";
-    private static final String KEY_YEAR_ID = "year_id";
-    private static final String KEY_TITLE = "title";
-    private static final String KEY_SUBTITLE = "subtitle";
-    private static final String KEY_PLACE = "place";
-    private static final String KEY_DETAILS = "details";
-    private static final String KEY_END_DATE = "end_date";
-    private static final String KEY_START_DATE = "start_date";
-    private static final String KEY_EVENT_ID = "event_id";
-    private static final String KEY_PAPER_ID = "paper_id";
-    private static final String KEY_AUTHOR = "author";
-    private static final String KEY_SYNOPSIS = "synopsis";
-    private static final String KEY_ORDER = "order_by";
-    private static final String KEY_NOTE_CONTENT = "note_content";
-    private static final String KEY_CREATED = "created_at";
-    private static final String KEY_UPDATED = "updated_at";
-    private static final String KEY_SURVEY_URL = "survey_url";
-    private static final String KEY_SURVEY_START = "survey_start";
-    private static final String KEY_SURVEY_END = "survey_end";
+    public static final String KEY_ID = "id";
+    public static final String KEY_OBJECT_ID = "object_id";
+    public static final String KEY_NAME = "name";
+    public static final String KEY_INFO = "info";
+    public static final String KEY_WELCOME = "welcome";
+    public static final String KEY_URL = "url";
+    public static final String KEY_IMAGE_URL = "image_url";
+    public static final String KEY_YEAR_ID = "year_id";
+    public static final String KEY_TITLE = "title";
+    public static final String KEY_SUBTITLE = "subtitle";
+    public static final String KEY_PLACE = "place";
+    public static final String KEY_DETAILS = "details";
+    public static final String KEY_END_DATE = "end_date";
+    public static final String KEY_START_DATE = "start_date";
+    public static final String KEY_EVENT_ID = "event_id";
+    public static final String KEY_PAPER_ID = "paper_id";
+    public static final String KEY_AUTHOR = "author";
+    public static final String KEY_SYNOPSIS = "synopsis";
+    public static final String KEY_ORDER = "order_by";
+    public static final String KEY_NOTE_CONTENT = "note_content";
+    public static final String KEY_CREATED = "created_at";
+    public static final String KEY_UPDATED = "updated_at";
+    public static final String KEY_SURVEY_URL = "survey_url";
+    public static final String KEY_SURVEY_START = "survey_start";
+    public static final String KEY_SURVEY_END = "survey_end";
 
     //old Notes:
-    private static final String KEY_DAY_INDEX = "day_index";
-    private static final String KEY_EVENT_TITLE = "event_title";
+    public static final String KEY_DAY_INDEX = "day_index";
+    public static final String KEY_EVENT_TITLE = "event_title";
 
-    Context context;
+    private Context context;
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
     }
 
-    private String CREATE_PAPERS_TABLE = "CREATE TABLE " + TABLE_PAPERS + "("
+    private static String CREATE_PAPERS_TABLE = "CREATE TABLE " + TABLE_PAPERS + "("
             + KEY_ID + " INTEGER PRIMARY KEY,"
             + KEY_OBJECT_ID + " STRING,"
             + KEY_EVENT_ID + " STRING,"
@@ -100,7 +101,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
             + ")";
 
-    private String CREATE_EVENTS_TABLE = "CREATE TABLE " + TABLE_EVENTS + "("
+    private static String CREATE_EVENTS_TABLE = "CREATE TABLE " + TABLE_EVENTS + "("
             + KEY_ID + " INTEGER PRIMARY KEY,"
             + KEY_OBJECT_ID + " STRING,"
             + KEY_YEAR_ID + " STRING,"
@@ -194,7 +195,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 schedule.setPaperIndex(oldNote.getPaperId());
                 Event oldEvent = schedule.getCurrentEvent();
                 Paper oldPaper = schedule.getCurrentPaper();
-                oldMap.put(oldNote, new Pair<Event, Paper>(oldEvent, oldPaper));
+                oldMap.put(oldNote, new Pair<>(oldEvent, oldPaper));
             }
             ((App) context.getApplicationContext()).setOldNotes(oldMap);
 
@@ -418,7 +419,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    public List<Note> getOldNotes(SQLiteDatabase db) {
+    private List<Note> getOldNotes(SQLiteDatabase db) {
         List<Note> noteList = new ArrayList<>();
         // Select All Query
         String selectQuery = "SELECT  * FROM " + TABLE_NOTES;
@@ -432,7 +433,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 int eventId = cursor.getInt(cursor.getColumnIndex(KEY_EVENT_ID));
                 int paperId = cursor.getInt(cursor.getColumnIndex(KEY_PAPER_ID));
                 String content = cursor.getString(cursor.getColumnIndex(KEY_NOTE_CONTENT));
-                String eventName = cursor.getString(cursor.getColumnIndex(KEY_EVENT_TITLE));;
+                String eventName = cursor.getString(cursor.getColumnIndex(KEY_EVENT_TITLE));
                 Note note = new Note(id, dayId, eventId, paperId, content, eventName);
                 noteList.add(note);
             } while (cursor.moveToNext());
