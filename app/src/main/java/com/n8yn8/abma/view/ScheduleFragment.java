@@ -90,7 +90,7 @@ public class ScheduleFragment extends Fragment {
             public void onClick(View v) {
                 Event previousEvent = db.eventDao().getEventBefore(selectedYear.objectId, displayDateMillis);
                 if (previousEvent != null) {
-                    displayDateMillis = Utils.getStartOfDay(new Date(previousEvent.startDate));
+                    displayDateMillis = Utils.getStartOfDay(previousEvent.startDate);
                     displayDay();
                 } else {
                     Toast.makeText(getContext(), "First event reached", Toast.LENGTH_SHORT).show();
@@ -103,7 +103,7 @@ public class ScheduleFragment extends Fragment {
             public void onClick(View v) {
                 Event nextEvent = db.eventDao().getEventAfter(selectedYear.objectId, displayDateMillis + TimeUnit.DAYS.toMillis(1));
                 if (nextEvent != null) {
-                    displayDateMillis = Utils.getStartOfDay(new Date(nextEvent.startDate));
+                    displayDateMillis = Utils.getStartOfDay(nextEvent.startDate);
                     displayDay();
                 } else {
                     Toast.makeText(getContext(), "Last event reached", Toast.LENGTH_SHORT).show();
@@ -178,7 +178,7 @@ public class ScheduleFragment extends Fragment {
                 });
             } else {
                 Event firstEvent = events.get(0);
-                displayDateMillis = Utils.getStartOfDay(new Date(firstEvent.startDate));
+                displayDateMillis = Utils.getStartOfDay(firstEvent.startDate);
             }
         }
         displayDay();

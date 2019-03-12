@@ -153,12 +153,13 @@ public class Utils {
         }
     }
 
-    public static long getStartOfDay(Date date) {
+    public static long getStartOfDay(long timeMillis) {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.setTime(date);
-        calendar.set(Calendar.HOUR, 0);
+        calendar.setTimeInMillis(timeMillis);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTimeInMillis();
     }
 }
