@@ -178,6 +178,7 @@
             android:text="Text"
             android:id="@+id/detailTextView"
             android:layout_margin="10dp"
+            android:autoLink="email|web"
             android:scrollbars = "vertical" />
 
     </LinearLayout>
