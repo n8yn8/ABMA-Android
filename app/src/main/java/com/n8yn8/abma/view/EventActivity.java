@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.text.method.ScrollingMovementMethod;
+import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -238,7 +238,7 @@ public class EventActivity extends AppCompatActivity {
             titleTextView.setText(event.title);
             subtitleTextView.setText(event.subtitle);
             detailTextView.setText(event.details);
-            detailTextView.setMovementMethod(new ScrollingMovementMethod());
+            detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
             detailTextView.scrollTo(0,0);
             final PaperListAdapter adapter = new PaperListAdapter(this, papers);
             ListView papersListView = findViewById(R.id.papersListView);
@@ -257,7 +257,7 @@ public class EventActivity extends AppCompatActivity {
             titleTextView.setText(paper.title);
             subtitleTextView.setText(paper.author);
             detailTextView.setText(paper.synopsis);
-            detailTextView.setMovementMethod(new ScrollingMovementMethod());
+            detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
             detailTextView.scrollTo(0,0);
             note = db.noteDao().getNote(event.objectId, paper.objectId);
         }
