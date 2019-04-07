@@ -140,6 +140,20 @@ public class Utils {
 
     public static void saveEvents(Context context, String yearId, List<BEvent> events) {
         final AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
+        List<Event> localEvents = db.eventDao().getEvents(yearId);
+        for (Event localEvent : localEvents) {
+            boolean found = false;
+            for (BEvent remoteEvent : events) {
+                if (remoteEvent.getObjectId().equals(localEvent.objectId)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                db.eventDao().delete(localEvent);
+            }
+        }
+
         db.eventDao().insert(ConvertUtil.convertEvents(events, yearId));
         for (final BEvent event : events) {
             if (event.getPapersCount() != 0) {
