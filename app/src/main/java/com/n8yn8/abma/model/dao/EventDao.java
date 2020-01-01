@@ -1,6 +1,7 @@
 package com.n8yn8.abma.model.dao;
 
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
@@ -39,4 +40,7 @@ public interface EventDao {
 
     @Query("SELECT * FROM events WHERE year_id=:yearId AND start_date > :startDate ORDER BY start_date ASC LIMIT 1")
     Event getEventAfter(String yearId, long startDate);
+
+    @Delete
+    void delete(Event... events);
 }

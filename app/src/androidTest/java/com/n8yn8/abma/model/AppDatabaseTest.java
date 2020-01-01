@@ -32,6 +32,7 @@ public class AppDatabaseTest {
 
     @Test
     public void testInsert() {
+
         Year year = getYear();
 
         Event event = getEvent(year.objectId);
@@ -42,7 +43,7 @@ public class AppDatabaseTest {
         List<Year> years = database.yearDao().getYears();
         Assert.assertEquals(years.size(), 1);
 
-        List<Event> events = database.eventDao().getEvents();
+        List<Event> events = database.eventDao().getEvents(years.get(0).objectId);
         Assert.assertEquals(events.size(), 1);
 
         Assert.assertEquals(year, years.get(0));
@@ -50,7 +51,7 @@ public class AppDatabaseTest {
 
     }
 
-    private Year getYear() {
+    public Year getYear() {
         Year year = new Year();
         year.id = 1;
         year.info = "info";
@@ -61,11 +62,11 @@ public class AppDatabaseTest {
         return year;
     }
 
-    private Event getEvent(String yearObjectId) {
+    public static Event getEvent(String yearObjectId) {
         Event event = new Event();
         event.details = "details";
-        event.endDate = 5678;
-        event.startDate = 1234;
+        event.endDate = 5678L;
+        event.startDate = 1234L;
         event.id = 1;
         event.objectId = "id1";
         event.place = "place";
