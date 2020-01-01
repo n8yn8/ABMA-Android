@@ -2,7 +2,7 @@ package com.n8yn8.abma;
 
 import android.app.Application;
 import android.graphics.Bitmap;
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 import android.util.Log;
 import android.util.LruCache;
 

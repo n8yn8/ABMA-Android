@@ -1,8 +1,8 @@
 package com.n8yn8.abma.model;
 
-import android.arch.persistence.room.Room;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.room.Room;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.n8yn8.abma.model.entities.Event;
 import com.n8yn8.abma.model.entities.Year;
@@ -22,7 +22,7 @@ public class AppDatabaseTest {
 
     @Before
     public void setUp() throws Exception {
-        database = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getContext(), AppDatabase.class).build();
+        database = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getInstrumentation().getContext(), AppDatabase.class).build();
     }
 
     @After

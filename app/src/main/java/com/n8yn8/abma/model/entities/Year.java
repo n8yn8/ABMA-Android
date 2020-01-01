@@ -1,11 +1,13 @@
 package com.n8yn8.abma.model.entities;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Index;
-import android.arch.persistence.room.PrimaryKey;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
 
 import com.n8yn8.abma.model.old.DatabaseHandler;
+
+import java.util.Objects;
 
 @Entity(tableName = DatabaseHandler.TABLE_YEARS,
         indices = {@Index(value = {DatabaseHandler.KEY_OBJECT_ID}, unique = true)})
@@ -53,5 +55,22 @@ public class Year {
                 ", welcome='" + welcome + '\'' +
                 ", info='" + info + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Year year = (Year) o;
+        return Objects.equals(id, year.id) &&
+                Objects.equals(objectId, year.objectId) &&
+                Objects.equals(name, year.name) &&
+                Objects.equals(welcome, year.welcome) &&
+                Objects.equals(info, year.info);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, objectId, name, welcome, info);
     }
 }

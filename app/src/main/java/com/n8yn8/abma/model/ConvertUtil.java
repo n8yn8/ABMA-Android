@@ -1,6 +1,6 @@
 package com.n8yn8.abma.model;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BMap;

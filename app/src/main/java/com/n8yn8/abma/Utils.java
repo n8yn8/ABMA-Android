@@ -2,7 +2,7 @@ package com.n8yn8.abma;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.crashlytics.android.answers.Answers;

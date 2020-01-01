@@ -3,7 +3,7 @@ package com.n8yn8.abma.view;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;

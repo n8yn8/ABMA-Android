@@ -1,10 +1,10 @@
 package com.n8yn8.abma.model.entities;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Index;
-import android.arch.persistence.room.PrimaryKey;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
 
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
@@ -64,12 +64,12 @@ public class Event {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
-        return id == event.id &&
-                endDate == event.endDate &&
-                startDate == event.startDate &&
+        return Objects.equals(id, event.id) &&
                 Objects.equals(objectId, event.objectId) &&
                 Objects.equals(yearId, event.yearId) &&
                 Objects.equals(details, event.details) &&
+                Objects.equals(endDate, event.endDate) &&
+                Objects.equals(startDate, event.startDate) &&
                 Objects.equals(place, event.place) &&
                 Objects.equals(title, event.title) &&
                 Objects.equals(subtitle, event.subtitle);
@@ -77,7 +77,6 @@ public class Event {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(id, objectId, yearId, details, endDate, startDate, place, title, subtitle);
     }
 
