@@ -159,7 +159,11 @@ public class EventActivity extends AppCompatActivity {
 //            return true;
 //        }
         if (id == android.R.id.home) {
-            finish();
+            if (viewModel.getPaper().getValue() != null) {
+                viewModel.getPaper().postValue(null);
+            } else {
+                finish();
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -167,7 +171,11 @@ public class EventActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if (viewModel.getPaper().getValue() != null) {
+            viewModel.getPaper().postValue(null);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     public void displayEvent (final Event event, @Nullable Paper paper, @Nullable Note note) {
