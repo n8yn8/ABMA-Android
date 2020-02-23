@@ -20,7 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
@@ -72,7 +72,7 @@ public class EventActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        viewModel = ViewModelProviders.of(this).get(EventViewModel.class);
+        viewModel = new ViewModelProvider(this).get(EventViewModel.class);
 
         db = AppDatabase.getInstance(getApplicationContext());
 
