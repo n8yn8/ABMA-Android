@@ -2,6 +2,7 @@ package com.n8yn8.abma.view
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.ConvertUtil
@@ -12,13 +13,20 @@ import com.n8yn8.abma.model.entities.Paper
 
 class EventViewModel(application: Application) : AndroidViewModel(application) {
 
-    val event = MutableLiveData<Event>()
+    private val _event = MutableLiveData<Event>()
+    val event: LiveData<Event>
+        get() = _event
     var note: Note? = null
     val paper: MutableLiveData<Paper?> = MutableLiveData()
     var eventPapers: List<Paper>? = null
     private val db = AppDatabase.getInstance(application)
 
-    fun getPrevious() : Boolean {
+    fun setSelectedEvent(eventId: String) {
+        val initialEvent = db.eventDao().getEventById(eventId)
+        _event.postValue(initialEvent)
+    }
+
+    fun getPrevious(): Boolean {
         if (paper.value != null) {
             val prevPaper: Paper? = getPrevPaper()
             if (prevPaper != null) {
@@ -27,9 +35,9 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
                 return false
             }
         } else {
-            val tempEvent: Event? = db.eventDao().getEventBefore(event.value!!.startDate)
+            val tempEvent: Event? = db.eventDao().getEventBefore(_event.value!!.startDate)
             if (tempEvent != null) {
-                event.postValue(tempEvent)
+                _event.postValue(tempEvent)
             } else {
                 return false
             }
@@ -38,7 +46,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
         return true
     }
 
-    fun getNext() : Boolean {
+    fun getNext(): Boolean {
         if (paper.value != null) {
             val nextPaper: Paper? = getNextPaper()
             if (nextPaper != null) {
@@ -47,9 +55,9 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
                 return false
             }
         } else {
-            val tempEvent: Event? = db.eventDao().getEventAfter(event.value!!.startDate)
+            val tempEvent: Event? = db.eventDao().getEventAfter(_event.value!!.startDate)
             if (tempEvent != null) {
-                event.postValue(tempEvent)
+                _event.postValue(tempEvent)
             } else {
                 return false
             }
@@ -57,10 +65,10 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
         return true
     }
 
-    fun saveNote(noteString: String) : Boolean {
+    fun saveNote(noteString: String): Boolean {
         var eventId: String? = null
-        if (event.value != null) {
-            eventId = event.value?.objectId
+        if (_event.value != null) {
+            eventId = _event.value?.objectId
         }
         var paperId: String? = null
         if (paper.value != null) {

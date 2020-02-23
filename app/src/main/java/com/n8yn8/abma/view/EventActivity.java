@@ -85,9 +85,6 @@ public class EventActivity extends AppCompatActivity {
         placeTextView = findViewById(R.id.placeTextView);
         noteEditText = findViewById(R.id.noteEditText);
 
-        Event event = db.eventDao().getEventById(getIntent().getStringExtra(EXTRA_EVENT_ID));
-//        List<Paper> eventPapers = db.paperDao().getPapers(event.objectId);
-//        Paper paper = db.paperDao().getPaperById(getIntent().getStringExtra(EXTRA_PAPER_ID));
         viewModel.getEvent().observe(this, new Observer<Event>() {
             @Override
             public void onChanged(Event event) {
@@ -95,7 +92,8 @@ public class EventActivity extends AppCompatActivity {
                 displayEvent(event, null, null);
             }
         });
-        viewModel.getEvent().postValue(event);
+        viewModel.setSelectedEvent(getIntent().getStringExtra(EXTRA_EVENT_ID));
+
         viewModel.getPaper().observe(this, new Observer<Paper>() {
             @Override
             public void onChanged(Paper paper) {
@@ -191,6 +189,7 @@ public class EventActivity extends AppCompatActivity {
         placeTextView.setText(event.place);
 
         List<Paper> papers = db.paperDao().getPapers(event.objectId);
+        viewModel.setEventPapers(papers);
 
         if (paper == null) {
             titleTextView.setText(event.title);
