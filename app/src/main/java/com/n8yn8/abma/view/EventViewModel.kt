@@ -16,7 +16,6 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
     private val _event = MutableLiveData<Event>()
     val event: LiveData<Event>
         get() = _event
-    var note: Note? = null
     val paper: MutableLiveData<Paper?> = MutableLiveData()
     var eventPapers: List<Paper>? = null
     private val db = AppDatabase.getInstance(application)
@@ -76,20 +75,21 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
         }
         val noteContent: String = noteString
 
+        var note = getNote(eventId, paperId)
         if (noteContent != "") {
             if (note == null) {
                 note = Note()
             }
             note.let {
-                it?.content = noteContent
-                it?.eventId = eventId
-                it?.paperId = paperId
+                it.content = noteContent
+                it.eventId = eventId
+                it.paperId = paperId
             }
             db.noteDao().insert(note)
-            DbManager.getInstance().addNote(ConvertUtil.convert(note)) { note, error ->
+            DbManager.getInstance().addNote(ConvertUtil.convert(note)) { savedNote, error ->
                 if (error == null) {
-                    if (note != null) {
-                        db.noteDao().insert(ConvertUtil.convert(note))
+                    if (savedNote != null) {
+                        db.noteDao().insert(ConvertUtil.convert(savedNote))
                     }
                 }
             }
@@ -103,12 +103,18 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
         return true //TODO check this
     }
 
+    fun getPapers(eventId: String): List<Paper> {
+        return db.paperDao().getPapers(eventId)
+    }
+
     private fun getPrevPaper(): Paper? {
         for (i in eventPapers!!.indices) {
             val checkPaper = eventPapers!![i]
             if (checkPaper.objectId == paper.value?.objectId) {
                 return if (i > 0) {
-                    eventPapers!![i - 1].also { paper.postValue(it) }
+                    eventPapers!![i - 1].also {
+                        paper.postValue(it)
+                    }
                 } else {
                     null
                 }
@@ -129,5 +135,19 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         return null
+    }
+
+    fun getNote(eventId: String?, paperId: String? = null): Note? {
+        return when {
+            eventId == null -> {
+                return null
+            }
+            paperId == null -> {
+                db.noteDao().getNote(eventId)
+            }
+            else -> {
+                db.noteDao().getNote(eventId, paperId)
+            }
+        }
     }
 }

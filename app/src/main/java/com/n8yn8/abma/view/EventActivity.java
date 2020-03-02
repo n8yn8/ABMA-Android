@@ -24,7 +24,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
-import com.n8yn8.abma.model.AppDatabase;
 import com.n8yn8.abma.model.entities.Event;
 import com.n8yn8.abma.model.entities.Note;
 import com.n8yn8.abma.model.entities.Paper;
@@ -53,7 +52,6 @@ public class EventActivity extends AppCompatActivity {
     EditText noteEditText;
     Button saveButton;
 
-    AppDatabase db;
     EventViewModel viewModel;
 
     public static void start(Context context, @Nullable String eventId, @Nullable String paperId) {
@@ -73,8 +71,6 @@ public class EventActivity extends AppCompatActivity {
         }
 
         viewModel = new ViewModelProvider(this).get(EventViewModel.class);
-
-        db = AppDatabase.getInstance(getApplicationContext());
 
         dayTextView = findViewById(R.id.dayTextView);
         dateTextView = findViewById(R.id.dateTextView);
@@ -188,7 +184,7 @@ public class EventActivity extends AppCompatActivity {
         timeTextView.setText(Utils.getTimes(event));
         placeTextView.setText(event.place);
 
-        List<Paper> papers = db.paperDao().getPapers(event.objectId);
+        List<Paper> papers = viewModel.getPapers(event.objectId);
         viewModel.setEventPapers(papers);
 
         if (paper == null) {
@@ -208,7 +204,6 @@ public class EventActivity extends AppCompatActivity {
                     viewModel.getPaper().postValue(paper);
                 }
             });
-            note = db.noteDao().getNote(event.objectId);
         } else {
             findViewById(R.id.papersListView).setVisibility(View.GONE);
             titleTextView.setText(paper.title);
@@ -216,8 +211,8 @@ public class EventActivity extends AppCompatActivity {
             detailTextView.setText(paper.synopsis);
             detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
             detailTextView.scrollTo(0,0);
-            note = db.noteDao().getNote(event.objectId, paper.objectId);
         }
+        note = viewModel.getNote(event.objectId, paper == null ? null : paper.objectId);
         if (note != null) {
             noteEditText.setText(note.content);
         } else {
