@@ -10,15 +10,17 @@ import com.n8yn8.abma.model.backendless.DbManager
 import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.abma.model.entities.Note
 import com.n8yn8.abma.model.entities.Paper
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.inject
 
-class EventViewModel(application: Application) : AndroidViewModel(application) {
+class EventViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
 
     private val _event = MutableLiveData<Event>()
     val event: LiveData<Event>
         get() = _event
     val paper: MutableLiveData<Paper?> = MutableLiveData()
     var eventPapers: List<Paper>? = null
-    private val db = AppDatabase.getInstance(application)
+    private val db: AppDatabase by inject()
 
     fun setSelectedEvent(eventId: String) {
         val initialEvent = db.eventDao().getEventById(eventId)
