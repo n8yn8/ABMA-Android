@@ -53,6 +53,11 @@ android {
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
+
+    testOptions {
+        animationsDisabled = true
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
