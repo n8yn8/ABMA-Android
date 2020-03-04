@@ -14,6 +14,9 @@ import java.util.List;
 @Dao
 public interface EventDao {
 
+    @Query("SELECT * FROM events")
+    List<Event> getEvents();
+
     @Query("SELECT * FROM events WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId ORDER BY start_date ASC")
     List<Event> getEvents(final String yearId);
 
