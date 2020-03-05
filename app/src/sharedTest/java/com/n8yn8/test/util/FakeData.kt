@@ -1,4 +1,4 @@
-package com.n8yn8.abma
+package com.n8yn8.test.util
 
 import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.abma.model.entities.Note

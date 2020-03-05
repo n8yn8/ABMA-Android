@@ -1,7 +1,7 @@
 package com.n8yn8.abma.model.dao
 
 import com.n8yn8.abma.BaseTest
-import com.n8yn8.abma.FakeData
+import com.n8yn8.test.util.FakeData
 import junit.framework.Assert
 import kotlinx.coroutines.runBlocking
 import org.junit.Test

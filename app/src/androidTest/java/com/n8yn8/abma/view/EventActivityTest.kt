@@ -11,10 +11,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.n8yn8.abma.BaseTest
-import com.n8yn8.abma.FakeData
 import com.n8yn8.abma.R
 import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.abma.model.entities.Paper
+import com.n8yn8.test.util.FakeData
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers
 import org.junit.Assert
