@@ -20,6 +20,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
         get() = _event
     val paper: MutableLiveData<Paper?> = MutableLiveData()
     var eventPapers: List<Paper>? = null
+        private set
     private val db: AppDatabase by inject()
 
     fun setSelectedEvent(eventId: String) {
@@ -106,7 +107,9 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
     }
 
     fun getPapers(eventId: String): List<Paper> {
-        return db.paperDao().getPapers(eventId)
+        val papers = db.paperDao().getPapers(eventId)
+        eventPapers = papers
+        return papers
     }
 
     private fun getPrevPaper(): Paper? {
@@ -114,9 +117,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
             val checkPaper = eventPapers!![i]
             if (checkPaper.objectId == paper.value?.objectId) {
                 return if (i > 0) {
-                    eventPapers!![i - 1].also {
-                        paper.postValue(it)
-                    }
+                    eventPapers!![i - 1]
                 } else {
                     null
                 }
@@ -130,7 +131,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
             val checkPaper = eventPapers!![i]
             if (checkPaper.objectId == paper.value?.objectId) {
                 return if (i < eventPapers!!.size - 1) {
-                    eventPapers!![i + 1].also { paper.postValue(it) }
+                    eventPapers!![i + 1]
                 } else {
                     null
                 }

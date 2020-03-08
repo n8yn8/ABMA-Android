@@ -185,7 +185,6 @@ public class EventActivity extends AppCompatActivity {
         placeTextView.setText(event.place);
 
         List<Paper> papers = viewModel.getPapers(event.objectId);
-        viewModel.setEventPapers(papers);
 
         if (paper == null) {
             titleTextView.setText(event.title);

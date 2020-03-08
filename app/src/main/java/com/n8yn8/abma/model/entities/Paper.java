@@ -8,6 +8,8 @@ import androidx.room.PrimaryKey;
 
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
+import java.util.Objects;
+
 @Entity(tableName = DatabaseHandler.TABLE_PAPERS,
         foreignKeys = @ForeignKey(
                 entity = Event.class,
@@ -48,4 +50,23 @@ public class Paper {
 
     @ColumnInfo(name = DatabaseHandler.KEY_ORDER)
     public Integer order;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Paper paper = (Paper) o;
+        return Objects.equals(id, paper.id) &&
+                Objects.equals(objectId, paper.objectId) &&
+                Objects.equals(eventId, paper.eventId) &&
+                Objects.equals(title, paper.title) &&
+                Objects.equals(author, paper.author) &&
+                Objects.equals(synopsis, paper.synopsis) &&
+                Objects.equals(order, paper.order);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, objectId, eventId, title, author, synopsis, order);
+    }
 }
