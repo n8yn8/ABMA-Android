@@ -7,9 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -47,7 +45,6 @@ import com.n8yn8.abma.model.old.Note;
 import com.n8yn8.abma.model.old.Paper;
 import com.n8yn8.abma.model.old.Schedule;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
 
@@ -111,7 +108,7 @@ public class MainActivity extends AppCompatActivity
             if (preferences.getBoolean("PushReceived", false)) {
                 loadBackendless(true);
             } else {
-                viewModel.selectLatestYear();
+                viewModel.selectYear(null);
             }
         }
 
@@ -170,7 +167,7 @@ public class MainActivity extends AppCompatActivity
                 for (BYear year: years) {
                     AppDatabase.getInstance(getApplicationContext()).yearDao().insert(ConvertUtil.convert(year));
                 }
-                viewModel.selectLatestYear();
+                viewModel.selectYear(null);
 
                 ScheduleFragment fragment = getScheduleFragment();
                 if (fragment != null) {
@@ -282,17 +279,10 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String selectedYear = view.getSelectedYear();
-                MainActivity.this.updateSelectedYear(selectedYear);
+                viewModel.selectYear(selectedYear);
             }
         });
         builder.show();
-    }
-
-    private void updateSelectedYear(String year) {
-        ScheduleFragment fragment = getScheduleFragment();
-        if (fragment != null) {
-            fragment.setYear(year);
-        }
     }
 
     @Nullable
@@ -307,32 +297,4 @@ public class MainActivity extends AppCompatActivity
         return null;
     }
 
-    private static class DbTask extends AsyncTask<Void, Void, List<Year>> {
-        private WeakReference<MainActivity> activity;
-
-        public DbTask(MainActivity activity) {
-            this.activity = new WeakReference<>(activity);
-        }
-
-        @Override
-        protected List<Year> doInBackground(Void... voids) {
-            List<Year> years = AppDatabase.getInstance(activity.get()).yearDao().getYears();
-            for (Year year : years) {
-                Log.d("Nate", "year = " + year);
-            }
-//            List<com.n8yn8.abma.model.entities.Event> events = AppDatabase.getInstance(activity.get()).eventDao().getEvents();
-//            for (com.n8yn8.abma.model.entities.Event event : events) {
-//                Log.d("Nate", "event = " + event);
-//            }
-            return years;
-        }
-
-        @Override
-        protected void onPostExecute(List<Year> years) {
-
-
-
-            super.onPostExecute(years);
-        }
-    }
 }

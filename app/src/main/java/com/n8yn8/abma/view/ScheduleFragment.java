@@ -2,8 +2,6 @@ package com.n8yn8.abma.view;
 
 
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +11,13 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
@@ -40,6 +45,7 @@ public class ScheduleFragment extends Fragment {
 
     ScheduleListAdapter adapter;
     AppDatabase db;
+    MainViewModel mainViewModel;
 
     ImageButton backButton;
     ImageButton nextButton;
@@ -145,6 +151,20 @@ public class ScheduleFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        mainViewModel.getYear().observe(getViewLifecycleOwner(), new Observer<Year>() {
+            @Override
+            public void onChanged(Year year) {
+                selectedYear = year;
+                reload(false);
+            }
+        });
+    }
+
     public void setLoading(final boolean isLoading) {
         swipeRefreshLayout.post(new Runnable() {
             @Override
@@ -196,10 +216,5 @@ public class ScheduleFragment extends Fragment {
         }
         adapter = new ScheduleListAdapter(getActivity(), day);
         scheduleListView.setAdapter(adapter);
-    }
-
-    public void setYear(String name) {
-        selectedYear = db.yearDao().getYearByName(name);
-        reload(false);
     }
 }

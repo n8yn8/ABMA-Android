@@ -58,15 +58,19 @@ class MainViewModelTest : KoinTest {
     @Test
     fun selectLatestYear() {
         val expectedYear = FakeData.getYear()
+        val expectedSecondYear = FakeData.getYear(2019)
         runBlocking {
             database.yearDao().insert(expectedYear)
-            database.yearDao().insert(FakeData.getYear(2019))
+            database.yearDao().insert(expectedSecondYear)
             database.yearDao().insert(FakeData.getYear(2018))
         }
-
         mainViewModel.year.observeForever(yearObserver)
-        mainViewModel.selectLatestYear()
 
+        mainViewModel.selectYear()
         Mockito.verify(yearObserver).onChanged(expectedYear)
+
+        mainViewModel.selectYear(expectedSecondYear.name.toString())
+        Mockito.verify(yearObserver).onChanged(expectedSecondYear)
+
     }
 }
