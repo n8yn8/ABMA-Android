@@ -9,25 +9,28 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.navigation.NavigationView;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.core.util.Pair;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.util.Pair;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.backendless.BackendlessUser;
+import com.google.android.material.navigation.NavigationView;
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.AppDatabase;
@@ -52,6 +55,8 @@ import static com.n8yn8.abma.R.id.years;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private MainViewModel viewModel;
 
     NavigationView navigationView;
     MenuItem yearsMenuItem;
@@ -80,6 +85,18 @@ public class MainActivity extends AppCompatActivity
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, ScheduleFragment.newInstance())
                 .commit();
+
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        viewModel.getYear().observe(this, new Observer<Year>() {
+            @Override
+            public void onChanged(Year year) {
+                if (year == null || yearInfoMenuItem == null) {
+                    return;
+                }
+                int yearName = year.name;
+                yearInfoMenuItem.setTitle(yearName + " Info");
+            }
+        });
     }
 
     @Override
@@ -94,7 +111,7 @@ public class MainActivity extends AppCompatActivity
             if (preferences.getBoolean("PushReceived", false)) {
                 loadBackendless(true);
             } else {
-                updateYearInfo();
+                viewModel.selectLatestYear();
             }
         }
 
@@ -153,7 +170,7 @@ public class MainActivity extends AppCompatActivity
                 for (BYear year: years) {
                     AppDatabase.getInstance(getApplicationContext()).yearDao().insert(ConvertUtil.convert(year));
                 }
-                updateYearInfo();
+                viewModel.selectLatestYear();
 
                 ScheduleFragment fragment = getScheduleFragment();
                 if (fragment != null) {
@@ -288,15 +305,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return null;
-    }
-
-    private void updateYearInfo() {
-        Year latestYear = AppDatabase.getInstance(getApplicationContext()).yearDao().getLastYear();
-        if (latestYear == null || yearInfoMenuItem == null) {
-            return;
-        }
-        int year = latestYear.name;
-        yearInfoMenuItem.setTitle(year + " Info");
     }
 
     private static class DbTask extends AsyncTask<Void, Void, List<Year>> {

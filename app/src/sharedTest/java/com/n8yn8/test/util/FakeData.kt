@@ -8,9 +8,11 @@ import java.util.concurrent.TimeUnit
 
 object FakeData {
 
-    fun getYear() : Year {
+    fun getYear(name: Int = 2020) : Year {
         return Year().apply {
-            objectId = "2020"
+            objectId = "year$name"
+            this.name = name
+            id = name
         }
     }
 
@@ -18,7 +20,7 @@ object FakeData {
         return Event().apply {
             id = index
             objectId = "event$index"
-            yearId = "2020"
+            yearId = "year2020"
             details = "Some details"
             endDate = 1582256420000 + TimeUnit.HOURS.toMillis(index.toLong()) // default 02-20-2020 20:40:20
             startDate = 1582255220000 + TimeUnit.HOURS.toMillis(index.toLong()) // default 02-20-2020 20:20:20
