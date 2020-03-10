@@ -19,8 +19,9 @@ import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext
 import org.koin.standalone.inject
 import org.koin.test.KoinTest
+import org.mockito.ArgumentMatchers
 import org.mockito.Mock
-import org.mockito.Mockito
+import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -36,6 +37,8 @@ class MainViewModelTest : KoinTest {
     lateinit var context: Context
     @Mock
     lateinit var yearObserver: Observer<Year>
+    @Mock
+    lateinit var loadingObserver: Observer<Boolean>
     @Mock
     lateinit var remote: DbManager
     @Mock
@@ -63,8 +66,8 @@ class MainViewModelTest : KoinTest {
                 )
         )
 
-        Mockito.`when`(context.getSharedPreferences(Mockito.anyString(), Mockito.anyInt())).thenReturn(sharedPreferences)
-        Mockito.`when`(context.getSharedPreferences(Mockito.anyString(), Mockito.anyInt()).edit()).thenReturn(sharedPrefsEditor)
+        `when`(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences)
+        `when`(context.getSharedPreferences(anyString(), anyInt()).edit()).thenReturn(sharedPrefsEditor)
     }
 
     @After
@@ -83,75 +86,93 @@ class MainViewModelTest : KoinTest {
         }
         mainViewModel = MainViewModel(application)
         mainViewModel.year.observeForever(yearObserver)
+        mainViewModel.isLoading.observeForever(loadingObserver)
 
-        Mockito.verify(yearObserver).onChanged(expectedYear)
+        verify(yearObserver).onChanged(expectedYear)
+        verify(loadingObserver, never()).onChanged(ArgumentMatchers.anyBoolean())
 
         mainViewModel.selectYear(expectedSecondYear.name.toString())
-        Mockito.verify(yearObserver).onChanged(expectedSecondYear)
+        verify(yearObserver).onChanged(expectedSecondYear)
+        verify(remote, never()).getYears(any(), any())
     }
 
     @Test
     fun testStartEmpty_noResponse() {
         mainViewModel = MainViewModel(application)
-        Mockito.verify(remote).getYears(Mockito.any(), Mockito.any())
+        verify(remote).getYears(any(), any())
+
         mainViewModel.year.observeForever(yearObserver)
-        Mockito.verify(yearObserver, Mockito.never()).onChanged(Mockito.any())
+        mainViewModel.isLoading.observeForever(loadingObserver)
+
+        verify(yearObserver, never()).onChanged(any())
+        verify(loadingObserver).onChanged(true)
     }
 
     @Test
     fun testStartEmpty_withResponse() {
         val years = listOf(FakeData.getBYear(), FakeData.getBYear(2019))
 
-        Mockito.doAnswer {
-
+        doAnswer {
+            //TODO: figure out how to test
+//            verify(loadingObserver).onChanged(true)
             val callback = it.arguments[1] as DbManager.Callback<List<BYear>>
             callback.onDone(years, null)
             null
-        }.`when`(remote).getYears(Mockito.any(), Mockito.any())
+        }.`when`(remote).getYears(any(), any())
 
         mainViewModel = MainViewModel(application)
-        Mockito.verify(remote).getYears(Mockito.any(), Mockito.any())
+        verify(remote).getYears(any(), any())
         mainViewModel.year.observeForever(yearObserver)
-        Mockito.verify(yearObserver).onChanged(FakeData.getYear(id = 1))
+        mainViewModel.isLoading.observeForever(loadingObserver)
+
+        verify(yearObserver).onChanged(FakeData.getYear(id = 1))
+        verify(loadingObserver).onChanged(false)
     }
 
     @Test
     fun testStartWithData_noUpdate() {
-        Mockito.`when`(sharedPreferences.getBoolean(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(false)
+        `when`(sharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(false)
         runBlocking {
             database.yearDao().insert(FakeData.getYear())
         }
 
         mainViewModel = MainViewModel(application)
-        Mockito.verify(remote, Mockito.never()).getYears(Mockito.any(), Mockito.any())
+        verify(remote, never()).getYears(any(), any())
 
         mainViewModel.year.observeForever(yearObserver)
-        Mockito.verify(yearObserver).onChanged(FakeData.getYear())
+        mainViewModel.isLoading.observeForever(loadingObserver)
+
+        verify(yearObserver).onChanged(FakeData.getYear())
+        verify(loadingObserver, never()).onChanged(ArgumentMatchers.anyBoolean())
 
     }
 
     @Test
     fun testStartWithData_pushUpdate() {
-        Mockito.`when`(sharedPreferences.getBoolean(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(true)
+        `when`(sharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(true)
         runBlocking {
             database.yearDao().insert(FakeData.getYear())
         }
 
         val remoteYear = FakeData.getBYear()
-        Mockito.doAnswer {
+        doAnswer {
 
             val callback = it.arguments[1] as DbManager.Callback<List<BYear>>
             callback.onDone(listOf(remoteYear), null)
             null
-        }.`when`(remote).getYears(Mockito.any(), Mockito.any())
+        }.`when`(remote).getYears(any(), any())
 
         mainViewModel = MainViewModel(application)
-        Mockito.verify(remote).getYears(Mockito.any(), Mockito.any())
+        verify(remote).getYears(any(), any())
         mainViewModel.year.observeForever(yearObserver)
+        mainViewModel.isLoading.observeForever(loadingObserver)
 
         val expected = FakeData.getYear()
         expected.id += 1 //year is replaced and id is incremented by db.
-        Mockito.verify(yearObserver).onChanged(expected)
+        verify(yearObserver).onChanged(expected)
+
+        //TODO: verify true state hit
+        verify(loadingObserver).onChanged(false)
     }
 
     @Test
@@ -165,13 +186,15 @@ class MainViewModelTest : KoinTest {
         }
         mainViewModel = MainViewModel(application)
         mainViewModel.year.observeForever(yearObserver)
+        mainViewModel.isLoading.observeForever(loadingObserver)
 
-        Mockito.verify(yearObserver).onChanged(expectedYear)
+        verify(yearObserver).onChanged(expectedYear)
 
         mainViewModel.selectYear(expectedSecondYear.name.toString())
-        Mockito.verify(yearObserver).onChanged(expectedSecondYear)
+        verify(yearObserver).onChanged(expectedSecondYear)
 
-        Mockito.verify(remote, Mockito.never()).getYears(Mockito.any(), Mockito.any())
+        verify(remote, never()).getYears(any(), any())
+        verify(loadingObserver, never()).onChanged(ArgumentMatchers.anyBoolean())
     }
 
 }

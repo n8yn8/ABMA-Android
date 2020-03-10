@@ -6,8 +6,8 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.n8yn8.abma.Utils
 import com.n8yn8.abma.model.AppDatabase
-import com.n8yn8.abma.model.ConvertUtil
 import com.n8yn8.abma.model.backendless.BYear
 import com.n8yn8.abma.model.backendless.DbManager
 import com.n8yn8.abma.model.entities.Year
@@ -23,6 +23,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
     private val _year = MutableLiveData<Year>()
     val year: LiveData<Year>
         get() = _year
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
 
     init {
         val savedYears = db.yearDao().years
@@ -50,24 +54,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
         val editor = sharedPreferences.edit()
         editor.putBoolean("PushReceived", false)
         editor.apply()
-        //TODO: start loading
-//        val fragment: ScheduleFragment = getScheduleFragment()
-//        fragment?.setLoading(true)
+
+        _isLoading.postValue(true)
         remote.getYears(getApplication(), object : DbManager.Callback<List<BYear?>> {
             override fun onDone(years: List<BYear?>, error: String?) {
                 if (error != null) {
                     Toast.makeText(getApplication(), "Error: $error", Toast.LENGTH_LONG).show()
                 }
-                for (year in years) {
-                    db.yearDao().insert(ConvertUtil.convert(year))
-                }
+                Utils.saveYears(db, years)
                 selectYear()
-                //TODO: stop loading and display
-//                val fragment: ScheduleFragment = getScheduleFragment()
-//                if (fragment != null) {
-//                    fragment.setLoading(false)
-//                    fragment.reload(isUpdate)
-//                }
+                _isLoading.postValue(false)
             }
         })
     }

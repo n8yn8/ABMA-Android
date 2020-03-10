@@ -2,8 +2,9 @@ package com.n8yn8.abma;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.annotation.Nullable;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
@@ -109,32 +110,29 @@ public class Utils {
         }
     }
 
-    public static void saveYears(Context context, List<BYear> years) {
-        AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
+    public static void saveYears(AppDatabase db, List<BYear> years) {
         for (BYear year: years) {
             db.yearDao().insert(ConvertUtil.convert(year));
-            saveSurveys(context, year);
-            saveMaps(context, year);
+            saveSurveys(db, year);
+            saveMaps(db, year);
         }
     }
 
-    private static void saveSurveys(Context context, BYear year) {
+    private static void saveSurveys(AppDatabase db, BYear year) {
         String surveysString = year.getSurveys();
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Date.class, new MyDateTypeAdapter())
                 .create();
         List<BSurvey> surveys = gson.fromJson(surveysString, new TypeToken<List<BSurvey>>(){}.getType());
-        AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
         db.surveyDao().insert(ConvertUtil.convertSurveys(surveys, year.getObjectId()));
     }
 
-    private static void saveMaps(Context context, BYear year) {
+    private static void saveMaps(AppDatabase db, BYear year) {
         String mapsString = year.getMaps();
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Date.class, new MyDateTypeAdapter())
                 .create();
         List<BMap> maps = gson.fromJson(mapsString, new TypeToken<List<BMap>>(){}.getType());
-        AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
         db.mapDao().insert(ConvertUtil.convertMaps(maps, year.getObjectId()));
     }
 

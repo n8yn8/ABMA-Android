@@ -23,7 +23,6 @@ import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
 import com.n8yn8.abma.model.AppDatabase;
 import com.n8yn8.abma.model.backendless.BEvent;
-import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.entities.Event;
 import com.n8yn8.abma.model.entities.Year;
@@ -130,19 +129,7 @@ public class ScheduleFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                DbManager.getInstance().getYears(getContext(), new DbManager.Callback<List<BYear>>() {
-                    @Override
-                    public void onDone(List<BYear> years, String error) {
-                        setLoading(false);
-
-                        if (error != null) {
-                            Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
-                        }
-
-                        Utils.saveYears(getContext(), years);
-                        reload(years.size() > 0);
-                    }
-                });
+                mainViewModel.loadBackendless(true);
             }
         });
 
@@ -163,16 +150,13 @@ public class ScheduleFragment extends Fragment {
                 reload(false);
             }
         });
-    }
 
-    public void setLoading(final boolean isLoading) {
-        swipeRefreshLayout.post(new Runnable() {
+        mainViewModel.isLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
-            public void run() {
+            public void onChanged(Boolean isLoading) {
                 swipeRefreshLayout.setRefreshing(isLoading);
             }
         });
-
     }
 
     public void reload(boolean isUpdate) {
@@ -186,12 +170,12 @@ public class ScheduleFragment extends Fragment {
         if (selectedYear != null) {
             List<Event> events = db.eventDao().getEvents(selectedYear.objectId);
             if (events.size() == 0 || isUpdate) {
-                setLoading(true);
+//TODO:                setLoading(true);
                 DbManager.getInstance().getEvents(selectedYear.objectId, new DbManager.Callback<List<BEvent>>() {
                     @Override
                     public void onDone(List<BEvent> bEvents, String error) {
                         Utils.saveEvents(getContext(), selectedYear.objectId, bEvents);
-                        setLoading(false);
+//TODO:                        setLoading(false);
                         reload(false);
                     }
                 });
