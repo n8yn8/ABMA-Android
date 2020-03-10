@@ -6,22 +6,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.util.Pair;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -31,12 +27,9 @@ import com.backendless.BackendlessUser;
 import com.google.android.material.navigation.NavigationView;
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.AppDatabase;
-import com.n8yn8.abma.model.ConvertUtil;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
-import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.entities.Year;
 import com.n8yn8.abma.model.old.DatabaseHandler;
@@ -45,7 +38,6 @@ import com.n8yn8.abma.model.old.Note;
 import com.n8yn8.abma.model.old.Paper;
 import com.n8yn8.abma.model.old.Schedule;
 
-import java.util.List;
 import java.util.Map;
 
 import static com.n8yn8.abma.R.id.years;
@@ -100,18 +92,6 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
-        List<Year> savedYears = AppDatabase.getInstance(getApplicationContext()).yearDao().getYears();
-        if (savedYears.size() == 0) {
-            loadBackendless(false);
-        } else {
-            SharedPreferences preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
-            if (preferences.getBoolean("PushReceived", false)) {
-                loadBackendless(true);
-            } else {
-                viewModel.selectYear(null);
-            }
-        }
-
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("PushReceived"));
     }
@@ -142,41 +122,9 @@ public class MainActivity extends AppCompatActivity
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            loadBackendless(true);
+            viewModel.loadBackendless(true);
         }
     };
-
-    private void loadBackendless(final boolean isUpdate) {
-        SharedPreferences preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean("PushReceived", false);
-        editor.apply();
-
-        final ScheduleFragment fragment = getScheduleFragment();
-        if (fragment != null) {
-            fragment.setLoading(true);
-        }
-        DbManager.getInstance().getYears(this, new DbManager.Callback<List<BYear>>() {
-            @Override
-            public void onDone(List<BYear> years, String error) {
-
-                if (error != null) {
-                    Toast.makeText(MainActivity.this, "Error: " + error, Toast.LENGTH_LONG).show();
-                }
-
-                for (BYear year: years) {
-                    AppDatabase.getInstance(getApplicationContext()).yearDao().insert(ConvertUtil.convert(year));
-                }
-                viewModel.selectYear(null);
-
-                ScheduleFragment fragment = getScheduleFragment();
-                if (fragment != null) {
-                    fragment.setLoading(false);
-                    fragment.reload(isUpdate);
-                }
-            }
-        });
-    }
 
     private void checkOldNotes(DatabaseHandler db) {
         Map<Note, Pair<Event, Paper>> oldMap = ((App) getApplicationContext()).getOldNotes();
@@ -283,18 +231,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
         builder.show();
-    }
-
-    @Nullable
-    private ScheduleFragment getScheduleFragment() {
-        FragmentManager manager = getSupportFragmentManager();
-        List<Fragment> fragments = manager.getFragments();
-        for (Fragment fragment : fragments) {
-            if (fragment instanceof ScheduleFragment) {
-                return (ScheduleFragment) fragment;
-            }
-        }
-        return null;
     }
 
 }

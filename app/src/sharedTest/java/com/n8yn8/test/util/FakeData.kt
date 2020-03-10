@@ -1,5 +1,6 @@
 package com.n8yn8.test.util
 
+import com.n8yn8.abma.model.backendless.BYear
 import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.abma.model.entities.Note
 import com.n8yn8.abma.model.entities.Paper
@@ -8,11 +9,18 @@ import java.util.concurrent.TimeUnit
 
 object FakeData {
 
-    fun getYear(name: Int = 2020) : Year {
+    fun getYear(name: Int = 2020, id: Int = name) : Year {
         return Year().apply {
             objectId = "year$name"
             this.name = name
-            id = name
+            this.id = id
+        }
+    }
+
+    fun getBYear(name: Int = 2020) : BYear {
+        return BYear().apply {
+            objectId = "year$name"
+            this.name = name
         }
     }
 
