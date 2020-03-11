@@ -2,8 +2,6 @@ package com.n8yn8.abma.view;
 
 
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,11 +12,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
 import com.n8yn8.abma.model.AppDatabase;
 import com.n8yn8.abma.model.backendless.BEvent;
-import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.entities.Event;
 import com.n8yn8.abma.model.entities.Year;
@@ -40,6 +44,7 @@ public class ScheduleFragment extends Fragment {
 
     ScheduleListAdapter adapter;
     AppDatabase db;
+    MainViewModel mainViewModel;
 
     ImageButton backButton;
     ImageButton nextButton;
@@ -124,35 +129,32 @@ public class ScheduleFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                DbManager.getInstance().getYears(getContext(), new DbManager.Callback<List<BYear>>() {
-                    @Override
-                    public void onDone(List<BYear> years, String error) {
-                        setLoading(false);
-
-                        if (error != null) {
-                            Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
-                        }
-
-                        Utils.saveYears(getContext(), years);
-                        reload(years.size() > 0);
-                    }
-                });
+                mainViewModel.loadBackendless();
             }
         });
-
-        reload(false);
 
         return rootView;
     }
 
-    public void setLoading(final boolean isLoading) {
-        swipeRefreshLayout.post(new Runnable() {
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        mainViewModel.getYear().observe(getViewLifecycleOwner(), new Observer<Year>() {
             @Override
-            public void run() {
-                swipeRefreshLayout.setRefreshing(isLoading);
+            public void onChanged(Year year) {
+                selectedYear = year;
+                reload(false);
             }
         });
 
+        mainViewModel.isLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isLoading) {
+                swipeRefreshLayout.setRefreshing(isLoading);
+            }
+        });
     }
 
     public void reload(boolean isUpdate) {
@@ -166,12 +168,12 @@ public class ScheduleFragment extends Fragment {
         if (selectedYear != null) {
             List<Event> events = db.eventDao().getEvents(selectedYear.objectId);
             if (events.size() == 0 || isUpdate) {
-                setLoading(true);
+//TODO:                setLoading(true);
                 DbManager.getInstance().getEvents(selectedYear.objectId, new DbManager.Callback<List<BEvent>>() {
                     @Override
                     public void onDone(List<BEvent> bEvents, String error) {
                         Utils.saveEvents(getContext(), selectedYear.objectId, bEvents);
-                        setLoading(false);
+//TODO:                        setLoading(false);
                         reload(false);
                     }
                 });
@@ -196,10 +198,5 @@ public class ScheduleFragment extends Fragment {
         }
         adapter = new ScheduleListAdapter(getActivity(), day);
         scheduleListView.setAdapter(adapter);
-    }
-
-    public void setYear(String name) {
-        selectedYear = db.yearDao().getYearByName(name);
-        reload(false);
     }
 }
