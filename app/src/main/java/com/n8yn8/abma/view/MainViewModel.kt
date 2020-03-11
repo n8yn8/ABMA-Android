@@ -60,6 +60,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
                 Toast.makeText(getApplication(), "Error: $error", Toast.LENGTH_LONG).show()
             }
             Utils.saveYears(db, years)
+            for (bYear in years) {
+                remote.getEvents(bYear.objectId) { bEvents, error ->
+                    Utils.saveEvents(db, bYear.objectId, bEvents)
+                }
+            }
             selectYear()
             _isLoading.postValue(false)
         }

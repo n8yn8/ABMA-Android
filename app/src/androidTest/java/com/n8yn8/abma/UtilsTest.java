@@ -64,7 +64,7 @@ public class UtilsTest {
             }
         }
 
-        Utils.saveEvents(context, yearId, remoteEvents);
+        Utils.saveEvents(db, yearId, remoteEvents);
 
         List<Event> savedEvents = db.eventDao().getEvents(yearId);
 
