@@ -42,19 +42,16 @@ import java.util.concurrent.TimeUnit;
 public class ScheduleFragment extends Fragment {
     public static final String TAG = "ScheduleFragment";
 
-    ScheduleListAdapter adapter;
-    AppDatabase db;
-    MainViewModel mainViewModel;
+    private ScheduleListAdapter adapter;
+    private AppDatabase db;
+    private MainViewModel mainViewModel;
 
-    ImageButton backButton;
-    ImageButton nextButton;
-    TextView dateTextView;
-    ListView scheduleListView;
-    SwipeRefreshLayout swipeRefreshLayout;
+    private TextView dateTextView;
+    private ListView scheduleListView;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
-    List<Event> day;
-    long displayDateMillis;
-    Year selectedYear;
+    private long displayDateMillis;
+    private Year selectedYear;
 
     /**
      * Use this factory method to create a new instance of
@@ -84,8 +81,8 @@ public class ScheduleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_schedule, container, false);
-        backButton = rootView.findViewById(R.id.prevDayButton);
-        nextButton = rootView.findViewById(R.id.nextDayButton);
+        ImageButton backButton = rootView.findViewById(R.id.prevDayButton);
+        ImageButton nextButton = rootView.findViewById(R.id.nextDayButton);
         dateTextView = rootView.findViewById(R.id.dateTextView);
         scheduleListView = rootView.findViewById(R.id.scheduleListView);
 
@@ -145,7 +142,7 @@ public class ScheduleFragment extends Fragment {
             @Override
             public void onChanged(Year year) {
                 selectedYear = year;
-                reload(false);
+                setUpYear(false);
             }
         });
 
@@ -155,13 +152,6 @@ public class ScheduleFragment extends Fragment {
                 swipeRefreshLayout.setRefreshing(isLoading);
             }
         });
-    }
-
-    public void reload(boolean isUpdate) {
-        if (selectedYear == null) {
-            selectedYear = db.yearDao().getLastYear();
-        }
-        setUpYear(isUpdate);
     }
 
     private void setUpYear(boolean isUpdate) {
@@ -174,7 +164,7 @@ public class ScheduleFragment extends Fragment {
                     public void onDone(List<BEvent> bEvents, String error) {
                         Utils.saveEvents(getContext(), selectedYear.objectId, bEvents);
 //TODO:                        setLoading(false);
-                        reload(false);
+                        setUpYear(false);
                     }
                 });
             } else {
@@ -185,9 +175,9 @@ public class ScheduleFragment extends Fragment {
         displayDay();
     }
 
-    public void displayDay() {
+    private void displayDay() {
         Log.d("Nate", "start = " + displayDateMillis + " end = " + (displayDateMillis + TimeUnit.HOURS.toMillis(24)));
-        day = db.eventDao().getAllEventsFor(displayDateMillis, displayDateMillis + TimeUnit.HOURS.toMillis(24));
+        List<Event> day = db.eventDao().getAllEventsFor(displayDateMillis, displayDateMillis + TimeUnit.HOURS.toMillis(24));
         if (day.size() > 0) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
