@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.n8yn8.abma.Utils
 import com.n8yn8.abma.model.AppDatabase
-import com.n8yn8.abma.model.backendless.BYear
 import com.n8yn8.abma.model.backendless.DbManager
 import com.n8yn8.abma.model.entities.Year
 import org.koin.standalone.KoinComponent
@@ -31,10 +30,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
     init {
         val savedYears = db.yearDao().years
         if (savedYears.size == 0) {
-            loadBackendless(false)
+            loadBackendless()
         } else {
             if (sharedPreferences.getBoolean("PushReceived", false)) {
-                loadBackendless(true)
+                loadBackendless()
             } else {
                 selectYear()
             }
@@ -50,21 +49,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
         _year.postValue(latestYear)
     }
 
-    fun loadBackendless(isUpdate: Boolean) {
+    fun loadBackendless() {
         val editor = sharedPreferences.edit()
         editor.putBoolean("PushReceived", false)
         editor.apply()
 
         _isLoading.postValue(true)
-        remote.getYears(getApplication(), object : DbManager.Callback<List<BYear?>> {
-            override fun onDone(years: List<BYear?>, error: String?) {
-                if (error != null) {
-                    Toast.makeText(getApplication(), "Error: $error", Toast.LENGTH_LONG).show()
-                }
-                Utils.saveYears(db, years)
-                selectYear()
-                _isLoading.postValue(false)
+        remote.getYears(getApplication()) { years, error ->
+            if (error != null) {
+                Toast.makeText(getApplication(), "Error: $error", Toast.LENGTH_LONG).show()
             }
-        })
+            Utils.saveYears(db, years)
+            selectYear()
+            _isLoading.postValue(false)
+        }
     }
 }

@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            viewModel.loadBackendless(true);
+            viewModel.loadBackendless();
         }
     };
 

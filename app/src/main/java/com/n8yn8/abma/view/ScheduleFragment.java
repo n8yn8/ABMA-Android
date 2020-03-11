@@ -129,11 +129,9 @@ public class ScheduleFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mainViewModel.loadBackendless(true);
+                mainViewModel.loadBackendless();
             }
         });
-
-        reload(false);
 
         return rootView;
     }
