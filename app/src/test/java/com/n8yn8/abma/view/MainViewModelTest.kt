@@ -205,4 +205,13 @@ class MainViewModelTest : KoinTest {
         verify(loadingObserver, never()).onChanged(ArgumentMatchers.anyBoolean())
     }
 
+    @Test
+    fun testSelectYear_noSaveYears() {
+        mainViewModel = MainViewModel(application)
+        mainViewModel.year.observeForever(yearObserver)
+        mainViewModel.selectYear()
+
+        verify(yearObserver, never()).onChanged(any())
+    }
+
 }

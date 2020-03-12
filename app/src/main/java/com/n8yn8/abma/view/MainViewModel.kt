@@ -46,7 +46,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
         } else {
             db.yearDao().getYearByName(name)
         }
-        _year.postValue(latestYear)
+        if (latestYear != null) {
+            _year.postValue(latestYear)
+        }
     }
 
     fun loadBackendless() {

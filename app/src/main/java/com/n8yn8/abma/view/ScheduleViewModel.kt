@@ -28,6 +28,7 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
     fun setSelectedYear(year: Year) {
         selectedYear = year
         val events = db.eventDao().getEvents(year.objectId)
+        if (events.isEmpty()) return
         displayDateMillis = Utils.getStartOfDay(events.first().startDate)
         updateDay()
     }
