@@ -38,6 +38,7 @@ android {
             }
         }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+//        testInstrumentationRunner "com.n8yn8.abma.test.util.FakeRunner"
     }
     buildTypes {
         release {
@@ -61,8 +62,11 @@ android {
 
     testOptions {
         animationsDisabled = true
-        unitTests.returnDefaultValues = true
-//        unitTests.includeAndroidResources = true
+        unitTests {
+            returnDefaultValues = true
+            //Robolectric 4 requirement
+//            includeAndroidResources = true
+        }
     }
 }
 
