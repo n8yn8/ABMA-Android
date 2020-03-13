@@ -109,10 +109,10 @@ public class ScheduleFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         scheduleViewModel = new ViewModelProvider(requireActivity()).get(ScheduleViewModel.class);
-        scheduleViewModel.getScheduleViewData().observe(getViewLifecycleOwner(), new Observer<ScheduleViewData>() {
+        scheduleViewModel.getScheduleViewData().observe(getViewLifecycleOwner(), new Observer<List<Event>>() {
             @Override
-            public void onChanged(ScheduleViewData scheduleViewData) {
-                displayDay(scheduleViewData.getDay());
+            public void onChanged(List<Event> scheduleViewData) {
+                displayDay(scheduleViewData);
             }
         });
 
