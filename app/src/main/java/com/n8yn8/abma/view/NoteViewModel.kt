@@ -3,7 +3,7 @@ package com.n8yn8.abma.view
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.ConvertUtil
 import com.n8yn8.abma.model.backendless.DbManager
@@ -18,21 +18,26 @@ class NoteViewModel(application: Application) : AndroidViewModel(application), K
     private val db: AppDatabase by inject()
     private val remote: DbManager by inject()
 
-    private val _notesData = MutableLiveData<List<Note>>()
-    val notesData: LiveData<List<Note>>
-        get() = _notesData
+    val notesData: LiveData<List<NoteModel>>
 
     init {
-        val notesList = db.noteDao().notes
-        _notesData.postValue(notesList)
+        notesData = Transformations.map(db.noteDao().notesLive) { noteList ->
+            noteList.map {
+                NoteModel(
+                        note = it,
+                        event = db.eventDao().getEventById(it.eventId),
+                        paper = db.paperDao().getPaperById(it.paperId)
+                )
+            }
+        }
     }
 
-    fun deleteNote(note: Note?) {
-        if (note == null) {
+    fun deleteNote(noteModel: NoteModel?) {
+        if (noteModel == null) {
             return
         }
-        db.noteDao().delete(note)
-        DbManager.getInstance().delete(ConvertUtil.convert(note))
+        db.noteDao().delete(noteModel.note)
+        DbManager.getInstance().delete(ConvertUtil.convert(noteModel.note))
     }
 
     //TODO: check syncing of local to remote
@@ -53,3 +58,5 @@ class NoteViewModel(application: Application) : AndroidViewModel(application), K
         }
     }
 }
+
+data class NoteModel(val note: Note, val event: Event?, val paper: Paper?)

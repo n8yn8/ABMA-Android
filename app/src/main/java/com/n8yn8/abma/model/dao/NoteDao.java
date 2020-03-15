@@ -1,5 +1,6 @@
 package com.n8yn8.abma.model.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -16,6 +17,9 @@ public interface NoteDao {
 
     @Query("SELECT * FROM notes")
     List<Note> getNotes();
+
+    @Query("SELECT * FROM notes")
+    LiveData<List<Note>> getNotesLive();
 
     @Query("SELECT * FROM " + DatabaseHandler.TABLE_NOTES
             + " WHERE " + DatabaseHandler.KEY_EVENT_ID + "=:eventId"

@@ -22,7 +22,6 @@ import com.backendless.exceptions.BackendlessFault;
 import com.google.android.material.snackbar.Snackbar;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.backendless.DbManager;
-import com.n8yn8.abma.model.entities.Note;
 import com.n8yn8.abma.view.adapter.NoteListAdapter;
 
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ import java.util.List;
 public class NoteFragment extends Fragment implements AbsListView.OnItemClickListener, AbsListView.OnItemLongClickListener {
 
     private NoteViewModel viewModel;
-    private List<Note> noteList = new ArrayList<>();
+    private List<NoteModel> noteList = new ArrayList<>();
     private TextView noDataTextView;
     private Snackbar loginSnackbar;
 
@@ -93,9 +92,9 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-        viewModel.getNotesData().observe(getViewLifecycleOwner(), new Observer<List<Note>>() {
+        viewModel.getNotesData().observe(getViewLifecycleOwner(), new Observer<List<NoteModel>>() {
             @Override
-            public void onChanged(List<Note> notes) {
+            public void onChanged(List<NoteModel> notes) {
                 noteList.clear();
                 noteList.addAll(notes);
                 mAdapter.notifyDataSetChanged();
@@ -130,9 +129,12 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Note note = mAdapter.getItem(position);
-        if (note != null) {
-            EventActivity.start(getContext(), note.eventId, note.paperId);
+        NoteModel noteModel = mAdapter.getItem(position);
+        if (noteModel != null) {
+            EventActivity.start(
+                    getContext(),
+                    noteModel.getEvent()!= null ? noteModel.getEvent().objectId : null,
+                    noteModel.getPaper()!= null ? noteModel.getPaper().objectId : null);
         }
     }
 
@@ -145,7 +147,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Note note = mAdapter.getItem(position);
+                NoteModel note = mAdapter.getItem(position);
                 viewModel.deleteNote(note);
                 Toast.makeText(getActivity(), "This note has been deleted", Toast.LENGTH_SHORT).show();
 
