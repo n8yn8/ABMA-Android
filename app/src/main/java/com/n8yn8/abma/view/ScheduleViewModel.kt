@@ -60,21 +60,21 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
 
     fun nextDay() {
         val displayDateMillis = displayDateMillisLD.value ?: return
-        val previousEvent = db.eventDao().getEventBefore(selectedYear.value!!.objectId, displayDateMillis)
-        if (previousEvent != null) {
-            displayDateMillisLD.postValue(Utils.getStartOfDay(previousEvent.startDate))
-        } else {
-            Toast.makeText(getApplication(), "First event reached", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    fun previousDay() {
-        val displayDateMillis = displayDateMillisLD.value ?: return
         val nextEvent = db.eventDao().getEventAfter(selectedYear.value!!.objectId, displayDateMillis + TimeUnit.DAYS.toMillis(1))
         if (nextEvent != null) {
             displayDateMillisLD.postValue(Utils.getStartOfDay(nextEvent.startDate))
         } else {
             Toast.makeText(getApplication(), "Last event reached", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun previousDay() {
+        val displayDateMillis = displayDateMillisLD.value ?: return
+        val previousEvent = db.eventDao().getEventBefore(selectedYear.value!!.objectId, displayDateMillis)
+        if (previousEvent != null) {
+            displayDateMillisLD.postValue(Utils.getStartOfDay(previousEvent.startDate))
+        } else {
+            Toast.makeText(getApplication(), "First event reached", Toast.LENGTH_SHORT).show()
         }
     }
 }

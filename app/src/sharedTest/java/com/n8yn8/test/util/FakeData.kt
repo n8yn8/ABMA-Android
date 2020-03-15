@@ -40,13 +40,14 @@ object FakeData {
     }
 
     private fun getStartOfYear(yearName: Int, hour: Int): Long {
+        val daysAdded = hour / 24
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
         calendar[Calendar.YEAR] = yearName
         calendar[Calendar.HOUR_OF_DAY] = hour
         calendar[Calendar.MINUTE] = 0
         calendar[Calendar.SECOND] = 0
         calendar[Calendar.MILLISECOND] = 0
-        calendar[Calendar.DATE] = 2
+        calendar[Calendar.DATE] = 2 + daysAdded
         calendar[Calendar.MONTH] = 2
         return calendar.timeInMillis
     }

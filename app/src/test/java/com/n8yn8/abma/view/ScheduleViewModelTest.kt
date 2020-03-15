@@ -17,6 +17,7 @@ import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext
 import org.koin.standalone.inject
 import org.koin.test.KoinTest
+import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
@@ -152,6 +153,47 @@ class ScheduleViewModelTest : KoinTest {
         }
 
         verify(eventsObserver, times(2)).onChanged(any())
+    }
+
+    @Test
+    fun nextPrevious_available() {
+        val eventOne = FakeData.getEvent(1)
+        val eventTwo = FakeData.getEvent(25)
+        runBlocking {
+            database.eventDao().insert(eventOne)
+            database.eventDao().insert(eventTwo)
+
+        }
+        val scheduleViewModel = ScheduleViewModel(application)
+        scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
+        scheduleViewModel.setSelectedYear(FakeData.getYear())
+
+        verify(eventsObserver).onChanged(listOf(eventOne))
+
+        scheduleViewModel.nextDay()
+        verify(eventsObserver).onChanged(listOf(eventTwo))
+
+        scheduleViewModel.previousDay()
+        verify(eventsObserver, times(2)).onChanged(listOf(eventOne))
+    }
+
+    @Test
+    fun prevNext_notAvailable() {
+        val events = listOf(FakeData.getEvent(1), FakeData.getEvent(2))
+        runBlocking {
+            database.eventDao().insert(events)
+
+        }
+        val scheduleViewModel = ScheduleViewModel(application)
+        scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
+        scheduleViewModel.setSelectedYear(FakeData.getYear())
+
+        verify(eventsObserver).onChanged(any())
+
+        scheduleViewModel.nextDay()
+        scheduleViewModel.previousDay()
+
+        verify(eventsObserver).onChanged(any())
     }
 
 }
