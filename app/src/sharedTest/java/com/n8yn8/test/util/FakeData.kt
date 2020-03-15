@@ -5,6 +5,7 @@ import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.abma.model.entities.Note
 import com.n8yn8.abma.model.entities.Paper
 import com.n8yn8.abma.model.entities.Year
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 object FakeData {
@@ -24,18 +25,31 @@ object FakeData {
         }
     }
 
-    fun getEvent(index: Int = 1) : Event {
+    fun getEvent(index: Int = 1, yearName: Int = 2020) : Event {
         return Event().apply {
             id = index
             objectId = "event$index"
-            yearId = "year2020"
+            yearId = "year$yearName"
             details = "Some details"
-            endDate = 1582256420000 + TimeUnit.HOURS.toMillis(index.toLong()) // default 02-20-2020 20:40:20
-            startDate = 1582255220000 + TimeUnit.HOURS.toMillis(index.toLong()) // default 02-20-2020 20:20:20
+            endDate = getStartOfYear(yearName, index) // default 02-20-2020 20:40:20
+            startDate = getStartOfYear(yearName, index) // default 02-20-2020 20:20:20
             place = "Here"
             title = "Some Title"
             subtitle = "Some subtitle"
         }
+    }
+
+    private fun getStartOfYear(yearName: Int, hour: Int): Long {
+        val daysAdded = hour / 24
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        calendar[Calendar.YEAR] = yearName
+        calendar[Calendar.HOUR_OF_DAY] = hour
+        calendar[Calendar.MINUTE] = 0
+        calendar[Calendar.SECOND] = 0
+        calendar[Calendar.MILLISECOND] = 0
+        calendar[Calendar.DATE] = 2 + daysAdded
+        calendar[Calendar.MONTH] = 2
+        return calendar.timeInMillis
     }
 
     fun getPaper(index: Int, eventIndex: Int = 1) : Paper {

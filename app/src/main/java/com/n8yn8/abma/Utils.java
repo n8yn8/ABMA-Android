@@ -136,8 +136,7 @@ public class Utils {
         db.mapDao().insert(ConvertUtil.convertMaps(maps, year.getObjectId()));
     }
 
-    public static void saveEvents(Context context, String yearId, List<BEvent> events) {
-        final AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
+    public static void saveEvents(final AppDatabase db, String yearId, List<BEvent> events) {
         List<Event> localEvents = db.eventDao().getEvents(yearId);
         for (Event localEvent : localEvents) {
             boolean found = false;

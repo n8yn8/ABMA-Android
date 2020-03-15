@@ -94,12 +94,14 @@ class MainViewModelTest : KoinTest {
         mainViewModel.selectYear(expectedSecondYear.name.toString())
         verify(yearObserver).onChanged(expectedSecondYear)
         verify(remote, never()).getYears(any(), any())
+        verify(remote, never()).getEvents(any(), any())
     }
 
     @Test
     fun testStartEmpty_noResponse() {
         mainViewModel = MainViewModel(application)
         verify(remote).getYears(any(), any())
+        verify(remote, never()).getEvents(any(), any())
 
         mainViewModel.year.observeForever(yearObserver)
         mainViewModel.isLoading.observeForever(loadingObserver)
@@ -122,6 +124,9 @@ class MainViewModelTest : KoinTest {
 
         mainViewModel = MainViewModel(application)
         verify(remote).getYears(any(), any())
+        for (bYear in years) {
+            verify(remote).getEvents(ArgumentMatchers.eq(bYear.objectId), any())
+        }
         mainViewModel.year.observeForever(yearObserver)
         mainViewModel.isLoading.observeForever(loadingObserver)
 
@@ -138,6 +143,7 @@ class MainViewModelTest : KoinTest {
 
         mainViewModel = MainViewModel(application)
         verify(remote, never()).getYears(any(), any())
+        verify(remote, never()).getEvents(any(), any())
 
         mainViewModel.year.observeForever(yearObserver)
         mainViewModel.isLoading.observeForever(loadingObserver)
@@ -164,6 +170,7 @@ class MainViewModelTest : KoinTest {
 
         mainViewModel = MainViewModel(application)
         verify(remote).getYears(any(), any())
+        verify(remote).getEvents(ArgumentMatchers.eq(remoteYear.objectId), any())
         mainViewModel.year.observeForever(yearObserver)
         mainViewModel.isLoading.observeForever(loadingObserver)
 
@@ -194,7 +201,17 @@ class MainViewModelTest : KoinTest {
         verify(yearObserver).onChanged(expectedSecondYear)
 
         verify(remote, never()).getYears(any(), any())
+        verify(remote, never()).getEvents(any(), any())
         verify(loadingObserver, never()).onChanged(ArgumentMatchers.anyBoolean())
+    }
+
+    @Test
+    fun testSelectYear_noSaveYears() {
+        mainViewModel = MainViewModel(application)
+        mainViewModel.year.observeForever(yearObserver)
+        mainViewModel.selectYear()
+
+        verify(yearObserver, never()).onChanged(any())
     }
 
 }
