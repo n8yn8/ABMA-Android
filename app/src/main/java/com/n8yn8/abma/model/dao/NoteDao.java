@@ -30,6 +30,9 @@ public interface NoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insert(Note note);
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public void insert(List<Note> notes);
+
     @Delete
     void delete(Note... notes);
 }

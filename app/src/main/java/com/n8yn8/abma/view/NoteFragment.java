@@ -3,8 +3,6 @@ package com.n8yn8.abma.view;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,16 +11,21 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
+import com.google.android.material.snackbar.Snackbar;
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.AppDatabase;
-import com.n8yn8.abma.model.ConvertUtil;
-import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.entities.Note;
 import com.n8yn8.abma.view.adapter.NoteListAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,15 +34,13 @@ import java.util.List;
  * Large screen devices (such as tablets) are supported by replacing the ListView
  * with a GridView.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
- * interface.
  */
 public class NoteFragment extends Fragment implements AbsListView.OnItemClickListener, AbsListView.OnItemLongClickListener {
 
-    List<Note> noteList;
-    TextView noDataTextView;
-    AppDatabase db;
-    Snackbar loginSnackbar;
+    private NoteViewModel viewModel;
+    private List<Note> noteList = new ArrayList<>();
+    private TextView noDataTextView;
+    private Snackbar loginSnackbar;
 
     /**
      * The fragment's ListView/GridView.
@@ -67,17 +68,6 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        db = AppDatabase.getInstance(getActivity().getApplicationContext());
-
-        noteList = db.noteDao().getNotes();
-
-        mAdapter = new NoteListAdapter(getActivity(), noteList);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_note, container, false);
@@ -86,13 +76,9 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         if (noDataTextView == null) {
             noDataTextView = view.findViewById(android.R.id.empty);
         }
-        if (noteList.size() == 0) {
-            noDataTextView.setText("No notes have been saved yet.");
-        } else {
-            noDataTextView.setText("");
-        }
         // Set the adapter
         mListView = view.findViewById(android.R.id.list);
+        mAdapter = new NoteListAdapter(getActivity(), noteList);
         mListView.setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
@@ -100,6 +86,26 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         mListView.setOnItemLongClickListener(this);
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        viewModel = new ViewModelProvider(this).get(NoteViewModel.class);
+        viewModel.getNotesData().observe(getViewLifecycleOwner(), new Observer<List<Note>>() {
+            @Override
+            public void onChanged(List<Note> notes) {
+                noteList.clear();
+                noteList.addAll(notes);
+                mAdapter.notifyDataSetChanged();
+                if (noteList.size() == 0) {
+                    noDataTextView.setText("No notes have been saved yet.");
+                } else {
+                    noDataTextView.setText("");
+                }
+            }
+        });
     }
 
     @Override
@@ -140,17 +146,9 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Note note = mAdapter.getItem(position);
-                if (note == null) {
-                    return;
-                }
-                db.noteDao().delete(note);
-                DbManager.getInstance().delete(ConvertUtil.convert(note));
-                noteList.remove(position);
-                mAdapter.notifyDataSetChanged();
+                viewModel.deleteNote(note);
                 Toast.makeText(getActivity(), "This note has been deleted", Toast.LENGTH_SHORT).show();
-                if (noteList.size() == 0) {
-                    noDataTextView.setText("No notes have been saved yet.");
-                }
+
             }
         });
         builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
@@ -211,33 +209,8 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
             @Override
             public void loginSuccess() {
                 dialog.dismiss();
-                final DbManager manager = DbManager.getInstance();
                 Toast.makeText(getContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
-                manager.getAllNotes(new DbManager.OnGetNotesCallback() {
-                    @Override
-                    public void notesRetrieved(List<BNote> notes, String error) {
-                        if (error == null) {
-                            for (BNote note : notes) {
-                                db.noteDao().insert(ConvertUtil.convert(note));
-                            }
-                            List<Note> newNotes = db.noteDao().getNotes();
-                            for (Note note : newNotes) {
-                                manager.addNote(ConvertUtil.convert(note), new DbManager.OnNoteSavedCallback() {
-                                    @Override
-                                    public void noteSaved(BNote savedNote, String error) {
-                                        if (savedNote != null) {
-                                            db.noteDao().insert(ConvertUtil.convert(savedNote));
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                        noteList.clear();
-                        noteList.addAll(db.noteDao().getNotes());
-                        mAdapter.notifyDataSetChanged();
-                    }
-                });
-
+                viewModel.getRemoteNotes();
             }
         });
     }
