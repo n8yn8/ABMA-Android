@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
@@ -24,7 +23,6 @@ import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.view.adapter.NoteListAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,17 +32,11 @@ import java.util.List;
  * with a GridView.
  * <p/>
  */
-public class NoteFragment extends Fragment implements AbsListView.OnItemClickListener, AbsListView.OnItemLongClickListener {
+public class NoteFragment extends Fragment {
 
     private NoteViewModel viewModel;
-    private List<NoteModel> noteList = new ArrayList<>();
     private TextView noDataTextView;
     private Snackbar loginSnackbar;
-
-    /**
-     * The fragment's ListView/GridView.
-     */
-    private AbsListView mListView;
 
     /**
      * The Adapter which will be used to populate the ListView/GridView with
@@ -52,7 +44,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
      */
     private NoteListAdapter mAdapter;
 
-    public static NoteFragment newInstance() {
+    static NoteFragment newInstance() {
         NoteFragment fragment = new NoteFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -75,14 +67,20 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         if (noDataTextView == null) {
             noDataTextView = view.findViewById(android.R.id.empty);
         }
-        // Set the adapter
-        mListView = view.findViewById(android.R.id.list);
-        mAdapter = new NoteListAdapter(getActivity(), noteList);
-        mListView.setAdapter(mAdapter);
 
-        // Set OnItemClickListener so we can be notified on item clicks
-        mListView.setOnItemClickListener(this);
-        mListView.setOnItemLongClickListener(this);
+        RecyclerView recyclerView = view.findViewById(R.id.item_list);
+        mAdapter = new NoteListAdapter(new NoteListAdapter.OnClickListener() {
+            @Override
+            public void onClick(NoteModel noteModel) {
+                onItemClick(noteModel);
+            }
+
+            @Override
+            public void onLongClick(NoteModel noteModel) {
+                onItemLongClick(noteModel);
+            }
+        });
+        recyclerView.setAdapter(mAdapter);
 
         return view;
     }
@@ -95,11 +93,9 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         viewModel.getNotesData().observe(getViewLifecycleOwner(), new Observer<List<NoteModel>>() {
             @Override
             public void onChanged(List<NoteModel> notes) {
-                noteList.clear();
-                noteList.addAll(notes);
-                mAdapter.notifyDataSetChanged();
-                if (noteList.size() == 0) {
-                    noDataTextView.setText("No notes have been saved yet.");
+                mAdapter.submitList(notes);
+                if (notes.size() == 0) {
+                    noDataTextView.setText(R.string.no_notes);
                 } else {
                     noDataTextView.setText("");
                 }
@@ -126,10 +122,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         super.onDetach();
     }
 
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        NoteModel noteModel = mAdapter.getItem(position);
+    private void onItemClick(NoteModel noteModel) {
         if (noteModel != null) {
             EventActivity.start(
                     getContext(),
@@ -138,8 +131,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         }
     }
 
-    @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+    private void onItemLongClick(final NoteModel noteModel) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage("Would you like to delete this note?");
@@ -147,8 +139,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                NoteModel note = mAdapter.getItem(position);
-                viewModel.deleteNote(note);
+                viewModel.deleteNote(noteModel);
                 Toast.makeText(getActivity(), "This note has been deleted", Toast.LENGTH_SHORT).show();
 
             }
@@ -161,8 +152,6 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
-
-        return true;
     }
 
     private void updateLoginVisibility() {
@@ -215,19 +204,6 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
                 viewModel.getRemoteNotes();
             }
         });
-    }
-
-    /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
-    public void setEmptyText(CharSequence emptyText) {
-        View emptyView = mListView.getEmptyView();
-
-        if (emptyView instanceof TextView) {
-            ((TextView) emptyView).setText(emptyText);
-        }
     }
 
 }
