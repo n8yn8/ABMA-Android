@@ -63,7 +63,7 @@ class NoteViewModel(application: Application) : AndroidViewModel(application), K
             for (note in localNotes) {
                 remote.addNote(ConvertUtil.convert(note)) { savedNote, syncError ->
                     if (savedNote != null) {
-                        db.noteDao().insert(ConvertUtil.convert(savedNote))
+                        db.noteDao().deleteInsert(note, ConvertUtil.convert(savedNote))
                     }
                 }
             }

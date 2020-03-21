@@ -11,19 +11,17 @@ import com.n8yn8.abma.model.backendless.DbManager
 import com.n8yn8.test.util.FakeData
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
 import org.koin.test.KoinTest
 
 import org.junit.Assert.*
-import org.junit.Rule
 import org.junit.runner.RunWith
 import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext
 import org.koin.standalone.inject
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -82,18 +80,18 @@ class NoteViewModelTest : KoinTest {
     private fun setUpNoteModel() {
         noteViewModel = NoteViewModel(application)
         noteViewModel.notesData.observeForever(noteModelObserver)
-        Mockito.verify(noteModelObserver).onChanged(Mockito.anyList())
+        verify(noteModelObserver).onChanged(anyList())
     }
 
     private fun setUpRemoteResponse(bNotes: List<BNote>) {
 
-        Mockito.doAnswer {
+        doAnswer {
             val callback = it.arguments[0] as DbManager.OnGetNotesCallback
             callback.notesRetrieved(bNotes, null)
             null
-        }.`when`(remote).getAllNotes(Mockito.any())
+        }.`when`(remote).getAllNotes(any())
 
-        Mockito.doAnswer {
+        doAnswer {
             val bNote = it.arguments[0] as BNote
             bNote.apply {
                 created = Date()
@@ -103,7 +101,7 @@ class NoteViewModelTest : KoinTest {
             val callback = it.arguments[1] as DbManager.OnNoteSavedCallback
             callback.noteSaved(bNote, null)
             null
-        }.`when`(remote).addNote(Mockito.any(), Mockito.any())
+        }.`when`(remote).addNote(any(), any())
     }
 
     @Test
@@ -117,8 +115,8 @@ class NoteViewModelTest : KoinTest {
         setUpRemoteResponse(bNotes)
         noteViewModel.getRemoteNotes()
 
-        Mockito.verify(noteModelObserver, Mockito.times(2)).onChanged(Mockito.anyList())
-        Mockito.verify(remote, Mockito.never()).addNote(Mockito.any(), Mockito.any())
+        verify(noteModelObserver, times(2)).onChanged(anyList())
+        verify(remote, never()).addNote(any(), any())
 //        Mockito.verify(noteModelObserver).onChanged(listOf(
 //                NoteModel(FakeData.getNote(event1.objectId), event1, null),
 //                NoteModel(FakeData.getNote(event1.objectId, paper1.objectId), event1, paper1)
@@ -136,9 +134,11 @@ class NoteViewModelTest : KoinTest {
         noteViewModel.getRemoteNotes()
 
         //TODO: 3 from no new notes added, but saving after sync. Should be 1
-        Mockito.verify(noteModelObserver, Mockito.times(3)).onChanged(Mockito.anyList())
+        verify(noteModelObserver, times(3)).onChanged(anyList())
         //Local added to remote
-        Mockito.verify(remote, Mockito.times(2)).addNote(Mockito.any(), Mockito.any())
+        verify(remote, times(2)).addNote(any(), any())
+        val resultNotes = database.noteDao().notes
+        assertEquals(2, resultNotes.size)
     }
 
     @Test
@@ -155,7 +155,9 @@ class NoteViewModelTest : KoinTest {
         noteViewModel.getRemoteNotes()
 
         //TODO reduce to 2 executions. 4 happens from sync of local notes.
-        Mockito.verify(noteModelObserver, Mockito.times(4)).onChanged(Mockito.anyList())
-        Mockito.verify(remote, Mockito.times(2)).addNote(Mockito.any(), Mockito.any())
+        verify(noteModelObserver, times(4)).onChanged(anyList())
+        verify(remote, times(2)).addNote(any(), any())
+        val resultNotes = database.noteDao().notes
+        assertEquals(4, resultNotes.size)
     }
 }
