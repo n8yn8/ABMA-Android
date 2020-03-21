@@ -162,7 +162,7 @@ class EventActivityTest: BaseTest() {
 
         val savedNote = database.noteDao().getNote(FakeData.getEvent().objectId)
 
-        Assert.assertEquals(noteText, savedNote.content)
+        Assert.assertEquals(noteText, savedNote!!.content)
     }
 
     @Test
@@ -176,20 +176,20 @@ class EventActivityTest: BaseTest() {
 
         val savedNote = database.noteDao().getNote(FakeData.getEvent().objectId, FakeData.getPaper(1).objectId)
 
-        Assert.assertEquals(noteText, savedNote.content)
+        Assert.assertEquals(noteText, savedNote!!.content)
     }
 
     private fun checkEventUi(event: Event, paper: Paper? = null) {
         onView(
                 withId(R.id.dayTextView)
         ).check(
-                matches(withText("FRIDAY"))
+                matches(withText("MONDAY"))
         )
 
         onView(
                 withId(R.id.dateTextView)
         ).check(
-                matches(withText("20"))
+                matches(withText("1"))
         )
 
         val title = paper?.title ?: event.title
@@ -216,7 +216,7 @@ class EventActivityTest: BaseTest() {
         onView(
                 withId(R.id.timeTextView)
         ).check(
-                matches(withText("4:20 AM - 4:40 AM"))
+                matches(withText("1:00 AM - 1:00 AM"))
         )
 
         onView(

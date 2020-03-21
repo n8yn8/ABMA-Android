@@ -9,6 +9,8 @@ import androidx.annotation.Nullable;
 
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
+import java.util.Objects;
+
 @Entity(tableName = DatabaseHandler.TABLE_NOTES,
         foreignKeys = {
             @ForeignKey(
@@ -57,4 +59,23 @@ public class Note {
     @ColumnInfo(name = DatabaseHandler.KEY_UPDATED)
     @Nullable
     public Long updated;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Note note = (Note) o;
+        return Objects.equals(id, note.id) &&
+                Objects.equals(objectId, note.objectId) &&
+                eventId.equals(note.eventId) &&
+                Objects.equals(paperId, note.paperId) &&
+                content.equals(note.content) &&
+                Objects.equals(created, note.created) &&
+                Objects.equals(updated, note.updated);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, objectId, eventId, paperId, content, created, updated);
+    }
 }
