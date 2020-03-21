@@ -1,12 +1,12 @@
 package com.n8yn8.test.util
 
+import com.n8yn8.abma.model.backendless.BNote
 import com.n8yn8.abma.model.backendless.BYear
 import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.abma.model.entities.Note
 import com.n8yn8.abma.model.entities.Paper
 import com.n8yn8.abma.model.entities.Year
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 object FakeData {
 
@@ -52,7 +52,7 @@ object FakeData {
         return calendar.timeInMillis
     }
 
-    fun getPaper(index: Int, eventIndex: Int = 1) : Paper {
+    fun getPaper(index: Int = 1, eventIndex: Int = 1) : Paper {
         return Paper().apply {
             id = index
             objectId = "paper$index"
@@ -64,11 +64,23 @@ object FakeData {
         }
     }
 
-    fun getNote(inEventId: String, inPaperId: String? = null) : Note {
+    fun getNote(inEventId: String, inPaperId: String? = null, index: String? = null) : Note {
         return Note().apply {
             eventId = inEventId
             paperId = inPaperId
             content = "Content of a note for $inEventId & $inPaperId"
+            objectId = index
+        }
+    }
+
+    fun getBNote(index: String? = "1", inEventId: String, inPaperId: String? = null) : BNote {
+        return BNote().apply {
+            objectId = index
+            eventId = inEventId
+            paperId = inPaperId
+            content = "Content of a note for $inEventId & $inPaperId"
+            created = Date()
+            updated = Date()
         }
     }
 }

@@ -43,15 +43,27 @@ class NoteViewModel(application: Application) : AndroidViewModel(application), K
     //TODO: check syncing of local to remote
     fun getRemoteNotes() {
         remote.getAllNotes { bNotes, error ->
-            if (error == null) {
-                val localNotes = db.noteDao().notes
-                val notesToSave = bNotes.map { ConvertUtil.convert(it) }
-                db.noteDao().insert(notesToSave)
-                for (note in localNotes) {
-                    remote.addNote(ConvertUtil.convert(note)) { savedNote, syncError ->
-                        if (savedNote != null) {
-                            db.noteDao().insert(ConvertUtil.convert(savedNote))
-                        }
+            if (error != null) {
+                return@getAllNotes
+            }
+
+            val localNotes = db.noteDao().notes
+            val notesToSave = bNotes.map {
+                val localNote = if (it.paperId == null) {
+                    db.noteDao().getNote(it.eventId)
+                } else {
+                    db.noteDao().getNote(it.eventId, it.paperId)
+                }
+                if (localNote != null) {
+                    db.noteDao().delete(localNote)
+                }
+                ConvertUtil.convert(it)
+            }
+            db.noteDao().insert(notesToSave)
+            for (note in localNotes) {
+                remote.addNote(ConvertUtil.convert(note)) { savedNote, syncError ->
+                    if (savedNote != null) {
+                        db.noteDao().insert(ConvertUtil.convert(savedNote))
                     }
                 }
             }

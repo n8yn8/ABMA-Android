@@ -162,7 +162,7 @@ class EventActivityTest: BaseTest() {
 
         val savedNote = database.noteDao().getNote(FakeData.getEvent().objectId)
 
-        Assert.assertEquals(noteText, savedNote.content)
+        Assert.assertEquals(noteText, savedNote!!.content)
     }
 
     @Test
@@ -176,7 +176,7 @@ class EventActivityTest: BaseTest() {
 
         val savedNote = database.noteDao().getNote(FakeData.getEvent().objectId, FakeData.getPaper(1).objectId)
 
-        Assert.assertEquals(noteText, savedNote.content)
+        Assert.assertEquals(noteText, savedNote!!.content)
     }
 
     private fun checkEventUi(event: Event, paper: Paper? = null) {
