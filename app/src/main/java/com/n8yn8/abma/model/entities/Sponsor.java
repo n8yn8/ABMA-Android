@@ -8,6 +8,10 @@ import androidx.room.PrimaryKey;
 
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+
 @Entity(tableName = DatabaseHandler.TABLE_SPONSORS,
         foreignKeys = @ForeignKey(
                 entity = Year.class,
@@ -40,4 +44,33 @@ public class Sponsor {
 
     @ColumnInfo(name = DatabaseHandler.KEY_URL)
     public String url;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Sponsor sponsor = (Sponsor) o;
+        return Objects.equals(id, sponsor.id) &&
+                Objects.equals(objectId, sponsor.objectId) &&
+                Objects.equals(yearId, sponsor.yearId) &&
+                Objects.equals(imageUrl, sponsor.imageUrl) &&
+                Objects.equals(url, sponsor.url);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, objectId, yearId, imageUrl, url);
+    }
+
+    @NotNull
+    @Override
+    public String toString() {
+        return "Sponsor{" +
+                "id=" + id +
+                ", objectId='" + objectId + '\'' +
+                ", yearId='" + yearId + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", url='" + url + '\'' +
+                '}';
+    }
 }

@@ -1,11 +1,9 @@
 package com.n8yn8.test.util
 
 import com.n8yn8.abma.model.backendless.BNote
+import com.n8yn8.abma.model.backendless.BSponsor
 import com.n8yn8.abma.model.backendless.BYear
-import com.n8yn8.abma.model.entities.Event
-import com.n8yn8.abma.model.entities.Note
-import com.n8yn8.abma.model.entities.Paper
-import com.n8yn8.abma.model.entities.Year
+import com.n8yn8.abma.model.entities.*
 import java.util.*
 
 object FakeData {
@@ -81,6 +79,31 @@ object FakeData {
             content = "Content of a note for $inEventId & $inPaperId"
             created = Date()
             updated = Date()
+        }
+    }
+
+    fun getBSponsors(): List<BSponsor> {
+        val list = arrayListOf<BSponsor>()
+        for (i in 1..5) {
+            list.add(getBSponsor("$i"))
+        }
+        return list
+    }
+
+    private fun getBSponsor(objectId: String) : BSponsor {
+        return BSponsor().apply {
+            this.objectId = objectId
+            url = ""
+            imageUrl = ""
+        }
+    }
+
+    fun getSponsor(): Sponsor {
+        return Sponsor().apply {
+            id = 1
+            yearId = getYear().objectId
+            url = ""
+            imageUrl = ""
         }
     }
 }
