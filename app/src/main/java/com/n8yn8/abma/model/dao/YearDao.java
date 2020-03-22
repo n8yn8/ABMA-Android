@@ -16,7 +16,7 @@ public interface YearDao {
     @Query("SELECT * FROM " + DatabaseHandler.TABLE_YEARS)
     List<Year> getYears();
 
-    @Query("SELECT name FROM years")
+    @Query("SELECT name FROM years ORDER BY name DESC")
     List<Integer> getAllYearNames();
 
     @Query("SELECT * FROM years WHERE name = (SELECT MAX(name) FROM years) LIMIT 1")
