@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.backendless.async.callback.AsyncCallback;
@@ -69,6 +70,7 @@ public class NoteFragment extends Fragment {
         }
 
         RecyclerView recyclerView = view.findViewById(R.id.item_list);
+        recyclerView.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         mAdapter = new NoteListAdapter(new NoteListAdapter.OnClickListener() {
             @Override
             public void onClick(NoteModel noteModel) {
