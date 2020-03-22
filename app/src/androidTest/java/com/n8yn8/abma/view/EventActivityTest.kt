@@ -1,12 +1,16 @@
 package com.n8yn8.abma.view
 
 import android.content.Intent
-import androidx.test.espresso.Espresso.onData
+import android.view.View
+import androidx.annotation.NonNull
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
+import androidx.test.espresso.matcher.BoundedMatcher
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
@@ -14,14 +18,18 @@ import com.n8yn8.abma.BaseTest
 import com.n8yn8.abma.R
 import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.abma.model.entities.Paper
+import com.n8yn8.abma.view.adapter.PaperListAdapter
 import com.n8yn8.test.util.FakeData
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.Matchers
+import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers.allOf
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -36,6 +44,22 @@ class EventActivityTest: BaseTest() {
         runBlocking {
             database.yearDao().insert(FakeData.getYear())
             database.eventDao().insert(FakeData.getEvent())
+        }
+    }
+
+    private fun atPosition(position: Int, @NonNull itemMatcher: Matcher<View?>): Matcher<View?>? {
+        return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {
+            override fun describeTo(description: Description) {
+                description.appendText("has item at position $position: ")
+                itemMatcher.describeTo(description)
+            }
+
+            override fun matchesSafely(view: RecyclerView): Boolean {
+                val viewHolder = view.findViewHolderForAdapterPosition(position)
+                        ?: // has no item on such position
+                        return false
+                return itemMatcher.matches(viewHolder.itemView)
+            }
         }
     }
 
@@ -68,34 +92,26 @@ class EventActivityTest: BaseTest() {
 
         checkEventUi(event)
 
-        onData(
-                Matchers.anything()
-        ).inAdapterView(withId(R.id.papersListView))
-                .atPosition(0)
-                .onChildView(withId(R.id.paperTitleTextView))
-                .check(matches(withText(paper1.title)))
+        checkInPaperRecycler(0, R.id.paperTitleTextView, paper1.title)
+        checkInPaperRecycler(0, R.id.paperAuthorTextView, paper1.author)
+        checkInPaperRecycler(1, R.id.paperTitleTextView, paper2.title)
+        checkInPaperRecycler(1, R.id.paperAuthorTextView, paper2.author)
 
-        onData(
-                Matchers.anything()
-        ).inAdapterView(withId(R.id.papersListView))
-                .atPosition(0)
-                .onChildView(withId(R.id.paperAuthorTextView))
-                .check(matches(withText(paper1.author)))
+    }
 
-        onData(
-                Matchers.anything()
-        ).inAdapterView(withId(R.id.papersListView))
-                .atPosition(1)
-                .onChildView(withId(R.id.paperTitleTextView))
-                .check(matches(withText(paper2.title)))
-
-        onData(
-                Matchers.anything()
-        ).inAdapterView(withId(R.id.papersListView))
-                .atPosition(1)
-                .onChildView(withId(R.id.paperAuthorTextView))
-                .check(matches(withText(paper2.author)))
-
+    private fun checkInPaperRecycler(position: Int, viewId: Int, text: String) {
+        onView(
+                withId(R.id.papersListView)
+        ).check(
+                matches(
+                        atPosition(position, hasDescendant(
+                                allOf(
+                                        withId(viewId),
+                                        withText(text)
+                                )
+                        ))
+                )
+        )
     }
 
     @Test
@@ -111,11 +127,11 @@ class EventActivityTest: BaseTest() {
 
         checkEventUi(event)
 
-        onData(
-                Matchers.anything()
-        ).inAdapterView(withId(R.id.papersListView))
-                .atPosition(0)
-                .perform(ViewActions.click())
+        onView(
+                withId(R.id.papersListView)
+        ).perform(
+                actionOnItemAtPosition<PaperListAdapter.ViewHolder>(0, click())
+        )
 
         checkEventUi(event, paper1)
     }
@@ -157,8 +173,8 @@ class EventActivityTest: BaseTest() {
 
         val noteText = "Text to save for this event test"
 
-        onView(withId(R.id.noteEditText)).perform(ViewActions.typeText(noteText))
-        onView(withId(R.id.saveNoteButton)).perform(ViewActions.click())
+        onView(withId(R.id.noteEditText)).perform(typeText(noteText))
+        onView(withId(R.id.saveNoteButton)).perform(click())
 
         val savedNote = database.noteDao().getNote(FakeData.getEvent().objectId)
 
@@ -171,8 +187,8 @@ class EventActivityTest: BaseTest() {
 
         val noteText = "Text to save for this paper test"
 
-        onView(withId(R.id.noteEditText)).perform(ViewActions.typeText(noteText))
-        onView(withId(R.id.saveNoteButton)).perform(ViewActions.click())
+        onView(withId(R.id.noteEditText)).perform(typeText(noteText))
+        onView(withId(R.id.saveNoteButton)).perform(click())
 
         val savedNote = database.noteDao().getNote(FakeData.getEvent().objectId, FakeData.getPaper(1).objectId)
 

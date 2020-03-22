@@ -5,15 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +18,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
@@ -51,6 +50,8 @@ public class EventActivity extends AppCompatActivity {
     TextView placeTextView;
     EditText noteEditText;
     Button saveButton;
+    RecyclerView papersListView;
+    PaperListAdapter adapter;
 
     EventViewModel viewModel;
 
@@ -85,7 +86,7 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onChanged(Event event) {
                 Log.d(TAG, "on event changed: " + event);
-                displayEvent(event, null, null);
+                displayEvent(event, null);
             }
         });
         viewModel.setSelectedEvent(getIntent().getStringExtra(EXTRA_EVENT_ID));
@@ -93,7 +94,7 @@ public class EventActivity extends AppCompatActivity {
         viewModel.getPaper().observe(this, new Observer<Paper>() {
             @Override
             public void onChanged(Paper paper) {
-                displayEvent(viewModel.getEvent().getValue(), paper, null);
+                displayEvent(viewModel.getEvent().getValue(), paper);
             }
         });
 
@@ -131,14 +132,16 @@ public class EventActivity extends AppCompatActivity {
                 Toast.makeText(EventActivity.this, "This note has been " + (result ? "saved" : "deleted"), Toast.LENGTH_SHORT).show();
             }
         });
-    }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_event, menu);
-        return true;
+        papersListView = findViewById(R.id.papersListView);
+        papersListView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        adapter = new PaperListAdapter(new PaperListAdapter.OnClickListener() {
+            @Override
+            public void onClick(Paper paper) {
+                viewModel.getPaper().postValue(paper);
+            }
+        });
+        papersListView.setAdapter(adapter);
     }
 
     @Override
@@ -172,7 +175,7 @@ public class EventActivity extends AppCompatActivity {
         }
     }
 
-    public void displayEvent (final Event event, @Nullable Paper paper, @Nullable Note note) {
+    public void displayEvent (final Event event, @Nullable Paper paper) {
         Date date = new Date(event.startDate);
         SimpleDateFormat dayFormatter = new SimpleDateFormat("EEEE");
         dayFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -185,6 +188,7 @@ public class EventActivity extends AppCompatActivity {
         placeTextView.setText(event.place);
 
         List<Paper> papers = viewModel.getPapers(event.objectId);
+        adapter.submitList(papers);
 
         if (paper == null) {
             titleTextView.setText(event.title);
@@ -192,26 +196,16 @@ public class EventActivity extends AppCompatActivity {
             detailTextView.setText(event.details);
             detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
             detailTextView.scrollTo(0,0);
-            final PaperListAdapter adapter = new PaperListAdapter(this, papers);
-            ListView papersListView = findViewById(R.id.papersListView);
             papersListView.setVisibility(View.VISIBLE);
-            papersListView.setAdapter(adapter);
-            papersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Paper paper = adapter.getItem(position);
-                    viewModel.getPaper().postValue(paper);
-                }
-            });
         } else {
-            findViewById(R.id.papersListView).setVisibility(View.GONE);
+            papersListView.setVisibility(View.GONE);
             titleTextView.setText(paper.title);
             subtitleTextView.setText(paper.author);
             detailTextView.setText(paper.synopsis);
             detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
             detailTextView.scrollTo(0,0);
         }
-        note = viewModel.getNote(event.objectId, paper == null ? null : paper.objectId);
+        Note note = viewModel.getNote(event.objectId, paper == null ? null : paper.objectId);
         if (note != null) {
             noteEditText.setText(note.content);
         } else {
