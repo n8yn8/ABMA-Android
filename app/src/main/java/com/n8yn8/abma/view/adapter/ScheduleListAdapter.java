@@ -1,59 +1,80 @@
 package com.n8yn8.abma.view.adapter;
 
-import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
 import com.n8yn8.abma.model.entities.Event;
 
-import java.util.List;
-
 /**
  * Created by Nate on 2/15/15.
  */
-public class ScheduleListAdapter extends ArrayAdapter<Event> {
+public class ScheduleListAdapter extends ListAdapter<Event, ScheduleListAdapter.ViewHolder> {
 
-    private final Activity context;
-    private final List<Event> events;
-
-    static class ViewHolder {
-        public TextView eventTitleTextView;
-        public TextView timeTextView;
+    public interface OnClickListener {
+        void onClick(Event event);
     }
 
-    public ScheduleListAdapter(Activity context, List<Event> events) {
-        super(context, R.layout.item_list_schedule, events);
-        this.context = context;
-        this.events = events;
-    }
+    private static final DiffUtil.ItemCallback<Event> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<Event>() {
+                @Override
+                public boolean areItemsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
+                    return oldItem.equals(newItem);
+                }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+                @Override
+                public boolean areContentsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
+                    return oldItem.equals(newItem);
+                }
+            };
 
-        View rowView = convertView;
-        if (rowView == null) {
-            LayoutInflater inflater = context.getLayoutInflater();
-            rowView = inflater.inflate(R.layout.item_list_schedule, null);
-            ViewHolder viewHolder = new ViewHolder();
-            viewHolder.eventTitleTextView = rowView.findViewById(R.id.eventTitleTextView);
-            viewHolder.timeTextView = rowView.findViewById(R.id.eventTimeTextView);
-            rowView.setTag(viewHolder);
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView eventTitleTextView;
+        TextView timeTextView;
+
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            eventTitleTextView = itemView.findViewById(R.id.eventTitleTextView);
+            timeTextView = itemView.findViewById(R.id.eventTimeTextView);
         }
 
-        ViewHolder holder = (ViewHolder) rowView.getTag();
-        holder.eventTitleTextView.setText(events.get(position).title);
-        holder.timeTextView.setText(Utils.getTimes(events.get(position)));
+        void bind(final Event event, final OnClickListener onClickListener) {
+            eventTitleTextView.setText(event.title);
+            timeTextView.setText(Utils.getTimes(event));
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onClickListener.onClick(event);
+                }
+            });
+        }
+    }
 
-        return rowView;
+    private OnClickListener onClickListener;
+
+    public ScheduleListAdapter(OnClickListener onClickListener) {
+        super(DIFF_CALLBACK);
+        this.onClickListener = onClickListener;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_list_schedule, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public Event getItem(int position) {
-        return super.getItem(position);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.bind(getItem(position), onClickListener);
     }
 }

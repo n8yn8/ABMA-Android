@@ -2,12 +2,11 @@ package com.n8yn8.abma.view;
 
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,6 +14,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.n8yn8.abma.R;
@@ -33,14 +34,12 @@ import java.util.TimeZone;
  * create an instance of this fragment.
  */
 public class ScheduleFragment extends Fragment {
-    public static final String TAG = "ScheduleFragment";
 
     private ScheduleListAdapter adapter;
     private MainViewModel mainViewModel;
     private ScheduleViewModel scheduleViewModel;
 
     private TextView dateTextView;
-    private ListView scheduleListView;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     /**
@@ -49,7 +48,7 @@ public class ScheduleFragment extends Fragment {
      *
      * @return A new instance of fragment ScheduleFragment.
      */
-    public static ScheduleFragment newInstance() {
+    static ScheduleFragment newInstance() {
         ScheduleFragment fragment = new ScheduleFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -67,29 +66,29 @@ public class ScheduleFragment extends Fragment {
         ImageButton backButton = rootView.findViewById(R.id.prevDayButton);
         ImageButton nextButton = rootView.findViewById(R.id.nextDayButton);
         dateTextView = rootView.findViewById(R.id.dateTextView);
-        scheduleListView = rootView.findViewById(R.id.scheduleListView);
+        RecyclerView scheduleListView = rootView.findViewById(R.id.scheduleListView);
+        scheduleListView.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
+        adapter = new ScheduleListAdapter(new ScheduleListAdapter.OnClickListener() {
+            @Override
+            public void onClick(Event event) {
+                if (event != null) {
+                    EventActivity.start(getActivity(), event.objectId, null);
+                }
+            }
+        });
+        scheduleListView.setAdapter(adapter);
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scheduleViewModel.nextDay();
+                scheduleViewModel.previousDay();
 
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scheduleViewModel.previousDay();
-            }
-        });
-
-        scheduleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Event event = adapter.getItem(position);
-                if (event != null) {
-                    EventActivity.start(getActivity(), event.objectId, null);
-                }
+                scheduleViewModel.nextDay();
             }
         });
 
@@ -141,7 +140,8 @@ public class ScheduleFragment extends Fragment {
         } else {
             dateTextView.setVisibility(View.INVISIBLE);
         }
-        adapter = new ScheduleListAdapter(getActivity(), day);
-        scheduleListView.setAdapter(adapter);
+
+        Log.d("Nate", "loading day = " + day);
+        adapter.submitList(day);
     }
 }
