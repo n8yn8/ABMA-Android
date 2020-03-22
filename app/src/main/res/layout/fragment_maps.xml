@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <RelativeLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="75dp"
         android:layout_gravity="center_horizontal"
-        android:background="#ff707070">
+        android:background="#ff707070"
+        android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/dateTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="MAPS"
-            android:id="@+id/dateTextView"
-            android:textSize="30dp"
-            android:textColor="#ffe1e1e1"
-            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_gravity="center"
+            android:text="MAPS"
+            android:textColor="#ffe1e1e1"
+            android:textSize="30dp" />
 
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/mapsListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/mapsListView"
         android:layout_gravity="center_horizontal" />
 
 </LinearLayout>

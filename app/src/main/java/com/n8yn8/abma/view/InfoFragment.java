@@ -18,15 +18,15 @@ import com.n8yn8.abma.model.AppDatabase;
  */
 public class InfoFragment extends Fragment {
 
+    public InfoFragment() {
+        // Required empty public constructor
+    }
+
     public static InfoFragment newInstance() {
         InfoFragment fragment = new InfoFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public InfoFragment() {
-        // Required empty public constructor
     }
 
     @Override

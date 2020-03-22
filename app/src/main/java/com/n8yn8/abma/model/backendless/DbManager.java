@@ -29,15 +29,11 @@ public class DbManager {
     private final static String TAG = "DbManager";
     private static DbManager ourInstance = new DbManager();
 
-    public static DbManager getInstance() {
-        return ourInstance;
-    }
-
     private DbManager() {
     }
 
-    public interface OnLoginResponse {
-        void onLogin(@Nullable String error);
+    public static DbManager getInstance() {
+        return ourInstance;
     }
 
     public void register(final String email, final String password, final OnLoginResponse callback) {
@@ -96,10 +92,6 @@ public class DbManager {
         });
     }
 
-    public interface CheckUserCallback {
-        void onDone();
-    }
-
     public void checkUser(final CheckUserCallback callback) {
         String currentUserObjectId = UserIdStorageFactory.instance().getStorage().get();
         if (!TextUtils.isEmpty(currentUserObjectId)) {
@@ -132,10 +124,6 @@ public class DbManager {
         } else {
             callback.handleResponse(false);
         }
-    }
-
-    public interface Callback<T> {
-        void onDone(T t, String error);
     }
 
     public void getYears(Context context, final Callback<List<BYear>> callback) {
@@ -217,10 +205,6 @@ public class DbManager {
         });
     }
 
-    public interface OnNoteSavedCallback {
-        void noteSaved(@Nullable BNote note, String error);
-    }
-
     public void addNote(BNote note, final OnNoteSavedCallback callback) {
         final BackendlessUser user = Backendless.UserService.CurrentUser();
         if (user == null) {
@@ -268,10 +252,6 @@ public class DbManager {
         });
     }
 
-    public interface OnGetNotesCallback {
-        void notesRetrieved(List<BNote> notes, String error);
-    }
-
     public void getAllNotes(final OnGetNotesCallback callback) {
         String userId = UserIdStorageFactory.instance().getStorage().get();
         DataQueryBuilder queryBuilder = DataQueryBuilder.create();
@@ -304,5 +284,25 @@ public class DbManager {
                 Utils.logError("RegisterPush", fault.getMessage());
             }
         });
+    }
+
+    public interface OnLoginResponse {
+        void onLogin(@Nullable String error);
+    }
+
+    public interface CheckUserCallback {
+        void onDone();
+    }
+
+    public interface Callback<T> {
+        void onDone(T t, String error);
+    }
+
+    public interface OnNoteSavedCallback {
+        void noteSaved(@Nullable BNote note, String error);
+    }
+
+    public interface OnGetNotesCallback {
+        void notesRetrieved(List<BNote> notes, String error);
     }
 }

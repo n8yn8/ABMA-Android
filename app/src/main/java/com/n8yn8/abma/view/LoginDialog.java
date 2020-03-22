@@ -164,11 +164,11 @@ public class LoginDialog extends LinearLayout {
         confirmInput.setVisibility(newAccountCheckbox.isChecked() ? VISIBLE : GONE);
     }
 
-    public interface OnLoginSuccess {
-        void loginSuccess();
-    }
-
     public void setCallback(OnLoginSuccess callback) {
         this.loginCallback = callback;
+    }
+
+    public interface OnLoginSuccess {
+        void loginSuccess();
     }
 }

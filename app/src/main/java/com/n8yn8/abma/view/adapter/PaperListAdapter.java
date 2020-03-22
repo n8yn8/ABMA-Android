@@ -30,12 +30,29 @@ public class PaperListAdapter extends ListAdapter<Paper, PaperListAdapter.ViewHo
                     return oldItem.equals(newItem);
                 }
             };
+    private OnClickListener onClickListener;
+
+    public PaperListAdapter(OnClickListener onClickListener) {
+        super(DIFF_CALLBACK);
+        this.onClickListener = onClickListener;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_list_paper, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.bind(getItem(position), onClickListener);
+    }
 
     public interface OnClickListener {
         void onClick(Paper paper);
     }
-
-    private OnClickListener onClickListener;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView;
@@ -57,23 +74,5 @@ public class PaperListAdapter extends ListAdapter<Paper, PaperListAdapter.ViewHo
                 }
             });
         }
-    }
-
-    public PaperListAdapter(OnClickListener onClickListener) {
-        super(DIFF_CALLBACK);
-        this.onClickListener = onClickListener;
-    }
-
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_list_paper, parent, false);
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(getItem(position), onClickListener);
     }
 }

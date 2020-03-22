@@ -46,16 +46,16 @@ public class Note {
         return eventId;
     }
 
+    public void setEventId(int eventId) {
+        this.eventId = eventId;
+    }
+
     public int getPaperId() {
         return paperId;
     }
 
     public void setPaperId(int paperId) {
         this.paperId = paperId;
-    }
-
-    public void setEventId(int eventId) {
-        this.eventId = eventId;
     }
 
     public String getContent() {

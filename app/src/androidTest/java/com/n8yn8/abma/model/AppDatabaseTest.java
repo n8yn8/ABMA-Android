@@ -20,6 +20,21 @@ public class AppDatabaseTest {
 
     AppDatabase database;
 
+    public static Event getEvent(String yearObjectId) {
+        Event event = new Event();
+        event.details = "details";
+        event.endDate = 5678L;
+        event.startDate = 1234L;
+        event.id = 1;
+        event.objectId = "id1";
+        event.place = "place";
+        event.title = "title";
+        event.subtitle = "subtitle";
+        event.yearId = yearObjectId;
+
+        return event;
+    }
+
     @Before
     public void setUp() throws Exception {
         database = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getInstrumentation().getContext(), AppDatabase.class).build();
@@ -60,20 +75,5 @@ public class AppDatabaseTest {
         year.welcome = "welcome";
 
         return year;
-    }
-
-    public static Event getEvent(String yearObjectId) {
-        Event event = new Event();
-        event.details = "details";
-        event.endDate = 5678L;
-        event.startDate = 1234L;
-        event.id = 1;
-        event.objectId = "id1";
-        event.place = "place";
-        event.title = "title";
-        event.subtitle = "subtitle";
-        event.yearId = yearObjectId;
-
-        return event;
     }
 }

@@ -36,6 +36,9 @@ import java.util.TimeZone;
 
 public class Utils {
 
+    private static final String LAST_UPDATED = "lastUpdated";
+    private static final String PREFS = "prefs";
+
     public static String getTimes(Event event) {
         SimpleDateFormat timeFormatter = new SimpleDateFormat("h:mm a");
         timeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -45,9 +48,6 @@ public class Utils {
         }
         return times;
     }
-
-    private static final String LAST_UPDATED = "lastUpdated";
-    private static final String PREFS = "prefs";
 
     @Nullable
     public static Date getLastUpdated(Context context) {

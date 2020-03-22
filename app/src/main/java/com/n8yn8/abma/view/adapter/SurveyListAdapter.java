@@ -24,16 +24,6 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private final static String TAG = SurveyListAdapter.class.getSimpleName();
     private final static String NO_SURVEY_TITLE = "No Surveys Available";
-
-    private enum ViewType {
-        NO_SURVEY, SURVEY, LINK, SEPARATOR;
-
-    }
-
-    public interface OnLinkClickedListener {
-        void onClick(String url);
-    }
-
     private List<Object> objects = new ArrayList<>();
     private OnLinkClickedListener onLinkClickedListener;
 
@@ -131,6 +121,15 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public int getItemCount() {
         return objects.size();
+    }
+
+    private enum ViewType {
+        NO_SURVEY, SURVEY, LINK, SEPARATOR;
+
+    }
+
+    public interface OnLinkClickedListener {
+        void onClick(String url);
     }
 
     private class Link {

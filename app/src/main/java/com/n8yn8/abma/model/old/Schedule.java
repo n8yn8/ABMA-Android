@@ -171,12 +171,12 @@ public class Schedule extends Object {
         }
     }
 
-    public void setPaperIndex(int paperIndex) {
-        this.paperIndex = paperIndex;
-    }
-
     public int getPaperIndex() {
         return paperIndex;
+    }
+
+    public void setPaperIndex(int paperIndex) {
+        this.paperIndex = paperIndex;
     }
 
     public Paper getCurrentPaper() {

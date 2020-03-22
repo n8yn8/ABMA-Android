@@ -27,6 +27,10 @@ public class SponsorsFragment extends Fragment {
 
     private ImageAdapter imageAdapter;
 
+    public SponsorsFragment() {
+        // Required empty public constructor
+    }
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -35,10 +39,6 @@ public class SponsorsFragment extends Fragment {
      */
     static SponsorsFragment newInstance() {
         return new SponsorsFragment();
-    }
-
-    public SponsorsFragment() {
-        // Required empty public constructor
     }
 
     @Override

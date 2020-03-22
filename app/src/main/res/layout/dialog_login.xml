@@ -10,15 +10,15 @@
         android:orientation="vertical">
 
         <CheckBox
-            android:text="This is a new account."
+            android:id="@+id/newAccountCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/newAccountCheckBox" />
+            android:text="This is a new account." />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/emalInput"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/emalInput">
+            android:layout_height="wrap_content">
 
             <EditText
                 android:id="@+id/email_edit_text"
@@ -30,9 +30,9 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/passwordInput"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/passwordInput">
+            android:layout_height="wrap_content">
 
             <EditText
                 android:id="@+id/pass_edit_text"
@@ -44,9 +44,9 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/confirmTextInput"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/confirmTextInput">
+            android:layout_height="wrap_content">
 
             <EditText
                 android:id="@+id/confirm_edit_text"
@@ -61,17 +61,17 @@
             android:id="@+id/errorTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Some error occurred"
             android:layout_margin="15dp"
+            android:text="Some error occurred"
             android:textAlignment="center"
             android:visibility="gone" />
 
         <Button
+            android:id="@+id/login_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Log In"
             android:layout_gravity="center"
-            android:id="@+id/login_button" />
+            android:text="Log In" />
 
     </LinearLayout>
 
@@ -79,6 +79,6 @@
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:layout_centerInParent="true" />
+        android:layout_centerInParent="true"
+        android:indeterminate="true" />
 </RelativeLayout>

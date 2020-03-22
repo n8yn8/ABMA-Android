@@ -45,18 +45,18 @@ public class NoteFragment extends Fragment {
      */
     private NoteListAdapter mAdapter;
 
-    static NoteFragment newInstance() {
-        NoteFragment fragment = new NoteFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
     public NoteFragment() {
+    }
+
+    static NoteFragment newInstance() {
+        NoteFragment fragment = new NoteFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override

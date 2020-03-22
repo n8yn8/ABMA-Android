@@ -29,15 +29,24 @@ public class Map implements Parcelable {
 //            + "UNIQUE (" + KEY_URL + ") ON CONFLICT REPLACE"
 //            + ")";
 
+    @Ignore
+    public static final Creator<Map> CREATOR = new Creator<Map>() {
+        @Override
+        public Map createFromParcel(Parcel in) {
+            return new Map(in);
+        }
+
+        @Override
+        public Map[] newArray(int size) {
+            return new Map[size];
+        }
+    };
     @PrimaryKey
     public Integer id;
-
     @ColumnInfo(name = DatabaseHandler.KEY_YEAR_ID)
     public String yearId;
-
     @ColumnInfo(name = DatabaseHandler.KEY_TITLE)
     public String title;
-
     @ColumnInfo(name = DatabaseHandler.KEY_URL)
     public String url;
 
@@ -83,17 +92,4 @@ public class Map implements Parcelable {
     public int describeContents() {
         return 0;
     }
-
-    @Ignore
-    public static final Creator<Map> CREATOR = new Creator<Map>() {
-        @Override
-        public Map createFromParcel(Parcel in) {
-            return new Map(in);
-        }
-
-        @Override
-        public Map[] newArray(int size) {
-            return new Map[size];
-        }
-    };
 }

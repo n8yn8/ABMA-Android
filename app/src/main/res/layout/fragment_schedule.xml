@@ -1,57 +1,57 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:orientation="vertical"
     tools:context="com.n8yn8.abma.view.ScheduleFragment">
 
     <RelativeLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
-        android:background="#ff707070">
+        android:background="#ff707070"
+        android:orientation="horizontal">
 
         <ImageButton
+            android:id="@+id/prevDayButton"
             android:layout_width="50dp"
             android:layout_height="match_parent"
-            android:id="@+id/prevDayButton"
-            android:src="@drawable/ic_arrowleft"
-            android:background="@android:color/transparent" />
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_arrowleft" />
 
         <TextView
+            android:id="@+id/dateTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Apr 12, 2014"
-            android:id="@+id/dateTextView"
-            android:textSize="30dp"
-            android:textColor="#ffe1e1e1"
-            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_gravity="center"
+            android:text="Apr 12, 2014"
+            android:textColor="#ffe1e1e1"
+            android:textSize="30dp" />
 
         <ImageButton
+            android:id="@+id/nextDayButton"
             android:layout_width="50dp"
             android:layout_height="match_parent"
-            android:id="@+id/nextDayButton"
-            android:src="@drawable/ic_arrowright"
-            android:background="@android:color/transparent"
-            android:layout_gravity="right"
             android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_gravity="right"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_arrowright" />
     </RelativeLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/swipeRefresh">
+        android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/scheduleListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/scheduleListView"
             android:layout_gravity="center_horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 

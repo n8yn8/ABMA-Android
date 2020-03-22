@@ -35,6 +35,10 @@ public class ContactFragment extends Fragment {
 
     List<Survey> surveys = new ArrayList<>();
 
+    public ContactFragment() {
+        // Required empty public constructor
+    }
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -46,10 +50,6 @@ public class ContactFragment extends Fragment {
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public ContactFragment() {
-        // Required empty public constructor
     }
 
     @Override

@@ -19,10 +19,6 @@ import com.n8yn8.abma.model.entities.Event;
  */
 public class ScheduleListAdapter extends ListAdapter<Event, ScheduleListAdapter.ViewHolder> {
 
-    public interface OnClickListener {
-        void onClick(Event event);
-    }
-
     private static final DiffUtil.ItemCallback<Event> DIFF_CALLBACK =
             new DiffUtil.ItemCallback<Event>() {
                 @Override
@@ -35,6 +31,29 @@ public class ScheduleListAdapter extends ListAdapter<Event, ScheduleListAdapter.
                     return oldItem.equals(newItem);
                 }
             };
+    private OnClickListener onClickListener;
+
+    public ScheduleListAdapter(OnClickListener onClickListener) {
+        super(DIFF_CALLBACK);
+        this.onClickListener = onClickListener;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_list_schedule, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.bind(getItem(position), onClickListener);
+    }
+
+    public interface OnClickListener {
+        void onClick(Event event);
+    }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView eventTitleTextView;
@@ -56,25 +75,5 @@ public class ScheduleListAdapter extends ListAdapter<Event, ScheduleListAdapter.
                 }
             });
         }
-    }
-
-    private OnClickListener onClickListener;
-
-    public ScheduleListAdapter(OnClickListener onClickListener) {
-        super(DIFF_CALLBACK);
-        this.onClickListener = onClickListener;
-    }
-
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_list_schedule, parent, false);
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(getItem(position), onClickListener);
     }
 }

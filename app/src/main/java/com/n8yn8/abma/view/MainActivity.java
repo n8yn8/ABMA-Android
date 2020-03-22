@@ -45,11 +45,16 @@ import static com.n8yn8.abma.R.id.years;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private MainViewModel viewModel;
-
     NavigationView navigationView;
     MenuItem yearsMenuItem;
     MenuItem yearInfoMenuItem;
+    private MainViewModel viewModel;
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            viewModel.loadBackendless();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,13 +123,6 @@ public class MainActivity extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
-
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            viewModel.loadBackendless();
-        }
-    };
 
     private void checkOldNotes(DatabaseHandler db) {
         Map<Note, Pair<Event, Paper>> oldMap = ((App) getApplicationContext()).getOldNotes();

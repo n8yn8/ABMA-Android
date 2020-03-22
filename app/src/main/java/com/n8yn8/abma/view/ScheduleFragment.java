@@ -42,6 +42,10 @@ public class ScheduleFragment extends Fragment {
     private TextView dateTextView;
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    public ScheduleFragment() {
+        // Required empty public constructor
+    }
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -53,10 +57,6 @@ public class ScheduleFragment extends Fragment {
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public ScheduleFragment() {
-        // Required empty public constructor
     }
 
     @Override

@@ -5,18 +5,6 @@ import android.os.Parcelable;
 
 public class BMap implements Parcelable {
 
-    private String title = "";
-    private String url = "";
-
-    public BMap() {
-
-    }
-
-    protected BMap(Parcel in) {
-        title = in.readString();
-        url = in.readString();
-    }
-
     public static final Creator<BMap> CREATOR = new Creator<BMap>() {
         @Override
         public BMap createFromParcel(Parcel in) {
@@ -28,6 +16,17 @@ public class BMap implements Parcelable {
             return new BMap[size];
         }
     };
+    private String title = "";
+    private String url = "";
+
+    public BMap() {
+
+    }
+
+    protected BMap(Parcel in) {
+        title = in.readString();
+        url = in.readString();
+    }
 
     public String getTitle() {
         return title;

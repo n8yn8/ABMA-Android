@@ -23,12 +23,12 @@ public class MapsFragment extends Fragment {
 
     private List<Map> maps;
 
-    public static MapsFragment newInstance() {
-        return new MapsFragment();
-    }
-
     public MapsFragment() {
 
+    }
+
+    public static MapsFragment newInstance() {
+        return new MapsFragment();
     }
 
     @Override
