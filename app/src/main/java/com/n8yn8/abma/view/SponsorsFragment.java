@@ -3,31 +3,30 @@ package com.n8yn8.abma.view;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.AppDatabase;
-import com.n8yn8.abma.model.ConvertUtil;
-import com.n8yn8.abma.model.backendless.BSponsor;
-import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.entities.Sponsor;
-import com.n8yn8.abma.model.entities.Year;
 import com.n8yn8.abma.view.adapter.ImageAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
 
 public class SponsorsFragment extends Fragment {
-    private List<Sponsor> sponsors = new ArrayList<>();
+
+    private ImageAdapter imageAdapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -35,20 +34,12 @@ public class SponsorsFragment extends Fragment {
      *
      * @return A new instance of fragment SponsorsFragment.
      */
-    public static SponsorsFragment newInstance() {
-        SponsorsFragment fragment = new SponsorsFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+    static SponsorsFragment newInstance() {
+        return new SponsorsFragment();
     }
 
     public SponsorsFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -57,40 +48,31 @@ public class SponsorsFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_sponsors, container, false);
 
-        final GridView gridview = rootView.findViewById(R.id.gridView);
-        final ImageAdapter imageAdapter = new ImageAdapter(getActivity(), sponsors);
-
-        final AppDatabase db = AppDatabase.getInstance(getActivity().getApplicationContext());
-        final Year year = db.yearDao().getLastYear();
-        sponsors.clear();
-        sponsors.addAll(db.sponsorDao().getSponsors(year.objectId));
-        if (sponsors.size() == 0) {
-            DbManager.getInstance().getSponsors(year.objectId, new DbManager.Callback<List<BSponsor>>() {
-                @Override
-                public void onDone(List<BSponsor> bSponsors, String error) {
-                    Log.d("Nate", "onDone");
-                    List<Sponsor> retrievedSponsors = new ArrayList<>(ConvertUtil.convertSponsors(bSponsors, year.objectId));
-                    db.sponsorDao().insert(retrievedSponsors);
-                    sponsors.clear();
-                    sponsors.addAll(retrievedSponsors);
-                    imageAdapter.notifyDataSetChanged();
-                }
-            });
-        }
-        Log.d("Nate", "setAdapter");
-        gridview.setAdapter(imageAdapter);
-
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                String urlString = sponsors.get(position).url;
-                if (!TextUtils.isEmpty(urlString)) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(urlString)));
+        final RecyclerView recyclerView = rootView.findViewById(R.id.sponsors_recycler);
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        imageAdapter = new ImageAdapter(requireActivity(), new ImageAdapter.OnClickListener() {
+            @Override
+            public void onClick(Sponsor sponsor) {
+                if (!TextUtils.isEmpty(sponsor.url)) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(sponsor.url)));
                 }
             }
         });
+        recyclerView.setAdapter(imageAdapter);
 
         return rootView;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        SponsorViewModel viewModel = new ViewModelProvider(this).get(SponsorViewModel.class);
+        viewModel.getSponsors().observe(getViewLifecycleOwner(), new Observer<List<Sponsor>>() {
+            @Override
+            public void onChanged(List<Sponsor> sponsors) {
+                imageAdapter.submitList(sponsors);
+            }
+        });
+    }
 }
 

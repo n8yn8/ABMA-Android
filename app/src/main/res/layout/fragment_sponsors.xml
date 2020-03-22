@@ -23,13 +23,8 @@
 
     </RelativeLayout>
 
-    <GridView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/gridView"
-        android:numColumns="2"
-        android:verticalSpacing="10dp"
-        android:horizontalSpacing="10dp"
-        android:stretchMode="columnWidth"
-        android:gravity="center" />
+        android:id="@+id/sponsors_recycler"/>
 </LinearLayout>

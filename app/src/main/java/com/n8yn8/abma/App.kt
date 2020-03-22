@@ -49,7 +49,7 @@ class App : Application() {
                 mCache.put(url, bitmap)
             }
 
-            override fun getBitmap(url: String): Bitmap {
+            override fun getBitmap(url: String?): Bitmap? {
                 return mCache[url]
             }
         })
