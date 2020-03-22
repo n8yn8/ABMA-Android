@@ -34,8 +34,10 @@ class SponsorViewModelTest : KoinTest {
 
     @Mock
     lateinit var application: Application
+
     @Mock
     lateinit var remote: DbManager
+
     @Mock
     lateinit var sponsorModelObserver: Observer<List<Sponsor>>
 
@@ -93,6 +95,6 @@ class SponsorViewModelTest : KoinTest {
 
         verify(remote).getSponsors(any(), any())
         verify(sponsorModelObserver, times(2)).onChanged(anyList())
-        
+
     }
 }

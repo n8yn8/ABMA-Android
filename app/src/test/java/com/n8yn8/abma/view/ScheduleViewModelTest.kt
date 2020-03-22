@@ -17,7 +17,6 @@ import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext
 import org.koin.standalone.inject
 import org.koin.test.KoinTest
-import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
@@ -33,6 +32,7 @@ class ScheduleViewModelTest : KoinTest {
 
     @Mock
     lateinit var application: Application
+
     @Mock
     lateinit var eventsObserver: Observer<List<Event>>
 

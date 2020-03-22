@@ -1,6 +1,5 @@
 package com.n8yn8.abma
 
-import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -14,7 +13,7 @@ import org.koin.standalone.inject
 import org.koin.test.KoinTest
 
 @RunWith(AndroidJUnit4::class)
-abstract class BaseTest: KoinTest {
+abstract class BaseTest : KoinTest {
 
     protected val database: AppDatabase by inject()
 

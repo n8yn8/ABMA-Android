@@ -3,8 +3,9 @@ package com.n8yn8.abma;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.backendless.push.BackendlessFCMService;
 
@@ -17,7 +18,7 @@ public class PushService extends BackendlessFCMService {
     @Override
     public boolean onMessage(final Context context, Intent intent) {
 
-        String message = intent.getStringExtra( "message" );
+        String message = intent.getStringExtra("message");
         Log.d("Nate", "onMessaage = " + message);
 
         SharedPreferences preferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);

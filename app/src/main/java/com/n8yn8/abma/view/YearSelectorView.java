@@ -2,11 +2,12 @@ package com.n8yn8.abma.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+
+import androidx.annotation.Nullable;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.AppDatabase;

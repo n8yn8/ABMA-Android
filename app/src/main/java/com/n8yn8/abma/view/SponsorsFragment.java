@@ -23,7 +23,6 @@ import com.n8yn8.abma.view.adapter.ImageAdapter;
 import java.util.List;
 
 
-
 public class SponsorsFragment extends Fragment {
 
     private ImageAdapter imageAdapter;

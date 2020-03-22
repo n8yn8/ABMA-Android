@@ -33,16 +33,22 @@ class MainViewModelTest : KoinTest {
 
     @Mock
     lateinit var application: Application
+
     @Mock
     lateinit var context: Context
+
     @Mock
     lateinit var yearObserver: Observer<Year>
+
     @Mock
     lateinit var loadingObserver: Observer<Boolean>
+
     @Mock
     lateinit var remote: DbManager
+
     @Mock
     lateinit var sharedPreferences: SharedPreferences
+
     @Mock
     lateinit var sharedPrefsEditor: SharedPreferences.Editor
 

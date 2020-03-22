@@ -1,12 +1,13 @@
 package com.n8yn8.abma.view.adapter;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.entities.Survey;
@@ -118,7 +119,7 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         Object object = objects.get(position);
         if (object instanceof Survey) {
             return ViewType.SURVEY.ordinal();
-        } else if (object instanceof Link){
+        } else if (object instanceof Link) {
             return ViewType.LINK.ordinal();
         } else if (object instanceof String && TextUtils.equals(NO_SURVEY_TITLE, (String) object)) {
             return ViewType.NO_SURVEY.ordinal();

@@ -24,6 +24,7 @@ import org.koin.android.ext.android.startKoin
  * Created by Nate on 2/18/15.
  */
 private const val TAG = "App"
+
 class App : Application() {
 
     var oldNotes: Map<Note, Pair<Event, Paper>>? = null

@@ -128,8 +128,8 @@ public class NoteFragment extends Fragment {
         if (noteModel != null) {
             EventActivity.start(
                     getContext(),
-                    noteModel.getEvent()!= null ? noteModel.getEvent().objectId : null,
-                    noteModel.getPaper()!= null ? noteModel.getPaper().objectId : null);
+                    noteModel.getEvent() != null ? noteModel.getEvent().objectId : null,
+                    noteModel.getPaper() != null ? noteModel.getPaper().objectId : null);
         }
     }
 

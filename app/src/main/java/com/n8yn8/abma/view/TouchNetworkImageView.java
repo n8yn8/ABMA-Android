@@ -220,7 +220,6 @@ public class TouchNetworkImageView extends NetworkImageView {
     }
 
 
-
     float getFixTrans(float trans, float viewSize, float contentSize) {
 
         float minTrans, maxTrans;

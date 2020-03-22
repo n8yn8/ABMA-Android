@@ -5,9 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
+
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
-import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -188,7 +189,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             Map<Note, Pair<Event, Paper>> oldMap = new HashMap<>();
 
             List<Note> oldNotes = getOldNotes(db);
-            Schedule schedule = ((App)context.getApplicationContext()).getOldSchedule();
+            Schedule schedule = ((App) context.getApplicationContext()).getOldSchedule();
             for (Note oldNote : oldNotes) {
                 schedule.setDayIndex(oldNote.getDayId());
                 schedule.setCurrentEventIndex(oldNote.getEventId());
@@ -233,7 +234,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         String surveysString = year.getSurveys();
         Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Date.class,new MyDateTypeAdapter())
+                .registerTypeAdapter(Date.class, new MyDateTypeAdapter())
                 .create();
         List<BSurvey> surveys = gson.fromJson(surveysString, new TypeToken<List<BSurvey>>(){}.getType());
         if (surveys != null) {
@@ -285,7 +286,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void addSponsors(String yearId, List<BSponsor> sponsors) {
         SQLiteDatabase db = this.getWritableDatabase();
-        for (BSponsor sponsor: sponsors) {
+        for (BSponsor sponsor : sponsors) {
             addSponsor(db, sponsor, yearId);
         }
         db.close();
@@ -293,7 +294,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void addEvents(String yearId, List<BEvent> events) {
         SQLiteDatabase db = this.getWritableDatabase();
-        for (BEvent event: events) {
+        for (BEvent event : events) {
             addEvent(db, event, yearId);
         }
         db.close();
@@ -301,7 +302,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void addPapers(String eventId, List<BPaper> papers) {
         SQLiteDatabase db = this.getWritableDatabase();
-        for (BPaper paper: papers) {
+        for (BPaper paper : papers) {
             addPaper(db, paper, eventId);
         }
         db.close();
@@ -407,7 +408,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         Cursor cursor = db.query(TABLE_NOTES, null,
                 KEY_PAPER_ID + "=? AND " + KEY_EVENT_ID + "=?",
-                new String[] {eventId, paperId}, null, null, KEY_CREATED, null);
+                new String[]{eventId, paperId}, null, null, KEY_CREATED, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 return constructNote(cursor);
@@ -469,7 +470,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         List<String> names = new ArrayList<>();
 
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_YEARS, new String[] {KEY_NAME}, null, null, null, null, KEY_NAME + " DESC");
+        Cursor cursor = db.query(TABLE_YEARS, new String[]{KEY_NAME}, null, null, null, null, KEY_NAME + " DESC");
 
         if (cursor.moveToFirst()) {
             do {
@@ -501,7 +502,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public BYear getYearByName(String name) {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_YEARS, null, KEY_NAME + "=?",
-                new String[] {name}, null, null, KEY_NAME + " DESC", "1");
+                new String[]{name}, null, null, KEY_NAME + " DESC", "1");
 
         BYear year = null;
         if (cursor.moveToFirst()) {
@@ -631,8 +632,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String startString = parts[0].trim();
         String[] timeParts = startString.split(":");
         int hours = Integer.parseInt(timeParts[0]);
-        int minutes = Integer.parseInt(timeParts[1].substring(0,2));
-        boolean isPm = "pm".equals(timeParts[1].substring(2,4).toLowerCase());
+        int minutes = Integer.parseInt(timeParts[1].substring(0, 2));
+        boolean isPm = "pm".equals(timeParts[1].substring(2, 4).toLowerCase());
         if (isPm) {
             hours += 12;
         }
@@ -648,7 +649,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_EVENTS, null, KEY_DETAILS + "=? AND " + KEY_TITLE + "=? AND " + KEY_START_DATE + "=?",
-                new String[] {oldEvent.getDetails(), oldEvent.getTitle(), String.valueOf(calendar.getTimeInMillis())}, null, null, null);
+                new String[]{oldEvent.getDetails(), oldEvent.getTitle(), String.valueOf(calendar.getTimeInMillis())}, null, null, null);
 
         BEvent event = null;
         if (cursor.moveToFirst()) {
@@ -662,7 +663,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public BPaper getMatchedPaper(Paper oldPaper) {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_PAPERS, null, KEY_SYNOPSIS + "=?",
-                new String[] {oldPaper.getSynopsis()}, null, null, null);
+                new String[]{oldPaper.getSynopsis()}, null, null, null);
 
         BPaper paper = null;
         if (cursor.moveToFirst()) {
@@ -705,7 +706,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_EVENTS, null, KEY_START_DATE + ">=? and " + KEY_START_DATE + "<=?",
-                new String[] { String.valueOf(startMillis), String.valueOf(endMillis) }, null, null, KEY_START_DATE);
+                new String[]{String.valueOf(startMillis), String.valueOf(endMillis)}, null, null, KEY_START_DATE);
 
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
@@ -725,7 +726,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_EVENTS, null, KEY_YEAR_ID + "=?",
-                new String[] {yearId}, null, null, KEY_START_DATE);
+                new String[]{yearId}, null, null, KEY_START_DATE);
 
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
@@ -753,7 +754,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private BEvent getSeqEvent(String direction, String orderBy, long startMillis) {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_EVENTS, null, KEY_START_DATE + direction + "?",
-                new String[] {String.valueOf(startMillis)}, null, null, orderBy, "1");
+                new String[]{String.valueOf(startMillis)}, null, null, orderBy, "1");
 
         BEvent event = null;
         if (cursor.moveToFirst()) {
@@ -784,7 +785,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         List<BPaper> list = new ArrayList<>();
 
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_PAPERS, null, KEY_EVENT_ID + "=?", new String[]{eventId},null, null, KEY_ORDER);
+        Cursor cursor = db.query(TABLE_PAPERS, null, KEY_EVENT_ID + "=?", new String[]{eventId}, null, null, KEY_ORDER);
 
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
@@ -836,7 +837,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public List<BNote> getAllNotes() {
-        List<BNote> noteList= new ArrayList<>();
+        List<BNote> noteList = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_NOTES;
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -856,7 +857,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void deleteNote(BNote note) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NOTES, KEY_OBJECT_ID + " = ?",
-                new String[] { note.getObjectId() });
+                new String[]{note.getObjectId()});
         db.close();
     }
 }

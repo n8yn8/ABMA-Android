@@ -1,12 +1,13 @@
 package com.n8yn8.abma.model;
 
-import androidx.sqlite.db.SupportSQLiteDatabase;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
-import android.content.Context;
-import androidx.annotation.NonNull;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.n8yn8.abma.model.dao.EventDao;
 import com.n8yn8.abma.model.dao.MapDao;

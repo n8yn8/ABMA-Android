@@ -4,10 +4,10 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="primaryBackgroundColor"> @color/md_blue_500</color>
-    <color name="secondaryBackgroundColor"> @color/md_blue_700</color>
-    <color name="primaryBackgroundAccentColor"> @color/md_blue_grey_400</color>
-    <color name="backgroundColor"> @color/md_cyan_50</color>
-    <color name="primaryTextColor"> @color/md_blue_600</color>
-    <color name="secondaryTextColor"> @color/md_blue_grey_100</color>
+    <color name="primaryBackgroundColor">@color/md_blue_500</color>
+    <color name="secondaryBackgroundColor">@color/md_blue_700</color>
+    <color name="primaryBackgroundAccentColor">@color/md_blue_grey_400</color>
+    <color name="backgroundColor">@color/md_cyan_50</color>
+    <color name="primaryTextColor">@color/md_blue_600</color>
+    <color name="secondaryTextColor">@color/md_blue_grey_100</color>
 </resources>

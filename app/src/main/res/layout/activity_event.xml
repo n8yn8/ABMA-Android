@@ -76,7 +76,6 @@
             android:src="@drawable/abma_logo" />
 
 
-
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="wrap_content"
@@ -158,7 +157,6 @@
     </RelativeLayout>
 
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -166,13 +164,12 @@
         android:orientation="vertical">
 
 
-
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/papersListView"
             android:focusable="false"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -181,7 +178,7 @@
             android:id="@+id/detailTextView"
             android:layout_margin="10dp"
             android:autoLink="email|web"
-            android:scrollbars = "vertical" />
+            android:scrollbars="vertical" />
 
     </LinearLayout>
 

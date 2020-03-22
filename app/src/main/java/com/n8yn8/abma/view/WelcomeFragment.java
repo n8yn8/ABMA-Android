@@ -2,12 +2,13 @@ package com.n8yn8.abma.view;
 
 
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.AppDatabase;
@@ -28,6 +29,7 @@ public class WelcomeFragment extends Fragment {
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
+     *
      * @return A new instance of fragment WelcomeFragment.
      */
     public static WelcomeFragment newInstance() {

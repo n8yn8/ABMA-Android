@@ -25,8 +25,10 @@ class EventDaoTest {
     val rule = InstantTaskExecutorRule()
 
     private lateinit var database: AppDatabase
+
     @Mock
     lateinit var eventObserver: Observer<List<Event>>
+
     @Mock
     lateinit var eventUniqueObserver: Observer<List<Event>>
 

@@ -6,21 +6,20 @@ import androidx.lifecycle.Observer
 import androidx.room.Room
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.backendless.BNote
-import com.n8yn8.abma.model.backendless.BYear
 import com.n8yn8.abma.model.backendless.DbManager
 import com.n8yn8.test.util.FakeData
-import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import org.junit.*
-import org.koin.test.KoinTest
-
-import org.junit.Assert.*
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext
 import org.koin.standalone.inject
+import org.koin.test.KoinTest
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
@@ -36,8 +35,10 @@ class NoteViewModelTest : KoinTest {
 
     @Mock
     lateinit var application: Application
+
     @Mock
     lateinit var remote: DbManager
+
     @Mock
     lateinit var noteModelObserver: Observer<List<NoteModel>>
 

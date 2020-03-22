@@ -1,13 +1,14 @@
 package com.n8yn8.abma.model.entities;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.n8yn8.abma.model.old.DatabaseHandler;
 

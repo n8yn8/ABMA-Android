@@ -33,7 +33,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class EventActivityTest: BaseTest() {
+class EventActivityTest : BaseTest() {
     @get:Rule
     var activityRule = ActivityTestRule(EventActivity::class.java, true, false)
 

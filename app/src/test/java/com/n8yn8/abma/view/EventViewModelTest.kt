@@ -26,12 +26,14 @@ private const val DATABASE = "DATABASE"
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
-class EventViewModelTest: KoinTest {
+class EventViewModelTest : KoinTest {
 
     @Mock
     lateinit var application: Application
+
     @Mock
     lateinit var eventObserver: Observer<Event>
+
     @Mock
     lateinit var paperObserver: Observer<Paper?>
 

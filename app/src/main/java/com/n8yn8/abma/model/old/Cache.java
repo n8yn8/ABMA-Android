@@ -9,7 +9,7 @@ public class Cache {
 
     private String TAG = "Cache";
 
-    private  static Cache instance;
+    private static Cache instance;
     private LruCache<Object, Object> lruCache;
 
     private Cache() {

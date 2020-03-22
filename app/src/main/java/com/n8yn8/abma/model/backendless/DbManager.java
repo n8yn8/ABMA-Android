@@ -1,9 +1,10 @@
 package com.n8yn8.abma.model.backendless;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.backendless.Backendless;
 import com.backendless.BackendlessUser;
@@ -98,10 +99,11 @@ public class DbManager {
     public interface CheckUserCallback {
         void onDone();
     }
+
     public void checkUser(final CheckUserCallback callback) {
         String currentUserObjectId = UserIdStorageFactory.instance().getStorage().get();
         if (!TextUtils.isEmpty(currentUserObjectId)) {
-            Backendless.Data.of( BackendlessUser.class ).findById(currentUserObjectId, new AsyncCallback<BackendlessUser>() {
+            Backendless.Data.of(BackendlessUser.class).findById(currentUserObjectId, new AsyncCallback<BackendlessUser>() {
                 @Override
                 public void handleResponse(BackendlessUser response) {
                     Backendless.UserService.setCurrentUser(response);
@@ -133,7 +135,7 @@ public class DbManager {
     }
 
     public interface Callback<T> {
-         void onDone(T t, String error);
+        void onDone(T t, String error);
     }
 
     public void getYears(Context context, final Callback<List<BYear>> callback) {
@@ -159,11 +161,11 @@ public class DbManager {
     }
 
     public void getSponsors(String yearId, final Callback<List<BSponsor>> callback) {
-        LoadRelationsQueryBuilder<BSponsor> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BSponsor.class )
-                .setRelationName( "sponsors" )
+        LoadRelationsQueryBuilder<BSponsor> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of(BSponsor.class)
+                .setRelationName("sponsors")
                 .setPageSize(100);
 
-        Backendless.Data.of( BYear.class ).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BSponsor>>() {
+        Backendless.Data.of(BYear.class).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BSponsor>>() {
             @Override
             public void handleResponse(List<BSponsor> response) {
                 callback.onDone(response, null);
@@ -178,11 +180,11 @@ public class DbManager {
     }
 
     public void getEvents(String yearId, final Callback<List<BEvent>> callback) {
-        LoadRelationsQueryBuilder<BEvent> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BEvent.class )
-                .setRelationName( "events" )
+        LoadRelationsQueryBuilder<BEvent> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of(BEvent.class)
+                .setRelationName("events")
                 .setPageSize(100);
 
-        Backendless.Data.of( BYear.class ).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BEvent>>() {
+        Backendless.Data.of(BYear.class).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BEvent>>() {
             @Override
             public void handleResponse(List<BEvent> response) {
                 callback.onDone(response, null);
@@ -197,11 +199,11 @@ public class DbManager {
     }
 
     public void getPapers(String eventId, final Callback<List<BPaper>> callback) {
-        LoadRelationsQueryBuilder<BPaper> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BPaper.class )
-                .setRelationName( "papers" )
+        LoadRelationsQueryBuilder<BPaper> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of(BPaper.class)
+                .setRelationName("papers")
                 .setPageSize(100);
 
-        Backendless.Data.of( BEvent.class ).loadRelations(eventId, loadRelationsQueryBuilder, new AsyncCallback<List<BPaper>>() {
+        Backendless.Data.of(BEvent.class).loadRelations(eventId, loadRelationsQueryBuilder, new AsyncCallback<List<BPaper>>() {
             @Override
             public void handleResponse(List<BPaper> response) {
                 callback.onDone(response, null);
@@ -290,7 +292,7 @@ public class DbManager {
 
     public void registerPush() {
         List<String> channels = new ArrayList<>();
-        channels.add( "default" );
+        channels.add("default");
         Backendless.Messaging.registerDevice(channels, new AsyncCallback<DeviceRegistrationResult>() {
             @Override
             public void handleResponse(DeviceRegistrationResult response) {

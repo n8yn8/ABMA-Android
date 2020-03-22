@@ -123,7 +123,7 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (imm != null) {
                     imm.hideSoftInputFromWindow(noteEditText.getWindowToken(), 0);
                 }
@@ -175,7 +175,7 @@ public class EventActivity extends AppCompatActivity {
         }
     }
 
-    public void displayEvent (final Event event, @Nullable Paper paper) {
+    public void displayEvent(final Event event, @Nullable Paper paper) {
         Date date = new Date(event.startDate);
         SimpleDateFormat dayFormatter = new SimpleDateFormat("EEEE");
         dayFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -195,7 +195,7 @@ public class EventActivity extends AppCompatActivity {
             subtitleTextView.setText(event.subtitle);
             detailTextView.setText(event.details);
             detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
-            detailTextView.scrollTo(0,0);
+            detailTextView.scrollTo(0, 0);
             papersListView.setVisibility(View.VISIBLE);
         } else {
             papersListView.setVisibility(View.GONE);
@@ -203,7 +203,7 @@ public class EventActivity extends AppCompatActivity {
             subtitleTextView.setText(paper.author);
             detailTextView.setText(paper.synopsis);
             detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
-            detailTextView.scrollTo(0,0);
+            detailTextView.scrollTo(0, 0);
         }
         Note note = viewModel.getNote(event.objectId, paper == null ? null : paper.objectId);
         if (note != null) {

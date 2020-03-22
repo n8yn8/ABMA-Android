@@ -44,6 +44,7 @@ public class ImageAdapter extends ListAdapter<Sponsor, ImageAdapter.ViewHolder> 
             });
         }
     }
+
     private static final DiffUtil.ItemCallback<Sponsor> DIFF_CALLBACK =
             new DiffUtil.ItemCallback<Sponsor>() {
                 @Override
@@ -65,7 +66,7 @@ public class ImageAdapter extends ListAdapter<Sponsor, ImageAdapter.ViewHolder> 
     public ImageAdapter(Context c, OnClickListener onClickListener) {
         super(DIFF_CALLBACK);
 
-        mImageLoader = ((App)c.getApplicationContext()).getImageLoader();
+        mImageLoader = ((App) c.getApplicationContext()).getImageLoader();
         this.onClickListener = onClickListener;
     }
 

@@ -26,7 +26,7 @@
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true" />
 
-     </RelativeLayout>
+    </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/item_list"
@@ -35,7 +35,10 @@
         app:layoutManager="LinearLayoutManager"
         tools:listitem="@layout/item_list_notes" />
 
-    <TextView android:id="@+id/emptyNoteListTextView" android:layout_width="match_parent"
-        android:layout_height="match_parent" android:gravity="center" />
+    <TextView
+        android:id="@+id/emptyNoteListTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center" />
 
 </LinearLayout>

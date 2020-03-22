@@ -3,7 +3,7 @@ package com.n8yn8.abma.model.backendless;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class BMap implements Parcelable{
+public class BMap implements Parcelable {
 
     private String title = "";
     private String url = "";

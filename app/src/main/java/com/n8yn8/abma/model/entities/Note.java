@@ -1,11 +1,11 @@
 package com.n8yn8.abma.model.entities;
 
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import androidx.annotation.Nullable;
 
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
@@ -13,14 +13,14 @@ import java.util.Objects;
 
 @Entity(tableName = DatabaseHandler.TABLE_NOTES,
         foreignKeys = {
-            @ForeignKey(
-                    entity = Event.class,
-                    parentColumns = DatabaseHandler.KEY_OBJECT_ID,
-                    childColumns = DatabaseHandler.KEY_EVENT_ID),
-            @ForeignKey(
-                    entity = Paper.class,
-                    parentColumns = DatabaseHandler.KEY_OBJECT_ID,
-                    childColumns = DatabaseHandler.KEY_PAPER_ID)},
+                @ForeignKey(
+                        entity = Event.class,
+                        parentColumns = DatabaseHandler.KEY_OBJECT_ID,
+                        childColumns = DatabaseHandler.KEY_EVENT_ID),
+                @ForeignKey(
+                        entity = Paper.class,
+                        parentColumns = DatabaseHandler.KEY_OBJECT_ID,
+                        childColumns = DatabaseHandler.KEY_PAPER_ID)},
         indices = {@Index(value = {DatabaseHandler.KEY_OBJECT_ID}, unique = true),
                 @Index(value = DatabaseHandler.KEY_EVENT_ID),
                 @Index(value = DatabaseHandler.KEY_PAPER_ID)})

@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/scheduleListView"
             android:layout_gravity="center_horizontal"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

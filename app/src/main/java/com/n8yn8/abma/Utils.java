@@ -111,7 +111,7 @@ public class Utils {
     }
 
     public static void saveYears(AppDatabase db, List<BYear> years) {
-        for (BYear year: years) {
+        for (BYear year : years) {
             db.yearDao().insert(ConvertUtil.convert(year));
             saveSurveys(db, year);
             saveMaps(db, year);

@@ -8,7 +8,7 @@ import java.util.*
 
 object FakeData {
 
-    fun getYear(name: Int = 2020, id: Int = name) : Year {
+    fun getYear(name: Int = 2020, id: Int = name): Year {
         return Year().apply {
             objectId = "year$name"
             this.name = name
@@ -16,14 +16,14 @@ object FakeData {
         }
     }
 
-    fun getBYear(name: Int = 2020) : BYear {
+    fun getBYear(name: Int = 2020): BYear {
         return BYear().apply {
             objectId = "year$name"
             this.name = name
         }
     }
 
-    fun getEvent(index: Int = 1, yearName: Int = 2020) : Event {
+    fun getEvent(index: Int = 1, yearName: Int = 2020): Event {
         return Event().apply {
             id = index
             objectId = "event$index"
@@ -50,7 +50,7 @@ object FakeData {
         return calendar.timeInMillis
     }
 
-    fun getPaper(index: Int = 1, eventIndex: Int = 1) : Paper {
+    fun getPaper(index: Int = 1, eventIndex: Int = 1): Paper {
         return Paper().apply {
             id = index
             objectId = "paper$index"
@@ -62,7 +62,7 @@ object FakeData {
         }
     }
 
-    fun getNote(inEventId: String, inPaperId: String? = null, index: String? = null) : Note {
+    fun getNote(inEventId: String, inPaperId: String? = null, index: String? = null): Note {
         return Note().apply {
             eventId = inEventId
             paperId = inPaperId
@@ -71,7 +71,7 @@ object FakeData {
         }
     }
 
-    fun getBNote(index: String? = "1", inEventId: String, inPaperId: String? = null) : BNote {
+    fun getBNote(index: String? = "1", inEventId: String, inPaperId: String? = null): BNote {
         return BNote().apply {
             objectId = index
             eventId = inEventId
@@ -90,7 +90,7 @@ object FakeData {
         return list
     }
 
-    private fun getBSponsor(objectId: String) : BSponsor {
+    private fun getBSponsor(objectId: String): BSponsor {
         return BSponsor().apply {
             this.objectId = objectId
             url = ""

@@ -132,9 +132,9 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-        Schedule schedule = ((App)getApplication()).getOldSchedule();
+        Schedule schedule = ((App) getApplication()).getOldSchedule();
 
-        for (Note oldNote: oldMap.keySet()) {
+        for (Note oldNote : oldMap.keySet()) {
             schedule.setDayIndex(oldNote.getDayId());
             Pair<Event, Paper> pair = oldMap.get(oldNote);
             Event oldEvent = pair.first;
