@@ -1,34 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context="com.n8yn8.abma.view.NoteFragment"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:descendantFocusability="blocksDescendants"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context="com.n8yn8.abma.view.NoteFragment">
 
     <RelativeLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="75dp"
         android:layout_gravity="center_horizontal"
-        android:background="#ff707070">
+        android:background="#ff707070"
+        android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/dateTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="NOTES"
-            android:id="@+id/dateTextView"
-            android:textSize="30dp"
-            android:textColor="#ffe1e1e1"
-            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_gravity="center"
+            android:text="NOTES"
+            android:textColor="#ffe1e1e1"
+            android:textSize="30dp" />
 
-     </RelativeLayout>
+    </RelativeLayout>
 
-    <ListView android:id="@android:id/list" android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/item_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layoutManager="LinearLayoutManager"
+        tools:listitem="@layout/item_list_notes" />
 
-    <TextView android:id="@+id/emptyNoteListTextView" android:layout_width="match_parent"
-        android:layout_height="match_parent" android:gravity="center" />
+    <TextView
+        android:id="@+id/emptyNoteListTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center" />
 
 </LinearLayout>

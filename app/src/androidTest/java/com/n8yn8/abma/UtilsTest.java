@@ -1,8 +1,9 @@
 package com.n8yn8.abma;
 
 import android.content.Context;
-import androidx.test.platform.app.InstrumentationRegistry;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.n8yn8.abma.model.AppDatabase;
 import com.n8yn8.abma.model.AppDatabaseTest;
@@ -64,7 +65,7 @@ public class UtilsTest {
             }
         }
 
-        Utils.saveEvents(context, yearId, remoteEvents);
+        Utils.saveEvents(db, yearId, remoteEvents);
 
         List<Event> savedEvents = db.eventDao().getEvents(yearId);
 

@@ -18,7 +18,7 @@ import java.util.TimeZone;
 /**
  * Created by Nate on 2/15/15.
  */
-public class Schedule extends Object{
+public class Schedule extends Object {
 
     private final String TAG = "Schedule";
 
@@ -39,7 +39,7 @@ public class Schedule extends Object{
             eventIndex = 0;
             paperIndex = -1;
             schedule = new HashMap<>();
-            for (String dayKey: eventDays) {
+            for (String dayKey : eventDays) {
                 int index = 0;
                 NSObject[] dayNSArray = ((NSArray) scheduleDict.objectForKey(dayKey)).getArray();
                 ArrayList<Event> day = new ArrayList<>();
@@ -49,9 +49,9 @@ public class Schedule extends Object{
                     Date date = dateFormat.parse(dayKey);
                     eventDates.add(date);
                 } catch (ParseException ex) {
-                    Log.e(TAG, "Error parsing date, "+ex.getLocalizedMessage());
+                    Log.e(TAG, "Error parsing date, " + ex.getLocalizedMessage());
                 }
-                for(NSObject eventNSObject: dayNSArray) {
+                for (NSObject eventNSObject : dayNSArray) {
                     Event event = new Event(eventNSObject);
                     day.add(event);
                     event.setIndex(index);
@@ -64,13 +64,12 @@ public class Schedule extends Object{
     }
 
 
-
     public List<String> getEventDays() {
         return eventDays;
     }
 
     public ArrayList<Event> getNextDay() {
-        if (dayIndex == eventDays.size()-1) {
+        if (dayIndex == eventDays.size() - 1) {
             return null;
         } else {
             dayIndex++;
@@ -95,7 +94,7 @@ public class Schedule extends Object{
         this.dayIndex = dayIndex;
     }
 
-    public ArrayList<Event> getDay(String dayIndex){
+    public ArrayList<Event> getDay(String dayIndex) {
         return schedule.get(dayIndex);
     }
 
@@ -103,7 +102,7 @@ public class Schedule extends Object{
         return schedule.get(eventDays.get(dayIndex));
     }
 
-    public String getCurrentDateString(){
+    public String getCurrentDateString() {
         return eventDays.get(dayIndex);
     }
 
@@ -114,7 +113,6 @@ public class Schedule extends Object{
     public void setCurrentEventIndex(int eventIndex) {
         this.eventIndex = eventIndex;
     }
-
 
 
     public Event getEventByIndex(int index) {
@@ -146,7 +144,7 @@ public class Schedule extends Object{
         if (eventIndex == 0) { //First event of day
             day = getPrevDay();
             if (day != null) { //Prev day
-                eventIndex = day.size()-1; //Last event of prev day
+                eventIndex = day.size() - 1; //Last event of prev day
                 return day.get(eventIndex);
             } else { //First day of schedule reached
                 return null;
@@ -173,12 +171,12 @@ public class Schedule extends Object{
         }
     }
 
-    public void setPaperIndex(int paperIndex) {
-        this.paperIndex = paperIndex;
-    }
-
     public int getPaperIndex() {
         return paperIndex;
+    }
+
+    public void setPaperIndex(int paperIndex) {
+        this.paperIndex = paperIndex;
     }
 
     public Paper getCurrentPaper() {

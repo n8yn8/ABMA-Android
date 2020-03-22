@@ -1,8 +1,8 @@
 package com.n8yn8.abma.model;
 
 import androidx.room.Room;
-import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.n8yn8.abma.model.entities.Event;
 import com.n8yn8.abma.model.entities.Year;
@@ -19,6 +19,21 @@ import java.util.List;
 public class AppDatabaseTest {
 
     AppDatabase database;
+
+    public static Event getEvent(String yearObjectId) {
+        Event event = new Event();
+        event.details = "details";
+        event.endDate = 5678L;
+        event.startDate = 1234L;
+        event.id = 1;
+        event.objectId = "id1";
+        event.place = "place";
+        event.title = "title";
+        event.subtitle = "subtitle";
+        event.yearId = yearObjectId;
+
+        return event;
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -60,20 +75,5 @@ public class AppDatabaseTest {
         year.welcome = "welcome";
 
         return year;
-    }
-
-    public static Event getEvent(String yearObjectId) {
-        Event event = new Event();
-        event.details = "details";
-        event.endDate = 5678L;
-        event.startDate = 1234L;
-        event.id = 1;
-        event.objectId = "id1";
-        event.place = "place";
-        event.title = "title";
-        event.subtitle = "subtitle";
-        event.yearId = yearObjectId;
-
-        return event;
     }
 }

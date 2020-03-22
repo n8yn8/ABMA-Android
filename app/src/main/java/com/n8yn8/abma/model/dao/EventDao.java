@@ -1,5 +1,6 @@
 package com.n8yn8.abma.model.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -14,11 +15,17 @@ import java.util.List;
 @Dao
 public interface EventDao {
 
+    @Query("SELECT * FROM events")
+    List<Event> getEvents();
+
     @Query("SELECT * FROM events WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId ORDER BY start_date ASC")
     List<Event> getEvents(final String yearId);
 
+    @Query("SELECT * FROM events WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId ORDER BY start_date ASC")
+    LiveData<List<Event>> getEventsLive(final String yearId);
+
     @Query("SELECT * FROM events WHERE start_date >= :startDate AND start_date <= :endDate ORDER BY start_date ASC")
-    List<Event> getAllEventsFor(long startDate, long endDate);
+    LiveData<List<Event>> getAllEventsFor(long startDate, long endDate);
 
     @Query("SELECT * FROM events WHERE object_id = :objectId LIMIT 1")
     Event getEventById(String objectId);

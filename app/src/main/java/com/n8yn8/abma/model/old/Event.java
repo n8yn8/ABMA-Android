@@ -34,7 +34,7 @@ public class Event {
         Object[] objects = (Object[]) eventMap.get("Papers");
         if (objects != null) {
             int index = 0;
-            for (Object object: objects) {
+            for (Object object : objects) {
                 Paper paper = new Paper((Map<String, String>) object);
                 paper.setIndex(index);
                 papers.add(paper);

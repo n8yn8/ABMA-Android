@@ -3,27 +3,26 @@ package com.n8yn8.abma.view;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
-import android.view.Menu;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
-import com.n8yn8.abma.model.AppDatabase;
-import com.n8yn8.abma.model.ConvertUtil;
-import com.n8yn8.abma.model.backendless.BNote;
-import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.entities.Event;
 import com.n8yn8.abma.model.entities.Note;
 import com.n8yn8.abma.model.entities.Paper;
@@ -41,10 +40,6 @@ public class EventActivity extends AppCompatActivity {
     private static final String EXTRA_PAPER_ID = "paper_id";
 
     private final String TAG = "EventActivity";
-    Event event;
-    Note note;
-    Paper paper;
-    List<Paper> eventPapers;
 
     TextView dayTextView;
     TextView dateTextView;
@@ -55,8 +50,10 @@ public class EventActivity extends AppCompatActivity {
     TextView placeTextView;
     EditText noteEditText;
     Button saveButton;
+    RecyclerView papersListView;
+    PaperListAdapter adapter;
 
-    AppDatabase db;
+    EventViewModel viewModel;
 
     public static void start(Context context, @Nullable String eventId, @Nullable String paperId) {
         Intent intent = new Intent(context, EventActivity.class);
@@ -74,7 +71,7 @@ public class EventActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        db = AppDatabase.getInstance(getApplicationContext());
+        viewModel = new ViewModelProvider(this).get(EventViewModel.class);
 
         dayTextView = findViewById(R.id.dayTextView);
         dateTextView = findViewById(R.id.dateTextView);
@@ -85,54 +82,37 @@ public class EventActivity extends AppCompatActivity {
         placeTextView = findViewById(R.id.placeTextView);
         noteEditText = findViewById(R.id.noteEditText);
 
-        event = db.eventDao().getEventById(getIntent().getStringExtra(EXTRA_EVENT_ID));
-        eventPapers = db.paperDao().getPapers(event.objectId);
-        paper = db.paperDao().getPaperById(getIntent().getStringExtra(EXTRA_PAPER_ID));
-        displayEvent();
+        viewModel.getEvent().observe(this, new Observer<Event>() {
+            @Override
+            public void onChanged(Event event) {
+                Log.d(TAG, "on event changed: " + event);
+                displayEvent(event, null);
+            }
+        });
+        viewModel.setSelectedEvent(getIntent().getStringExtra(EXTRA_EVENT_ID));
+
+        viewModel.getPaper().observe(this, new Observer<Paper>() {
+            @Override
+            public void onChanged(Paper paper) {
+                displayEvent(viewModel.getEvent().getValue(), paper);
+            }
+        });
 
         ImageButton backButton = findViewById(R.id.backEventButton);
         ImageButton nextButton = findViewById(R.id.nextEventButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (paper != null) {
-                    Paper prevPaper = getPrevPaper();
-                    if (prevPaper != null) {
-                        paper = prevPaper;
-                        displayEvent();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "First paper reached", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Event tempEvent = db.eventDao().getEventBefore(event.startDate);
-                    if (tempEvent != null) {
-                        event = tempEvent;
-                        displayEvent();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "First event reached", Toast.LENGTH_SHORT).show();
-                    }
+                if (!viewModel.getPrevious()) {
+                    Toast.makeText(getApplicationContext(), "First reached", Toast.LENGTH_SHORT).show();
                 }
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (paper != null) {
-                    Paper nextPaper = getNextPaper();
-                    if (nextPaper != null) {
-                        paper = nextPaper;
-                        displayEvent();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Last paper reached", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Event tempEvent = db.eventDao().getEventAfter(event.startDate);
-                    if (tempEvent != null) {
-                        event = tempEvent;
-                        displayEvent();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Last event reached", Toast.LENGTH_SHORT).show();
-                    }
+                if (!viewModel.getNext()) {
+                    Toast.makeText(getApplicationContext(), "Last reached", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -143,58 +123,25 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (imm != null) {
                     imm.hideSoftInputFromWindow(noteEditText.getWindowToken(), 0);
                 }
 
-                String eventId = null;
-                if (event != null) {
-                    eventId = event.objectId;
-                }
-                String paperId = null;
-                if (paper != null) {
-                    paperId = paper.objectId;
-                }
-                String noteContent = noteEditText.getText().toString();
-
-                if (!noteContent.equals("")) {
-                    if (note == null) {
-                        note = new Note();
-                    }
-                    note.content = noteContent;
-                    note.eventId = eventId;
-                    note.paperId = paperId;
-                    db.noteDao().insert(note);
-                    DbManager.getInstance().addNote(ConvertUtil.convert(note), new DbManager.OnNoteSavedCallback() {
-                        @Override
-                        public void noteSaved(@Nullable BNote note, String error) {
-                            if (error == null) {
-                                if (note != null) {
-                                    db.noteDao().insert(ConvertUtil.convert(note));
-                                }
-                                Toast.makeText(EventActivity.this, "This note has been saved", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                } else {
-                    if (note != null) {
-                        db.noteDao().delete(note);
-                        DbManager.getInstance().delete(ConvertUtil.convert(note));
-                        Toast.makeText(EventActivity.this, "This note has been deleted", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
+                boolean result = viewModel.saveNote(noteEditText.getText().toString());
+                Toast.makeText(EventActivity.this, "This note has been " + (result ? "saved" : "deleted"), Toast.LENGTH_SHORT).show();
             }
         });
-    }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_event, menu);
-        return true;
+        papersListView = findViewById(R.id.papersListView);
+        papersListView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        adapter = new PaperListAdapter(new PaperListAdapter.OnClickListener() {
+            @Override
+            public void onClick(Paper paper) {
+                viewModel.getPaper().postValue(paper);
+            }
+        });
+        papersListView.setAdapter(adapter);
     }
 
     @Override
@@ -209,7 +156,11 @@ public class EventActivity extends AppCompatActivity {
 //            return true;
 //        }
         if (id == android.R.id.home) {
-            finish();
+            if (viewModel.getPaper().getValue() != null) {
+                viewModel.getPaper().postValue(null);
+            } else {
+                finish();
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -217,10 +168,14 @@ public class EventActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if (viewModel.getPaper().getValue() != null) {
+            viewModel.getPaper().postValue(null);
+        } else {
+            super.onBackPressed();
+        }
     }
 
-    public void displayEvent () {
+    public void displayEvent(final Event event, @Nullable Paper paper) {
         Date date = new Date(event.startDate);
         SimpleDateFormat dayFormatter = new SimpleDateFormat("EEEE");
         dayFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -232,69 +187,29 @@ public class EventActivity extends AppCompatActivity {
         timeTextView.setText(Utils.getTimes(event));
         placeTextView.setText(event.place);
 
-        List<Paper> papers = db.paperDao().getPapers(event.objectId);
+        List<Paper> papers = viewModel.getPapers(event.objectId);
+        adapter.submitList(papers);
 
         if (paper == null) {
             titleTextView.setText(event.title);
             subtitleTextView.setText(event.subtitle);
             detailTextView.setText(event.details);
             detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
-            detailTextView.scrollTo(0,0);
-            final PaperListAdapter adapter = new PaperListAdapter(this, papers);
-            ListView papersListView = findViewById(R.id.papersListView);
-            papersListView.setAdapter(adapter);
-            papersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Paper paper = adapter.getItem(position);
-                    if (paper != null) {
-                        EventActivity.start(EventActivity.this, event.objectId, paper.objectId);
-                    }
-                }
-            });
-            note = db.noteDao().getNote(event.objectId);
+            detailTextView.scrollTo(0, 0);
+            papersListView.setVisibility(View.VISIBLE);
         } else {
+            papersListView.setVisibility(View.GONE);
             titleTextView.setText(paper.title);
             subtitleTextView.setText(paper.author);
             detailTextView.setText(paper.synopsis);
             detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
-            detailTextView.scrollTo(0,0);
-            note = db.noteDao().getNote(event.objectId, paper.objectId);
+            detailTextView.scrollTo(0, 0);
         }
+        Note note = viewModel.getNote(event.objectId, paper == null ? null : paper.objectId);
         if (note != null) {
             noteEditText.setText(note.content);
         } else {
             noteEditText.setText("");
         }
-    }
-
-    @Nullable
-    private Paper getPrevPaper() {
-        for (int i = 0; i < eventPapers.size(); i++) {
-            Paper checkPaper = eventPapers.get(i);
-            if (checkPaper.objectId.equals(paper.objectId)) {
-                if (i > 0) {
-                    return paper = eventPapers.get(i - 1);
-                } else {
-                    return null;
-                }
-            }
-        }
-        return null;
-    }
-
-    @Nullable
-    private Paper getNextPaper() {
-        for (int i = 0; i < eventPapers.size(); i++) {
-            Paper checkPaper = eventPapers.get(i);
-            if (checkPaper.objectId.equals(paper.objectId)) {
-                if (i < eventPapers.size() - 1) {
-                    return paper = eventPapers.get(i + 1);
-                } else {
-                    return null;
-                }
-            }
-        }
-        return null;
     }
 }

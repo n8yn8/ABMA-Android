@@ -132,7 +132,7 @@ public class ConvertUtil {
         if (bSurveys == null) {
             return surveys;
         }
-         for (BSurvey bSurvey : bSurveys) {
+        for (BSurvey bSurvey : bSurveys) {
             surveys.add(convert(bSurvey, yearId));
         }
         return surveys;

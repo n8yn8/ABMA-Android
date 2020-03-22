@@ -1,5 +1,6 @@
 package com.n8yn8.abma.model.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -15,7 +16,7 @@ public interface SponsorDao {
 
     @Query("SELECT * FROM " + DatabaseHandler.TABLE_SPONSORS
             + " WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId")
-    List<Sponsor> getSponsors(final String yearId);
+    LiveData<List<Sponsor>> getSponsors(final String yearId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insert(Sponsor... sponsor);

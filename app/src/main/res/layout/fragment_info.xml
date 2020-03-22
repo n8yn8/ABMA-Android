@@ -1,30 +1,34 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context="com.n8yn8.abma.view.InfoFragment"
-    android:orientation="vertical">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.n8yn8.abma.view.InfoFragment">
 
     <RelativeLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="75dp"
         android:layout_gravity="center_horizontal"
-        android:background="#ff707070">
+        android:background="#ff707070"
+        android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/dateTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="GENERAL INFORMATION"
-            android:id="@+id/dateTextView"
-            android:textSize="30dp"
-            android:textColor="#ffe1e1e1"
-            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_gravity="center"
+            android:text="GENERAL INFORMATION"
+            android:textColor="#ffe1e1e1"
+            android:textSize="30dp" />
 
     </RelativeLayout>
 
-    <TextView android:layout_width="match_parent" android:layout_height="match_parent"
+    <TextView
         android:id="@+id/infoTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_margin="5dp"
         android:autoLink="email|web" />
 

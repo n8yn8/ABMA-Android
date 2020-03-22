@@ -1,13 +1,14 @@
 package com.n8yn8.abma.model.entities;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.n8yn8.abma.model.old.DatabaseHandler;
 
@@ -28,15 +29,24 @@ public class Map implements Parcelable {
 //            + "UNIQUE (" + KEY_URL + ") ON CONFLICT REPLACE"
 //            + ")";
 
+    @Ignore
+    public static final Creator<Map> CREATOR = new Creator<Map>() {
+        @Override
+        public Map createFromParcel(Parcel in) {
+            return new Map(in);
+        }
+
+        @Override
+        public Map[] newArray(int size) {
+            return new Map[size];
+        }
+    };
     @PrimaryKey
     public Integer id;
-
     @ColumnInfo(name = DatabaseHandler.KEY_YEAR_ID)
     public String yearId;
-
     @ColumnInfo(name = DatabaseHandler.KEY_TITLE)
     public String title;
-
     @ColumnInfo(name = DatabaseHandler.KEY_URL)
     public String url;
 
@@ -82,17 +92,4 @@ public class Map implements Parcelable {
     public int describeContents() {
         return 0;
     }
-
-    @Ignore
-    public static final Creator<Map> CREATOR = new Creator<Map>() {
-        @Override
-        public Map createFromParcel(Parcel in) {
-            return new Map(in);
-        }
-
-        @Override
-        public Map[] newArray(int size) {
-            return new Map[size];
-        }
-    };
 }

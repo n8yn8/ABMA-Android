@@ -6,36 +6,30 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.navigation.NavigationView;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.core.util.Pair;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.util.Pair;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.backendless.BackendlessUser;
+import com.google.android.material.navigation.NavigationView;
 import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.AppDatabase;
-import com.n8yn8.abma.model.ConvertUtil;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BNote;
 import com.n8yn8.abma.model.backendless.BPaper;
-import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.entities.Year;
 import com.n8yn8.abma.model.old.DatabaseHandler;
@@ -44,8 +38,6 @@ import com.n8yn8.abma.model.old.Note;
 import com.n8yn8.abma.model.old.Paper;
 import com.n8yn8.abma.model.old.Schedule;
 
-import java.lang.ref.WeakReference;
-import java.util.List;
 import java.util.Map;
 
 import static com.n8yn8.abma.R.id.years;
@@ -56,6 +48,13 @@ public class MainActivity extends AppCompatActivity
     NavigationView navigationView;
     MenuItem yearsMenuItem;
     MenuItem yearInfoMenuItem;
+    private MainViewModel viewModel;
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            viewModel.loadBackendless();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,23 +79,23 @@ public class MainActivity extends AppCompatActivity
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, ScheduleFragment.newInstance())
                 .commit();
+
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        viewModel.getYear().observe(this, new Observer<Year>() {
+            @Override
+            public void onChanged(Year year) {
+                if (year == null || yearInfoMenuItem == null) {
+                    return;
+                }
+                int yearName = year.name;
+                yearInfoMenuItem.setTitle(yearName + " Info");
+            }
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
-        List<Year> savedYears = AppDatabase.getInstance(getApplicationContext()).yearDao().getYears();
-        if (savedYears.size() == 0) {
-            loadBackendless(false);
-        } else {
-            SharedPreferences preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
-            if (preferences.getBoolean("PushReceived", false)) {
-                loadBackendless(true);
-            } else {
-                updateYearInfo();
-            }
-        }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("PushReceived"));
@@ -125,54 +124,15 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            loadBackendless(true);
-        }
-    };
-
-    private void loadBackendless(final boolean isUpdate) {
-        SharedPreferences preferences = this.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean("PushReceived", false);
-        editor.apply();
-
-        final ScheduleFragment fragment = getScheduleFragment();
-        if (fragment != null) {
-            fragment.setLoading(true);
-        }
-        DbManager.getInstance().getYears(this, new DbManager.Callback<List<BYear>>() {
-            @Override
-            public void onDone(List<BYear> years, String error) {
-
-                if (error != null) {
-                    Toast.makeText(MainActivity.this, "Error: " + error, Toast.LENGTH_LONG).show();
-                }
-
-                for (BYear year: years) {
-                    AppDatabase.getInstance(getApplicationContext()).yearDao().insert(ConvertUtil.convert(year));
-                }
-                updateYearInfo();
-
-                ScheduleFragment fragment = getScheduleFragment();
-                if (fragment != null) {
-                    fragment.setLoading(false);
-                    fragment.reload(isUpdate);
-                }
-            }
-        });
-    }
-
     private void checkOldNotes(DatabaseHandler db) {
         Map<Note, Pair<Event, Paper>> oldMap = ((App) getApplicationContext()).getOldNotes();
         if (oldMap == null) {
             return;
         }
 
-        Schedule schedule = ((App)getApplication()).getOldSchedule();
+        Schedule schedule = ((App) getApplication()).getOldSchedule();
 
-        for (Note oldNote: oldMap.keySet()) {
+        for (Note oldNote : oldMap.keySet()) {
             schedule.setDayIndex(oldNote.getDayId());
             Pair<Event, Paper> pair = oldMap.get(oldNote);
             Event oldEvent = pair.first;
@@ -265,66 +225,10 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String selectedYear = view.getSelectedYear();
-                MainActivity.this.updateSelectedYear(selectedYear);
+                viewModel.selectYear(selectedYear);
             }
         });
         builder.show();
     }
 
-    private void updateSelectedYear(String year) {
-        ScheduleFragment fragment = getScheduleFragment();
-        if (fragment != null) {
-            fragment.setYear(year);
-        }
-    }
-
-    @Nullable
-    private ScheduleFragment getScheduleFragment() {
-        FragmentManager manager = getSupportFragmentManager();
-        List<Fragment> fragments = manager.getFragments();
-        for (Fragment fragment : fragments) {
-            if (fragment instanceof ScheduleFragment) {
-                return (ScheduleFragment) fragment;
-            }
-        }
-        return null;
-    }
-
-    private void updateYearInfo() {
-        Year latestYear = AppDatabase.getInstance(getApplicationContext()).yearDao().getLastYear();
-        if (latestYear == null || yearInfoMenuItem == null) {
-            return;
-        }
-        int year = latestYear.name;
-        yearInfoMenuItem.setTitle(year + " Info");
-    }
-
-    private static class DbTask extends AsyncTask<Void, Void, List<Year>> {
-        private WeakReference<MainActivity> activity;
-
-        public DbTask(MainActivity activity) {
-            this.activity = new WeakReference<>(activity);
-        }
-
-        @Override
-        protected List<Year> doInBackground(Void... voids) {
-            List<Year> years = AppDatabase.getInstance(activity.get()).yearDao().getYears();
-            for (Year year : years) {
-                Log.d("Nate", "year = " + year);
-            }
-//            List<com.n8yn8.abma.model.entities.Event> events = AppDatabase.getInstance(activity.get()).eventDao().getEvents();
-//            for (com.n8yn8.abma.model.entities.Event event : events) {
-//                Log.d("Nate", "event = " + event);
-//            }
-            return years;
-        }
-
-        @Override
-        protected void onPostExecute(List<Year> years) {
-
-
-
-            super.onPostExecute(years);
-        }
-    }
 }

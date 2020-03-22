@@ -5,14 +5,15 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.AppDatabase;
@@ -34,6 +35,10 @@ public class ContactFragment extends Fragment {
 
     List<Survey> surveys = new ArrayList<>();
 
+    public ContactFragment() {
+        // Required empty public constructor
+    }
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -47,16 +52,12 @@ public class ContactFragment extends Fragment {
         return fragment;
     }
 
-    public ContactFragment() {
-        // Required empty public constructor
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AppDatabase db = AppDatabase.getInstance(getActivity().getApplicationContext());
         Year latestYear = db.yearDao().getLastYear();
-        List <Survey> allSurveys = db.surveyDao().getSurveys(latestYear.objectId);
+        List<Survey> allSurveys = db.surveyDao().getSurveys(latestYear.objectId);
         Date now = new Date();
         for (Survey survey : allSurveys) {
             if (now.after(new Date(survey.startDate)) && now.before(new Date(survey.endDate))) {

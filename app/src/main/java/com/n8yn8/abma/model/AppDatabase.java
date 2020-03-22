@@ -1,12 +1,13 @@
 package com.n8yn8.abma.model;
 
-import androidx.sqlite.db.SupportSQLiteDatabase;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
-import android.content.Context;
-import androidx.annotation.NonNull;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.n8yn8.abma.model.dao.EventDao;
 import com.n8yn8.abma.model.dao.MapDao;
@@ -26,22 +27,6 @@ import com.n8yn8.abma.model.old.DatabaseHandler;
 
 @Database(entities = {Year.class, Event.class, Paper.class, Sponsor.class, Map.class, Note.class, Survey.class}, version = 6)
 public abstract class AppDatabase extends RoomDatabase {
-
-    private static AppDatabase INSTANCE;
-
-    public abstract YearDao yearDao();
-
-    public abstract EventDao eventDao();
-
-    public abstract PaperDao paperDao();
-
-    public abstract SponsorDao sponsorDao();
-
-    public abstract MapDao mapDao();
-
-    public abstract NoteDao noteDao();
-
-    public abstract SurveyDao surveyDao();
 
     private static final Migration MIGRATION_5_6 = new Migration(5, 6) {
         @Override
@@ -299,7 +284,7 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("CREATE INDEX index_surveys_year_id ON surveys(year_id)");
         }
     };
-
+    private static AppDatabase INSTANCE;
 
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {
@@ -310,4 +295,18 @@ public abstract class AppDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
+
+    public abstract YearDao yearDao();
+
+    public abstract EventDao eventDao();
+
+    public abstract PaperDao paperDao();
+
+    public abstract SponsorDao sponsorDao();
+
+    public abstract MapDao mapDao();
+
+    public abstract NoteDao noteDao();
+
+    public abstract SurveyDao surveyDao();
 }

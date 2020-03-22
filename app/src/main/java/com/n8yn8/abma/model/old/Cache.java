@@ -7,9 +7,8 @@ import android.util.LruCache;
  */
 public class Cache {
 
+    private static Cache instance;
     private String TAG = "Cache";
-
-    private  static Cache instance;
     private LruCache<Object, Object> lruCache;
 
     private Cache() {

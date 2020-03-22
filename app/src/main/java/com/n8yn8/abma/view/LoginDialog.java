@@ -2,8 +2,6 @@ package com.n8yn8.abma.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputLayout;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -15,6 +13,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
+import com.google.android.material.textfield.TextInputLayout;
 import com.n8yn8.abma.BuildConfig;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.backendless.DbManager;
@@ -129,7 +130,7 @@ public class LoginDialog extends LinearLayout {
 
                 if (newAccountCheckbox.isChecked()) {
                     DbManager.getInstance().register(email, password, callback);
-                } else{
+                } else {
                     DbManager.getInstance().login(email, password, callback);
                 }
             }
@@ -163,11 +164,11 @@ public class LoginDialog extends LinearLayout {
         confirmInput.setVisibility(newAccountCheckbox.isChecked() ? VISIBLE : GONE);
     }
 
-    public interface OnLoginSuccess {
-        void loginSuccess();
-    }
-
     public void setCallback(OnLoginSuccess callback) {
         this.loginCallback = callback;
+    }
+
+    public interface OnLoginSuccess {
+        void loginSuccess();
     }
 }

@@ -1,9 +1,10 @@
 package com.n8yn8.abma.model.backendless;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.backendless.Backendless;
 import com.backendless.BackendlessUser;
@@ -28,15 +29,11 @@ public class DbManager {
     private final static String TAG = "DbManager";
     private static DbManager ourInstance = new DbManager();
 
-    public static DbManager getInstance() {
-        return ourInstance;
-    }
-
     private DbManager() {
     }
 
-    public interface OnLoginResponse {
-        void onLogin(@Nullable String error);
+    public static DbManager getInstance() {
+        return ourInstance;
     }
 
     public void register(final String email, final String password, final OnLoginResponse callback) {
@@ -95,13 +92,10 @@ public class DbManager {
         });
     }
 
-    public interface CheckUserCallback {
-        void onDone();
-    }
     public void checkUser(final CheckUserCallback callback) {
         String currentUserObjectId = UserIdStorageFactory.instance().getStorage().get();
         if (!TextUtils.isEmpty(currentUserObjectId)) {
-            Backendless.Data.of( BackendlessUser.class ).findById(currentUserObjectId, new AsyncCallback<BackendlessUser>() {
+            Backendless.Data.of(BackendlessUser.class).findById(currentUserObjectId, new AsyncCallback<BackendlessUser>() {
                 @Override
                 public void handleResponse(BackendlessUser response) {
                     Backendless.UserService.setCurrentUser(response);
@@ -132,10 +126,6 @@ public class DbManager {
         }
     }
 
-    public interface Callback<T> {
-         void onDone(T t, String error);
-    }
-
     public void getYears(Context context, final Callback<List<BYear>> callback) {
         String queryString = "publishedAt is not null";
         Date lastUpdate = Utils.getLastUpdated(context);
@@ -159,11 +149,11 @@ public class DbManager {
     }
 
     public void getSponsors(String yearId, final Callback<List<BSponsor>> callback) {
-        LoadRelationsQueryBuilder<BSponsor> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BSponsor.class )
-                .setRelationName( "sponsors" )
+        LoadRelationsQueryBuilder<BSponsor> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of(BSponsor.class)
+                .setRelationName("sponsors")
                 .setPageSize(100);
 
-        Backendless.Data.of( BYear.class ).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BSponsor>>() {
+        Backendless.Data.of(BYear.class).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BSponsor>>() {
             @Override
             public void handleResponse(List<BSponsor> response) {
                 callback.onDone(response, null);
@@ -178,11 +168,11 @@ public class DbManager {
     }
 
     public void getEvents(String yearId, final Callback<List<BEvent>> callback) {
-        LoadRelationsQueryBuilder<BEvent> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BEvent.class )
-                .setRelationName( "events" )
+        LoadRelationsQueryBuilder<BEvent> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of(BEvent.class)
+                .setRelationName("events")
                 .setPageSize(100);
 
-        Backendless.Data.of( BYear.class ).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BEvent>>() {
+        Backendless.Data.of(BYear.class).loadRelations(yearId, loadRelationsQueryBuilder, new AsyncCallback<List<BEvent>>() {
             @Override
             public void handleResponse(List<BEvent> response) {
                 callback.onDone(response, null);
@@ -197,11 +187,11 @@ public class DbManager {
     }
 
     public void getPapers(String eventId, final Callback<List<BPaper>> callback) {
-        LoadRelationsQueryBuilder<BPaper> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of( BPaper.class )
-                .setRelationName( "papers" )
+        LoadRelationsQueryBuilder<BPaper> loadRelationsQueryBuilder = LoadRelationsQueryBuilder.of(BPaper.class)
+                .setRelationName("papers")
                 .setPageSize(100);
 
-        Backendless.Data.of( BEvent.class ).loadRelations(eventId, loadRelationsQueryBuilder, new AsyncCallback<List<BPaper>>() {
+        Backendless.Data.of(BEvent.class).loadRelations(eventId, loadRelationsQueryBuilder, new AsyncCallback<List<BPaper>>() {
             @Override
             public void handleResponse(List<BPaper> response) {
                 callback.onDone(response, null);
@@ -213,10 +203,6 @@ public class DbManager {
                 callback.onDone(new ArrayList<BPaper>(), fault.getMessage());
             }
         });
-    }
-
-    public interface OnNoteSavedCallback {
-        void noteSaved(@Nullable BNote note, String error);
     }
 
     public void addNote(BNote note, final OnNoteSavedCallback callback) {
@@ -266,10 +252,6 @@ public class DbManager {
         });
     }
 
-    public interface OnGetNotesCallback {
-        void notesRetrieved(List<BNote> notes, String error);
-    }
-
     public void getAllNotes(final OnGetNotesCallback callback) {
         String userId = UserIdStorageFactory.instance().getStorage().get();
         DataQueryBuilder queryBuilder = DataQueryBuilder.create();
@@ -290,7 +272,7 @@ public class DbManager {
 
     public void registerPush() {
         List<String> channels = new ArrayList<>();
-        channels.add( "default" );
+        channels.add("default");
         Backendless.Messaging.registerDevice(channels, new AsyncCallback<DeviceRegistrationResult>() {
             @Override
             public void handleResponse(DeviceRegistrationResult response) {
@@ -302,5 +284,25 @@ public class DbManager {
                 Utils.logError("RegisterPush", fault.getMessage());
             }
         });
+    }
+
+    public interface OnLoginResponse {
+        void onLogin(@Nullable String error);
+    }
+
+    public interface CheckUserCallback {
+        void onDone();
+    }
+
+    public interface Callback<T> {
+        void onDone(T t, String error);
+    }
+
+    public interface OnNoteSavedCallback {
+        void noteSaved(@Nullable BNote note, String error);
+    }
+
+    public interface OnGetNotesCallback {
+        void notesRetrieved(List<BNote> notes, String error);
     }
 }

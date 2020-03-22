@@ -1,91 +1,84 @@
 package com.n8yn8.abma.view.adapter;
 
 import android.content.Context;
-import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
-import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.n8yn8.abma.App;
+import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.entities.Sponsor;
-
-import java.util.List;
 
 /**
  * Created by Nate on 3/15/15.
  */
-public class ImageAdapter extends BaseAdapter {
-    private Context mContext;
-    private List<Sponsor> sponsors;
+public class ImageAdapter extends ListAdapter<Sponsor, ImageAdapter.ViewHolder> {
 
+    private static final DiffUtil.ItemCallback<Sponsor> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<Sponsor>() {
+                @Override
+                public boolean areItemsTheSame(
+                        @NonNull Sponsor oldSponsor, @NonNull Sponsor newSponsor) {
+                    return oldSponsor.id.equals(newSponsor.id);
+                }
+
+                @Override
+                public boolean areContentsTheSame(
+                        @NonNull Sponsor oldSponsor, @NonNull Sponsor newSponsor) {
+                    return oldSponsor.imageUrl.equals(newSponsor.imageUrl);
+                }
+            };
     private ImageLoader mImageLoader;
+    private OnClickListener onClickListener;
 
-    public ImageAdapter(Context c, List<Sponsor> sponsors) {
-        mContext = c;
-        this.sponsors = sponsors;
+    public ImageAdapter(Context c, OnClickListener onClickListener) {
+        super(DIFF_CALLBACK);
 
-        mImageLoader = ((App)c.getApplicationContext()).getImageLoader();
+        mImageLoader = ((App) c.getApplicationContext()).getImageLoader();
+        this.onClickListener = onClickListener;
     }
 
-    public int getCount() {
-        return sponsors.size();
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_list_sponsor, parent, false);
+        return new ViewHolder(view);
     }
 
-    public Object getItem(int position) {
-        return null;
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.bindView(getItem(position), mImageLoader, onClickListener);
     }
 
-    public long getItemId(int position) {
-        return 0;
+    public interface OnClickListener {
+        void onClick(Sponsor sponsor);
     }
 
-    // create a new ImageView for each item referenced by the Adapter
-    public View getView(int position, View convertView, ViewGroup parent) {
-        NetworkImageView imageView;
-        if (convertView == null) {  // if it's not recycled, initialize some attributes
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
-            WindowManager wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
-            DisplayMetrics metrics = new DisplayMetrics();
-            wm.getDefaultDisplay().getMetrics(metrics);
+        NetworkImageView networkImageView;
 
-            int dimension = metrics.widthPixels/2-16;
-
-            imageView = new NetworkImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(dimension, dimension));
-            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            imageView.setPadding(8, 8, 8, 8);
-        } else {
-            imageView = (NetworkImageView) convertView;
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            networkImageView = itemView.findViewById(R.id.sponsorImageView);
         }
 
-        imageView.setImageUrl(sponsors.get(position).imageUrl, mImageLoader);
-        return imageView;
+        void bindView(final Sponsor sponsor, ImageLoader imageLoader, final OnClickListener onClickListener) {
+            networkImageView.setImageUrl(sponsor.imageUrl, imageLoader);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onClickListener.onClick(sponsor);
+                }
+            });
+        }
     }
-
-    // references to our images
-
-    //2015
-//    private Integer[] mThumbIds = {
-//            R.drawable.cph_zoo, R.drawable.dbp,
-//            R.drawable.givskud_zoo, R.drawable.odense_zoo,
-//            R.drawable.sdu, R.drawable.training_store,
-//            R.drawable.mazuri, R.drawable.profis,
-//            R.drawable.sea_world, R.drawable.zooply
-//    };
-    //2014
-//    private Integer[] mThumbIds = {
-//            R.drawable.aazk_dallas, R.drawable.aazk_galv,
-//            R.drawable.aazkchey, R.drawable.abi,
-//            R.drawable.ap, R.drawable.blue,
-//            R.drawable.childrensaquarium, R.drawable.cliff,
-//            R.drawable.dallaszoo, R.drawable.dwa,
-//            R.drawable.frwc, R.drawable.fwzoo,
-//            R.drawable.maf, R.drawable.natbal,
-//            R.drawable.seaworld
-//    };
 }

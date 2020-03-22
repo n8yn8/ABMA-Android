@@ -2,11 +2,12 @@ package com.n8yn8.abma.view;
 
 
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.AppDatabase;
@@ -17,15 +18,15 @@ import com.n8yn8.abma.model.AppDatabase;
  */
 public class InfoFragment extends Fragment {
 
+    public InfoFragment() {
+        // Required empty public constructor
+    }
+
     public static InfoFragment newInstance() {
         InfoFragment fragment = new InfoFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public InfoFragment() {
-        // Required empty public constructor
     }
 
     @Override

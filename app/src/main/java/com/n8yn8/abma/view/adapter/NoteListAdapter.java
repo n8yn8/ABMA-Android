@@ -1,85 +1,109 @@
 package com.n8yn8.abma.view.adapter;
 
-import android.app.Activity;
-import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
-import com.n8yn8.abma.model.AppDatabase;
 import com.n8yn8.abma.model.entities.Event;
-import com.n8yn8.abma.model.entities.Note;
 import com.n8yn8.abma.model.entities.Paper;
-
-import java.util.List;
+import com.n8yn8.abma.view.NoteModel;
 
 /**
  * Created by Nate on 3/15/15.
  */
-public class NoteListAdapter extends ArrayAdapter<Note> {
+public class NoteListAdapter extends ListAdapter<NoteModel, NoteListAdapter.ViewHolder> {
 
-    private final Activity context;
-    private final List<Note> notes;
-    private AppDatabase db;
+    private static final DiffUtil.ItemCallback<NoteModel> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<NoteModel>() {
+                @Override
+                public boolean areItemsTheSame(
+                        @NonNull NoteModel oldNoteModel, @NonNull NoteModel newNoteModel) {
+                    return oldNoteModel.getNote().id.equals(newNoteModel.getNote().id);
+                }
 
-    static class ViewHolder {
-        TextView noteTextView;
-        public TextView detailTextView;
+                @Override
+                public boolean areContentsTheSame(
+                        @NonNull NoteModel oldNoteModel, @NonNull NoteModel newNoteModel) {
+                    return oldNoteModel.getNote().equals(newNoteModel.getNote());
+                }
+            };
+    private OnClickListener onClickListener;
+
+    public NoteListAdapter(OnClickListener onClickListener) {
+        super(DIFF_CALLBACK);
+        this.onClickListener = onClickListener;
     }
 
-    public NoteListAdapter(Activity context, List<Note> notes) {
-        super(context, R.layout.item_list_notes, notes);
-        this.context = context;
-        this.notes = notes;
-        db = AppDatabase.getInstance(context.getApplicationContext());
-    }
-
-    @Override
     @NonNull
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        View rowView = convertView;
-        if (rowView == null) {
-            LayoutInflater inflater = context.getLayoutInflater();
-            rowView = inflater.inflate(R.layout.item_list_notes, null);
-            ViewHolder viewHolder = new ViewHolder();
-            viewHolder.noteTextView = rowView.findViewById(R.id.noteTitleTextView);
-            viewHolder.detailTextView = rowView.findViewById(R.id.noteDetailTextView);
-            rowView.setTag(viewHolder);
-        }
-
-        ViewHolder holder = (ViewHolder) rowView.getTag();
-        Note note = notes.get(position);
-        holder.noteTextView.setText(note.content);
-        String title = getTitle(note);
-
-        holder.detailTextView.setText(title);
-
-        return rowView;
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_list_notes, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public Note getItem(int position) {
-        return super.getItem(position);
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+        final NoteModel noteModel = getItem(position);
+        holder.bind(noteModel, onClickListener);
     }
 
-    private String getTitle(Note note) {
-        if (note.paperId != null) {
-            Paper paper = db.paperDao().getPaperById(note.paperId);
-            if (paper != null) {
-                return paper.title;
-            }
-        } else {
-            Event event = db.eventDao().getEventById(note.eventId);
-            if (event != null) {
-                return event.title;
-            }
+    public interface OnClickListener {
+        void onClick(NoteModel noteModel);
+
+        void onLongClick(NoteModel noteModel);
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView noteTextView;
+        TextView detailTextView;
+
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            noteTextView = itemView.findViewById(R.id.noteTitleTextView);
+            detailTextView = itemView.findViewById(R.id.noteDetailTextView);
         }
-        Utils.logError("Set Note Title", note.toString());
-        return "";
+
+        private static String getTitle(NoteModel noteModel) {
+            if (noteModel.getPaper() != null) {
+                Paper paper = noteModel.getPaper();
+                if (paper != null) {
+                    return paper.title;
+                }
+            } else {
+                Event event = noteModel.getEvent();
+                if (event != null) {
+                    return event.title;
+                }
+            }
+            Utils.logError("Set Note Title", noteModel.getNote().toString());
+            return "";
+        }
+
+        void bind(final NoteModel noteModel, final OnClickListener onClickListener) {
+            noteTextView.setText(noteModel.getNote().content);
+            detailTextView.setText(getTitle(noteModel));
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onClickListener.onClick(noteModel);
+                }
+            });
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    onClickListener.onLongClick(noteModel);
+                    return true;
+                }
+            });
+        }
     }
 }
