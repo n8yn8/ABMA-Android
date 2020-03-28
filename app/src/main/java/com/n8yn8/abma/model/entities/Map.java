@@ -10,24 +10,14 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-import com.n8yn8.abma.model.old.DatabaseHandler;
-
-@Entity(tableName = DatabaseHandler.TABLE_MAPS,
+@Entity(tableName = "maps",
         foreignKeys = @ForeignKey(
                 entity = Year.class,
-                parentColumns = DatabaseHandler.KEY_OBJECT_ID,
-                childColumns = DatabaseHandler.KEY_YEAR_ID),
-        indices = {@Index(value = {DatabaseHandler.KEY_URL}, unique = true),
-                @Index(value = DatabaseHandler.KEY_YEAR_ID)})
+                parentColumns = "object_id",
+                childColumns = "year_id"),
+        indices = {@Index(value = {"url"}, unique = true),
+                @Index(value = "year_id")})
 public class Map implements Parcelable {
-
-//    private String CREATE_MAPS_TABLE = "CREATE TABLE " + TABLE_MAPS + "("
-//            + KEY_ID + " INTEGER PRIMARY KEY,"
-//            + KEY_YEAR_ID + " STRING,"
-//            + KEY_TITLE + " STRING,"
-//            + KEY_URL + " TEXT,"
-//            + "UNIQUE (" + KEY_URL + ") ON CONFLICT REPLACE"
-//            + ")";
 
     @Ignore
     public static final Creator<Map> CREATOR = new Creator<Map>() {
@@ -43,11 +33,11 @@ public class Map implements Parcelable {
     };
     @PrimaryKey
     public Integer id;
-    @ColumnInfo(name = DatabaseHandler.KEY_YEAR_ID)
+    @ColumnInfo(name = "year_id")
     public String yearId;
-    @ColumnInfo(name = DatabaseHandler.KEY_TITLE)
+    @ColumnInfo(name = "title")
     public String title;
-    @ColumnInfo(name = DatabaseHandler.KEY_URL)
+    @ColumnInfo(name = "url")
     public String url;
 
     @Ignore

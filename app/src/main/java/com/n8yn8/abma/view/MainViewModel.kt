@@ -63,7 +63,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
             }
             Utils.saveYears(db, years)
             for (bYear in years) {
-                remote.getEvents(bYear.objectId) { bEvents, error ->
+                remote.getEvents(bYear.objectId) { bEvents, _ ->
                     Utils.saveEvents(db, bYear.objectId, bEvents)
                 }
             }

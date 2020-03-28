@@ -6,14 +6,13 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import com.n8yn8.abma.model.entities.Year;
-import com.n8yn8.abma.model.old.DatabaseHandler;
 
 import java.util.List;
 
 @Dao
 public interface YearDao {
 
-    @Query("SELECT * FROM " + DatabaseHandler.TABLE_YEARS)
+    @Query("SELECT * FROM years")
     List<Year> getYears();
 
     @Query("SELECT name FROM years ORDER BY name DESC")

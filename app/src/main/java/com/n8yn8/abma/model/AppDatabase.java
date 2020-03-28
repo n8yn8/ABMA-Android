@@ -23,7 +23,6 @@ import com.n8yn8.abma.model.entities.Paper;
 import com.n8yn8.abma.model.entities.Sponsor;
 import com.n8yn8.abma.model.entities.Survey;
 import com.n8yn8.abma.model.entities.Year;
-import com.n8yn8.abma.model.old.DatabaseHandler;
 
 @Database(entities = {Year.class, Event.class, Paper.class, Sponsor.class, Map.class, Note.class, Survey.class}, version = 6)
 public abstract class AppDatabase extends RoomDatabase {
@@ -33,28 +32,28 @@ public abstract class AppDatabase extends RoomDatabase {
         public void migrate(@NonNull SupportSQLiteDatabase database) {
 
             //Years
-            database.execSQL("CREATE TABLE " + DatabaseHandler.TABLE_YEARS + "_new ("
-                    + DatabaseHandler.KEY_ID + " INTEGER PRIMARY KEY,"
-                    + DatabaseHandler.KEY_OBJECT_ID + " TEXT,"
-                    + DatabaseHandler.KEY_NAME + " INTEGER,"
-                    + DatabaseHandler.KEY_INFO + " TEXT,"
-                    + DatabaseHandler.KEY_WELCOME + " TEXT,"
-                    + "UNIQUE (" + DatabaseHandler.KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
+            database.execSQL("CREATE TABLE years_new ("
+                    + "id INTEGER PRIMARY KEY,"
+                    + "object_id TEXT,"
+                    + "name INTEGER,"
+                    + "info TEXT,"
+                    + "welcome TEXT,"
+                    + "UNIQUE (object_id) ON CONFLICT REPLACE"
                     + ")");
 
             database.execSQL(
                     "INSERT INTO years_new ("
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_OBJECT_ID + ", "
-                            + DatabaseHandler.KEY_NAME + ", "
-                            + DatabaseHandler.KEY_INFO + ", "
-                            + DatabaseHandler.KEY_WELCOME +
+                            + "id, "
+                            + "object_id, "
+                            + "name, "
+                            + "info, "
+                            + "welcome" +
                             ") SELECT "
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_OBJECT_ID + ", "
-                            + DatabaseHandler.KEY_NAME + ", "
-                            + DatabaseHandler.KEY_INFO + ", "
-                            + DatabaseHandler.KEY_WELCOME +
+                            + "id, "
+                            + "object_id, "
+                            + "name, "
+                            + "info, "
+                            + "welcome" +
                             " FROM years");
 
             database.execSQL("DROP TABLE years");
@@ -64,40 +63,40 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("CREATE UNIQUE INDEX index_years_object_id ON years(object_id)");
 
             //Events
-            database.execSQL("CREATE TABLE " + DatabaseHandler.TABLE_EVENTS + "_new ("
-                    + DatabaseHandler.KEY_ID + " INTEGER PRIMARY KEY,"
-                    + DatabaseHandler.KEY_OBJECT_ID + " TEXT,"
-                    + DatabaseHandler.KEY_YEAR_ID + " TEXT,"
-                    + DatabaseHandler.KEY_DETAILS + " TEXT,"
-                    + DatabaseHandler.KEY_END_DATE + " INTEGER,"
-                    + DatabaseHandler.KEY_START_DATE + " INTEGER,"
-                    + DatabaseHandler.KEY_PLACE + " TEXT,"
-                    + DatabaseHandler.KEY_TITLE + " TEXT,"
-                    + DatabaseHandler.KEY_SUBTITLE + " TEXT,"
-                    + "UNIQUE (" + DatabaseHandler.KEY_OBJECT_ID + ") ON CONFLICT REPLACE, FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`)"
+            database.execSQL("CREATE TABLE events_new ("
+                    + "id INTEGER PRIMARY KEY, "
+                    + "object_id TEXT, "
+                    + "year_id TEXT, "
+                    + "details TEXT, "
+                    + "end_date INTEGER, "
+                    + "start_date INTEGER, "
+                    + "place TEXT, "
+                    + "title TEXT,"
+                    + "subtitle TEXT, "
+                    + "UNIQUE (object_id) ON CONFLICT REPLACE, FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`)"
                     + ")");
 
             database.execSQL(
                     "INSERT INTO events_new ("
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_OBJECT_ID + ", "
-                            + DatabaseHandler.KEY_YEAR_ID + ", "
-                            + DatabaseHandler.KEY_DETAILS + ", "
-                            + DatabaseHandler.KEY_END_DATE + ", "
-                            + DatabaseHandler.KEY_START_DATE + ", "
-                            + DatabaseHandler.KEY_PLACE + ", "
-                            + DatabaseHandler.KEY_TITLE + ", "
-                            + DatabaseHandler.KEY_SUBTITLE +
+                            + "id, "
+                            + "object_id, "
+                            + "year_id, "
+                            + "details, "
+                            + "end_date, "
+                            + "start_date, "
+                            + "place, "
+                            + "title, "
+                            + "subtitle" +
                             ") SELECT "
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_OBJECT_ID + ", "
-                            + DatabaseHandler.KEY_YEAR_ID + ", "
-                            + DatabaseHandler.KEY_DETAILS + ", "
-                            + DatabaseHandler.KEY_END_DATE + ", "
-                            + DatabaseHandler.KEY_START_DATE + ", "
-                            + DatabaseHandler.KEY_PLACE + ", "
-                            + DatabaseHandler.KEY_TITLE + ", "
-                            + DatabaseHandler.KEY_SUBTITLE +
+                            + "id, "
+                            + "object_id, "
+                            + "year_id, "
+                            + "details, "
+                            + "end_date, "
+                            + "start_date, "
+                            + "place, "
+                            + "title, "
+                            + "subtitle" +
                             " FROM events");
 
             database.execSQL("DROP TABLE events");
@@ -108,34 +107,34 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("CREATE INDEX index_events_year_id ON events(year_id)");
 
             //Papers
-            database.execSQL("CREATE TABLE " + DatabaseHandler.TABLE_PAPERS + "_new ("
-                    + DatabaseHandler.KEY_ID + " INTEGER PRIMARY KEY,"
-                    + DatabaseHandler.KEY_OBJECT_ID + " TEXT,"
-                    + DatabaseHandler.KEY_EVENT_ID + " TEXT,"
-                    + DatabaseHandler.KEY_TITLE + " TEXT,"
-                    + DatabaseHandler.KEY_AUTHOR + " TEXT,"
-                    + DatabaseHandler.KEY_SYNOPSIS + " TEXT,"
-                    + DatabaseHandler.KEY_ORDER + " INTEGER,"
-                    + "UNIQUE (" + DatabaseHandler.KEY_OBJECT_ID + ") ON CONFLICT REPLACE, FOREIGN KEY(`event_id`) REFERENCES `events`(`object_id`)"
+            database.execSQL("CREATE TABLE papers_new ("
+                    + "id INTEGER PRIMARY KEY,"
+                    + "object_id TEXT,"
+                    + "event_id TEXT,"
+                    + "title TEXT,"
+                    + "author TEXT,"
+                    + "synopsis TEXT,"
+                    + "order_by INTEGER,"
+                    + "UNIQUE (object_id) ON CONFLICT REPLACE, FOREIGN KEY(`event_id`) REFERENCES `events`(`object_id`)"
                     + ")");
 
             database.execSQL(
                     "INSERT INTO papers_new ("
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_OBJECT_ID + ", "
-                            + DatabaseHandler.KEY_EVENT_ID + ", "
-                            + DatabaseHandler.KEY_TITLE + ", "
-                            + DatabaseHandler.KEY_AUTHOR + ", "
-                            + DatabaseHandler.KEY_SYNOPSIS + ", "
-                            + DatabaseHandler.KEY_ORDER
+                            + "id, "
+                            + "object_id, "
+                            + "event_id, "
+                            + "title, "
+                            + "author, "
+                            + "synopsis, "
+                            + "order_by"
                             + ") SELECT "
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_OBJECT_ID + ", "
-                            + DatabaseHandler.KEY_EVENT_ID + ", "
-                            + DatabaseHandler.KEY_TITLE + ", "
-                            + DatabaseHandler.KEY_AUTHOR + ", "
-                            + DatabaseHandler.KEY_SYNOPSIS + ", "
-                            + DatabaseHandler.KEY_ORDER
+                            + "id, "
+                            + "object_id, "
+                            + "event_id, "
+                            + "title, "
+                            + "author, "
+                            + "synopsis, "
+                            + "order_by"
                             + " FROM papers");
 
             database.execSQL("DROP TABLE papers");
@@ -146,28 +145,28 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("CREATE INDEX index_papers_event_id ON papers(event_id)");
 
             //Sponsors
-            database.execSQL("CREATE TABLE " + DatabaseHandler.TABLE_SPONSORS + "_new ("
-                    + DatabaseHandler.KEY_ID + " INTEGER PRIMARY KEY,"
-                    + DatabaseHandler.KEY_OBJECT_ID + " TEXT,"
-                    + DatabaseHandler.KEY_YEAR_ID + " TEXT,"
-                    + DatabaseHandler.KEY_IMAGE_URL + " TEXT,"
-                    + DatabaseHandler.KEY_URL + " TEXT,"
-                    + "UNIQUE (" + DatabaseHandler.KEY_OBJECT_ID + ") ON CONFLICT REPLACE, FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`)"
+            database.execSQL("CREATE TABLE sponsors_new ("
+                    + "id INTEGER PRIMARY KEY,"
+                    + "object_id TEXT,"
+                    + "year_id TEXT,"
+                    + "image_url TEXT,"
+                    + "url TEXT,"
+                    + "UNIQUE (object_id) ON CONFLICT REPLACE, FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`)"
                     + ")");
 
             database.execSQL(
                     "INSERT INTO sponsors_new ("
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_OBJECT_ID + ", "
-                            + DatabaseHandler.KEY_YEAR_ID + ", "
-                            + DatabaseHandler.KEY_IMAGE_URL + ", "
-                            + DatabaseHandler.KEY_URL
+                            + "id, "
+                            + "object_id, "
+                            + "year_id, "
+                            + "image_url, "
+                            + "url"
                             + ") SELECT "
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_OBJECT_ID + ", "
-                            + DatabaseHandler.KEY_YEAR_ID + ", "
-                            + DatabaseHandler.KEY_IMAGE_URL + ", "
-                            + DatabaseHandler.KEY_URL
+                            + "id, "
+                            + "object_id, "
+                            + "year_id, "
+                            + "image_url, "
+                            + "url"
                             + " FROM sponsors");
 
             database.execSQL("DROP TABLE sponsors");
@@ -178,25 +177,25 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("CREATE INDEX index_sponsors_year_id ON sponsors(year_id)");
 
             //Maps
-            database.execSQL("CREATE TABLE " + DatabaseHandler.TABLE_MAPS + "_new ("
-                    + DatabaseHandler.KEY_ID + " INTEGER PRIMARY KEY,"
-                    + DatabaseHandler.KEY_YEAR_ID + " TEXT,"
-                    + DatabaseHandler.KEY_TITLE + " TEXT,"
-                    + DatabaseHandler.KEY_URL + " TEXT,"
-                    + "UNIQUE (" + DatabaseHandler.KEY_URL + ") ON CONFLICT REPLACE, FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`)"
+            database.execSQL("CREATE TABLE maps_new ("
+                    + "id INTEGER PRIMARY KEY,"
+                    + "year_id TEXT,"
+                    + "title TEXT,"
+                    + "url TEXT,"
+                    + "UNIQUE (url) ON CONFLICT REPLACE, FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`)"
                     + ")");
 
             database.execSQL(
                     "INSERT INTO maps_new ("
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_YEAR_ID + ", "
-                            + DatabaseHandler.KEY_TITLE + ", "
-                            + DatabaseHandler.KEY_URL
+                            + "id, "
+                            + "year_id, "
+                            + "title, "
+                            + "url"
                             + ") SELECT "
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_YEAR_ID + ", "
-                            + DatabaseHandler.KEY_TITLE + ", "
-                            + DatabaseHandler.KEY_URL
+                            + "id, "
+                            + "year_id, "
+                            + "title, "
+                            + "url"
                             + " FROM maps");
 
             database.execSQL("DROP TABLE maps");
@@ -207,34 +206,34 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("CREATE INDEX index_maps_year_id ON maps(year_id)");
 
             //Note
-            database.execSQL("CREATE TABLE " + DatabaseHandler.TABLE_NOTES + "_new ("
-                    + DatabaseHandler.KEY_ID + " INTEGER PRIMARY KEY,"
-                    + DatabaseHandler.KEY_OBJECT_ID + " TEXT,"
-                    + DatabaseHandler.KEY_EVENT_ID + " TEXT,"
-                    + DatabaseHandler.KEY_PAPER_ID + " TEXT,"
-                    + DatabaseHandler.KEY_NOTE_CONTENT + " TEXT,"
-                    + DatabaseHandler.KEY_CREATED + " INTEGER,"
-                    + DatabaseHandler.KEY_UPDATED + " INTEGER,"
-                    + "UNIQUE (" + DatabaseHandler.KEY_OBJECT_ID + ") ON CONFLICT REPLACE, FOREIGN KEY(`event_id`) REFERENCES `events`(`object_id`), FOREIGN KEY(`paper_id`) REFERENCES `papers`(`object_id`)"
+            database.execSQL("CREATE TABLE notes_new ("
+                    + "id INTEGER PRIMARY KEY,"
+                    + "object_id TEXT,"
+                    + "event_id TEXT,"
+                    + "paper_id TEXT,"
+                    + "note_content TEXT,"
+                    + "created_at INTEGER,"
+                    + "updated_at INTEGER,"
+                    + "UNIQUE (object_id) ON CONFLICT REPLACE, FOREIGN KEY(`event_id`) REFERENCES `events`(`object_id`), FOREIGN KEY(`paper_id`) REFERENCES `papers`(`object_id`)"
                     + ")");
 
             database.execSQL(
                     "INSERT INTO notes_new ("
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_OBJECT_ID + ", "
-                            + DatabaseHandler.KEY_EVENT_ID + ", "
-                            + DatabaseHandler.KEY_PAPER_ID + ", "
-                            + DatabaseHandler.KEY_NOTE_CONTENT + ", "
-                            + DatabaseHandler.KEY_CREATED + ", "
-                            + DatabaseHandler.KEY_UPDATED
+                            + "id, "
+                            + "object_id, "
+                            + "event_id, "
+                            + "paper_id, "
+                            + "note_content, "
+                            + "created_at, "
+                            + "updated_at"
                             + ") SELECT "
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_OBJECT_ID + ", "
-                            + DatabaseHandler.KEY_EVENT_ID + ", "
-                            + DatabaseHandler.KEY_PAPER_ID + ", "
-                            + DatabaseHandler.KEY_NOTE_CONTENT + ", "
-                            + DatabaseHandler.KEY_CREATED + ", "
-                            + DatabaseHandler.KEY_UPDATED
+                            + "id, "
+                            + "object_id, "
+                            + "event_id, "
+                            + "paper_id, "
+                            + "note_content, "
+                            + "created_at, "
+                            + "updated_at"
                             + " FROM notes");
 
             database.execSQL("DROP TABLE notes");
@@ -246,34 +245,34 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("CREATE INDEX index_notes_paper_id ON notes(paper_id)");
 
             //Surveys
-            database.execSQL("CREATE TABLE " + DatabaseHandler.TABLE_SURVEYS + "_new ("
-                    + DatabaseHandler.KEY_ID + " INTEGER PRIMARY KEY,"
-                    + DatabaseHandler.KEY_YEAR_ID + " TEXT,"
-                    + DatabaseHandler.KEY_TITLE + " TEXT,"
-                    + DatabaseHandler.KEY_DETAILS + " TEXT,"
-                    + DatabaseHandler.KEY_URL + " TEXT,"
-                    + DatabaseHandler.KEY_SURVEY_START + " INTEGER,"
-                    + DatabaseHandler.KEY_SURVEY_END + " INTEGER,"
-                    + "UNIQUE (" + DatabaseHandler.KEY_URL + ") ON CONFLICT REPLACE, FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`)"
+            database.execSQL("CREATE TABLE surveys_new ("
+                    + "id INTEGER PRIMARY KEY,"
+                    + "year_id TEXT,"
+                    + "title TEXT,"
+                    + "details TEXT,"
+                    + "url TEXT,"
+                    + "survey_start INTEGER,"
+                    + "survey_end INTEGER,"
+                    + "UNIQUE (url) ON CONFLICT REPLACE, FOREIGN KEY(`year_id`) REFERENCES `years`(`object_id`)"
                     + ")");
 
             database.execSQL(
                     "INSERT INTO surveys_new ("
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_YEAR_ID + ", "
-                            + DatabaseHandler.KEY_TITLE + ", "
-                            + DatabaseHandler.KEY_DETAILS + ", "
-                            + DatabaseHandler.KEY_URL + ", "
-                            + DatabaseHandler.KEY_SURVEY_START + ", "
-                            + DatabaseHandler.KEY_SURVEY_END
+                            + "id, "
+                            + "year_id, "
+                            + "title, "
+                            + "details, "
+                            + "url, "
+                            + "survey_start, "
+                            + "survey_end"
                             + ") SELECT "
-                            + DatabaseHandler.KEY_ID + ", "
-                            + DatabaseHandler.KEY_YEAR_ID + ", "
-                            + DatabaseHandler.KEY_TITLE + ", "
-                            + DatabaseHandler.KEY_DETAILS + ", "
-                            + DatabaseHandler.KEY_URL + ", "
-                            + DatabaseHandler.KEY_SURVEY_START + ", "
-                            + DatabaseHandler.KEY_SURVEY_END
+                            + "id, "
+                            + "year_id, "
+                            + "title, "
+                            + "details, "
+                            + "url, "
+                            + "survey_start, "
+                            + "survey_end"
                             + " FROM surveys");
 
             database.execSQL("DROP TABLE surveys");
@@ -288,7 +287,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {
-            INSTANCE = Room.databaseBuilder(context, AppDatabase.class, DatabaseHandler.DATABASE_NAME)
+            INSTANCE = Room.databaseBuilder(context, AppDatabase.class, "abma")
                     .addMigrations(MIGRATION_5_6)
                     .allowMainThreadQueries()
                     .build();

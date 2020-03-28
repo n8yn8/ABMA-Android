@@ -25,6 +25,7 @@ public class MapDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_detail);
 
+        //TODO: get url only
         Map map = getIntent().getParcelableExtra(EXTRA_MAP);
 
         TouchNetworkImageView imageView = findViewById(R.id.imageView);

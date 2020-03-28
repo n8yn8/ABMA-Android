@@ -7,15 +7,13 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import com.n8yn8.abma.model.entities.Sponsor;
-import com.n8yn8.abma.model.old.DatabaseHandler;
 
 import java.util.List;
 
 @Dao
 public interface SponsorDao {
 
-    @Query("SELECT * FROM " + DatabaseHandler.TABLE_SPONSORS
-            + " WHERE " + DatabaseHandler.KEY_YEAR_ID + "=:yearId")
+    @Query("SELECT * FROM sponsors WHERE year_id = :yearId")
     LiveData<List<Sponsor>> getSponsors(final String yearId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
