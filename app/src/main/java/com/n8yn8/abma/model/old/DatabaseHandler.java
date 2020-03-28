@@ -8,12 +8,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
-import androidx.core.util.Pair;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.n8yn8.abma.App;
 import com.n8yn8.abma.model.MyDateTypeAdapter;
 import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BMap;
@@ -24,12 +22,8 @@ import com.n8yn8.abma.model.backendless.BSurvey;
 import com.n8yn8.abma.model.backendless.BYear;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * Created by Nate on 3/14/15.
@@ -185,21 +179,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
         if (oldVersion == 1) {
-
-            Map<Note, Pair<Event, Paper>> oldMap = new HashMap<>();
-
-            List<Note> oldNotes = getOldNotes(db);
-            Schedule schedule = ((App) context.getApplicationContext()).getOldSchedule();
-            for (Note oldNote : oldNotes) {
-                schedule.setDayIndex(oldNote.getDayId());
-                schedule.setCurrentEventIndex(oldNote.getEventId());
-                schedule.setPaperIndex(oldNote.getPaperId());
-                Event oldEvent = schedule.getCurrentEvent();
-                Paper oldPaper = schedule.getCurrentPaper();
-                oldMap.put(oldNote, new Pair<>(oldEvent, oldPaper));
-            }
-            ((App) context.getApplicationContext()).setOldNotes(oldMap);
-
             // Drop older table if existed
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTES);
@@ -420,31 +399,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    private List<Note> getOldNotes(SQLiteDatabase db) {
-        List<Note> noteList = new ArrayList<>();
-        // Select All Query
-        String selectQuery = "SELECT  * FROM " + TABLE_NOTES;
-
-        Cursor cursor = db.rawQuery(selectQuery, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                int id = cursor.getInt(cursor.getColumnIndex(KEY_ID));
-                int dayId = cursor.getInt(cursor.getColumnIndex(KEY_DAY_INDEX));
-                int eventId = cursor.getInt(cursor.getColumnIndex(KEY_EVENT_ID));
-                int paperId = cursor.getInt(cursor.getColumnIndex(KEY_PAPER_ID));
-                String content = cursor.getString(cursor.getColumnIndex(KEY_NOTE_CONTENT));
-                String eventName = cursor.getString(cursor.getColumnIndex(KEY_EVENT_TITLE));
-                Note note = new Note(id, dayId, eventId, paperId, content, eventName);
-                noteList.add(note);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-
-        // return contact list
-        return noteList;
-    }
-
     public List<BYear> getAllYears() {
         List<BYear> yearList = new ArrayList<>();
         // Select All Query
@@ -624,54 +578,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         // return contact list
         return list;
-    }
-
-    public BEvent getMatchedEvent(Date eventDate, Event oldEvent) {
-        String timeString = oldEvent.getTime();
-        String[] parts = timeString.split("-");
-        String startString = parts[0].trim();
-        String[] timeParts = startString.split(":");
-        int hours = Integer.parseInt(timeParts[0]);
-        int minutes = Integer.parseInt(timeParts[1].substring(0, 2));
-        boolean isPm = "pm".equals(timeParts[1].substring(2, 4).toLowerCase());
-        if (isPm) {
-            hours += 12;
-        }
-
-        TimeZone utc = TimeZone.getTimeZone("UTC");
-
-        Calendar calendar = Calendar.getInstance(utc);
-        calendar.setTime(eventDate);
-        calendar.set(Calendar.HOUR, hours);
-        calendar.set(Calendar.MINUTE, minutes);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_EVENTS, null, KEY_DETAILS + "=? AND " + KEY_TITLE + "=? AND " + KEY_START_DATE + "=?",
-                new String[]{oldEvent.getDetails(), oldEvent.getTitle(), String.valueOf(calendar.getTimeInMillis())}, null, null, null);
-
-        BEvent event = null;
-        if (cursor.moveToFirst()) {
-            event = constructEvent(cursor);
-        }
-        cursor.close();
-        db.close();
-        return event;
-    }
-
-    public BPaper getMatchedPaper(Paper oldPaper) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_PAPERS, null, KEY_SYNOPSIS + "=?",
-                new String[]{oldPaper.getSynopsis()}, null, null, null);
-
-        BPaper paper = null;
-        if (cursor.moveToFirst()) {
-            paper = constructPaper(cursor);
-        }
-        cursor.close();
-        db.close();
-        return paper;
     }
 
     public BEvent getEventById(String objectId) {

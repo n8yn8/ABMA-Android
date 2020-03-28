@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.util.Pair;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
@@ -25,20 +24,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.backendless.BackendlessUser;
 import com.google.android.material.navigation.NavigationView;
-import com.n8yn8.abma.App;
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.backendless.BEvent;
-import com.n8yn8.abma.model.backendless.BNote;
-import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.entities.Year;
-import com.n8yn8.abma.model.old.DatabaseHandler;
-import com.n8yn8.abma.model.old.Event;
-import com.n8yn8.abma.model.old.Note;
-import com.n8yn8.abma.model.old.Paper;
-import com.n8yn8.abma.model.old.Schedule;
-
-import java.util.Map;
 
 import static com.n8yn8.abma.R.id.years;
 
@@ -122,41 +110,6 @@ public class MainActivity extends AppCompatActivity
                 showYearsPicker();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void checkOldNotes(DatabaseHandler db) {
-        Map<Note, Pair<Event, Paper>> oldMap = ((App) getApplicationContext()).getOldNotes();
-        if (oldMap == null) {
-            return;
-        }
-
-        Schedule schedule = ((App) getApplication()).getOldSchedule();
-
-        for (Note oldNote : oldMap.keySet()) {
-            schedule.setDayIndex(oldNote.getDayId());
-            Pair<Event, Paper> pair = oldMap.get(oldNote);
-            Event oldEvent = pair.first;
-            String newEventId = null;
-            Paper oldPaper = pair.second;
-            String newPaperId = null;
-            if (oldEvent != null) {
-                BEvent newEvent = db.getMatchedEvent(schedule.getCurrentDate(), oldEvent);
-                if (newEvent != null) {
-                    newEventId = newEvent.getObjectId();
-                }
-            }
-            if (oldPaper != null) {
-                BPaper newPaper = db.getMatchedPaper(oldPaper);
-                if (newPaper != null) {
-                    newPaperId = newPaper.getObjectId();
-                }
-            }
-            BNote newNote = new BNote();
-            newNote.setContent(oldNote.getContent());
-            newNote.setEventId(newEventId);
-            newNote.setPaperId(newPaperId);
-            db.addNote(newNote);
-        }
     }
 
     @Override
