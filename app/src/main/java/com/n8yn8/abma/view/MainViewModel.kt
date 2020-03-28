@@ -29,7 +29,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
 
     init {
         val savedYears = db.yearDao().years
-        if (savedYears.size == 0) {
+        if (savedYears.isEmpty()) {
             loadBackendless()
         } else {
             if (sharedPreferences.getBoolean("PushReceived", false)) {
