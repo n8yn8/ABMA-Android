@@ -7,56 +7,43 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-import com.n8yn8.abma.model.old.DatabaseHandler;
-
 import java.util.Objects;
 
-@Entity(tableName = DatabaseHandler.TABLE_NOTES,
+@Entity(tableName = "notes",
         foreignKeys = {
                 @ForeignKey(
                         entity = Event.class,
-                        parentColumns = DatabaseHandler.KEY_OBJECT_ID,
-                        childColumns = DatabaseHandler.KEY_EVENT_ID),
+                        parentColumns = "object_id",
+                        childColumns = "event_id"),
                 @ForeignKey(
                         entity = Paper.class,
-                        parentColumns = DatabaseHandler.KEY_OBJECT_ID,
-                        childColumns = DatabaseHandler.KEY_PAPER_ID)},
-        indices = {@Index(value = {DatabaseHandler.KEY_OBJECT_ID}, unique = true),
-                @Index(value = DatabaseHandler.KEY_EVENT_ID),
-                @Index(value = DatabaseHandler.KEY_PAPER_ID)})
+                        parentColumns = "object_id",
+                        childColumns = "paper_id")},
+        indices = {@Index(value = {"object_id"}, unique = true),
+                @Index(value = "event_id"),
+                @Index(value = "paper_id")})
 public class Note {
-
-//    "CREATE TABLE " + TABLE_NOTES + "("
-//            + KEY_ID + " INTEGER PRIMARY KEY,"
-//            + KEY_OBJECT_ID + " STRING,"
-//            + KEY_EVENT_ID + " STRING,"
-//            + KEY_PAPER_ID + " STRING,"
-//            + KEY_NOTE_CONTENT + " TEXT,"
-//            + KEY_CREATED + " INT,"
-//            + KEY_UPDATED + " INT,"
-//            + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
-//            + ")"
 
     @PrimaryKey
     public Integer id;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_OBJECT_ID)
+    @ColumnInfo(name = "object_id")
     public String objectId;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_EVENT_ID)
+    @ColumnInfo(name = "event_id")
     public String eventId;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_PAPER_ID)
+    @ColumnInfo(name = "paper_id")
     public String paperId;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_NOTE_CONTENT)
+    @ColumnInfo(name = "note_content")
     public String content;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_CREATED)
+    @ColumnInfo(name = "created_at")
     @Nullable
     public Long created;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_UPDATED)
+    @ColumnInfo(name = "updated_at")
     @Nullable
     public Long updated;
 

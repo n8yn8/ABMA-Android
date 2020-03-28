@@ -6,46 +6,33 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-import com.n8yn8.abma.model.old.DatabaseHandler;
-
-@Entity(tableName = DatabaseHandler.TABLE_SURVEYS,
+@Entity(tableName = "surveys",
         foreignKeys = @ForeignKey(
                 entity = Year.class,
-                parentColumns = DatabaseHandler.KEY_OBJECT_ID,
-                childColumns = DatabaseHandler.KEY_YEAR_ID),
-        indices = {@Index(value = {DatabaseHandler.KEY_URL}, unique = true),
-                @Index(value = DatabaseHandler.KEY_YEAR_ID)})
+                parentColumns = "object_id",
+                childColumns = "year_id"),
+        indices = {@Index(value = {"url"}, unique = true),
+                @Index(value = "year_id")})
 public class Survey {
-
-//    "CREATE TABLE " + TABLE_SURVEYS + "("
-//            + KEY_ID + " INTEGER PRIMARY KEY,"
-//            + KEY_YEAR_ID + " STRING,"
-//            + KEY_TITLE + " STRING,"
-//            + KEY_DETAILS + " STRING,"
-//            + KEY_URL + " TEXT,"
-//            + KEY_SURVEY_START + " INTEGER,"
-//            + KEY_SURVEY_END + " INTEGER,"
-//            + "UNIQUE (" + KEY_URL + ") ON CONFLICT REPLACE"
-//            + ")"
 
     @PrimaryKey
     public Integer id;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_YEAR_ID)
+    @ColumnInfo(name = "year_id")
     public String yearId;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_TITLE)
+    @ColumnInfo(name = "title")
     public String title;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_DETAILS)
+    @ColumnInfo(name = "details")
     public String details;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_URL)
+    @ColumnInfo(name = "url")
     public String url;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_SURVEY_START)
+    @ColumnInfo(name = "survey_start")
     public Long startDate;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_SURVEY_END)
+    @ColumnInfo(name = "survey_end")
     public Long endDate;
 }

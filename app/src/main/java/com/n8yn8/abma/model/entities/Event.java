@@ -1,62 +1,48 @@
 package com.n8yn8.abma.model.entities;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-import com.n8yn8.abma.model.old.DatabaseHandler;
-
 import java.util.Objects;
 
-@Entity(tableName = DatabaseHandler.TABLE_EVENTS,
+@Entity(tableName = "events",
         foreignKeys = @ForeignKey(
                 entity = Year.class,
-                parentColumns = DatabaseHandler.KEY_OBJECT_ID,
-                childColumns = DatabaseHandler.KEY_YEAR_ID),
-        indices = {@Index(value = {DatabaseHandler.KEY_OBJECT_ID}, unique = true),
-                @Index(value = DatabaseHandler.KEY_YEAR_ID)})
+                parentColumns = "object_id",
+                childColumns = "year_id"),
+        indices = {@Index(value = {"object_id"}, unique = true),
+                @Index(value = "year_id")})
 public class Event {
-
-//    private static String CREATE_EVENTS_TABLE = "CREATE TABLE " + TABLE_EVENTS + "("
-//            + KEY_ID + " INTEGER PRIMARY KEY,"
-//            + KEY_OBJECT_ID + " STRING,"
-//            + KEY_YEAR_ID + " STRING,"
-//            + KEY_DETAILS + " TEXT,"
-//            + KEY_END_DATE + " INT,"
-//            + KEY_START_DATE + " INT,"
-//            + KEY_PLACE + " STRING,"
-//            + KEY_TITLE + " STRING,"
-//            + KEY_SUBTITLE + " STRING,"
-//            + "UNIQUE (" + KEY_OBJECT_ID + ") ON CONFLICT REPLACE"
-//            + ")";
 
     @PrimaryKey
     public Integer id;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_OBJECT_ID)
+    @ColumnInfo(name = "object_id")
     public String objectId;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_YEAR_ID)
+    @ColumnInfo(name = "year_id")
     public String yearId;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_DETAILS)
+    @ColumnInfo(name = "details")
     public String details;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_END_DATE)
+    @ColumnInfo(name = "end_date")
     public Long endDate;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_START_DATE)
+    @ColumnInfo(name = "start_date")
     public Long startDate;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_PLACE)
+    @ColumnInfo(name = "place")
     public String place;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_TITLE)
+    @ColumnInfo(name = "title")
     public String title;
 
-    @ColumnInfo(name = DatabaseHandler.KEY_SUBTITLE)
+    @ColumnInfo(name = "subtitle")
     public String subtitle;
 
     @Override
@@ -81,6 +67,7 @@ public class Event {
     }
 
     @Override
+    @NonNull
     public String toString() {
         return "Event{" +
                 "id=" + id +
