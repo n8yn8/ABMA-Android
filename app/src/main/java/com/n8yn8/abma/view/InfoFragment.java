@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.AppDatabase;
+import com.n8yn8.abma.model.entities.Year;
 
 
 /**
@@ -36,9 +37,13 @@ public class InfoFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_info, container, false);
         TextView infoTextView = view.findViewById(R.id.infoTextView);
 
-
-        String info = AppDatabase.getInstance(getActivity().getApplicationContext()).yearDao().getLastYear().info;
-        infoTextView.setText(info);
+        Year year = AppDatabase.getInstance(requireActivity().getApplicationContext()).yearDao().getLastYear();
+        if (year != null) {
+            String info = year.info;
+            infoTextView.setText(info);
+        } else {
+            infoTextView.setEnabled(false);
+        }
         return view;
     }
 

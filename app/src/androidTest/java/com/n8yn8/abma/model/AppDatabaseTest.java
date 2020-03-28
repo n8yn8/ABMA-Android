@@ -55,7 +55,7 @@ public class AppDatabaseTest {
         database.yearDao().insert(year);
         database.eventDao().insert(event);
 
-        List<Year> years = database.yearDao().getYears();
+        List<Year> years = database.yearDao().years;
         Assert.assertEquals(years.size(), 1);
 
         List<Event> events = database.eventDao().getEvents(years.get(0).objectId);

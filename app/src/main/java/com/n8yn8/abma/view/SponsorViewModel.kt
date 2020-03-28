@@ -19,7 +19,7 @@ class SponsorViewModel(application: Application) : AndroidViewModel(application)
 
     init {
         val lastYear = db.yearDao().lastYear
-        sponsors = Transformations.map(db.sponsorDao().getSponsors(lastYear.objectId)) {
+        sponsors = Transformations.map(db.sponsorDao().getSponsors(lastYear!!.objectId)) {
             if (it.isNullOrEmpty()) {
                 remote.getSponsors(lastYear.objectId, object : DbManager.Callback<List<BSponsor>> {
                     override fun onDone(remoteList: List<BSponsor>?, error: String?) {
