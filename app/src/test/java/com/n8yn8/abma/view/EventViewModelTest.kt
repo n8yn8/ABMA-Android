@@ -1,16 +1,14 @@
 package com.n8yn8.abma.view
 
 import android.app.Application
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.room.Room
 import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.abma.model.entities.Paper
 import com.n8yn8.test.util.FakeData
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.*
 import org.junit.runner.RunWith
 import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext
@@ -27,6 +25,9 @@ private const val DATABASE = "DATABASE"
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class EventViewModelTest : KoinTest {
+
+    @get:Rule
+    val rule = InstantTaskExecutorRule()
 
     @Mock
     lateinit var application: Application

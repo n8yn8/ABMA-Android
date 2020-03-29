@@ -3,13 +3,10 @@ package com.n8yn8.abma.view
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.ConvertUtil
 import com.n8yn8.abma.model.backendless.DbManager
-import com.n8yn8.abma.model.entities.Event
-import com.n8yn8.abma.model.entities.Note
-import com.n8yn8.abma.model.entities.Paper
+import com.n8yn8.abma.model.entities.NoteEventPaper
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
@@ -18,21 +15,13 @@ class NoteViewModel(application: Application) : AndroidViewModel(application), K
     private val db: AppDatabase by inject()
     private val remote: DbManager by inject()
 
-    val notesData: LiveData<List<NoteModel>>
+    val notesData: LiveData<List<NoteEventPaper>>
 
     init {
-        notesData = Transformations.map(db.noteDao().notesLive) { noteList ->
-            noteList.map {
-                NoteModel(
-                        note = it,
-                        event = db.eventDao().getEventById(it.eventId),
-                        paper = db.paperDao().getPaperById(it.paperId)
-                )
-            }
-        }
+        notesData = db.noteDao().notesLive
     }
 
-    fun deleteNote(noteModel: NoteModel?) {
+    fun deleteNote(noteModel: NoteEventPaper?) {
         if (noteModel == null) {
             return
         }
@@ -70,5 +59,3 @@ class NoteViewModel(application: Application) : AndroidViewModel(application), K
         }
     }
 }
-
-data class NoteModel(val note: Note, val event: Event?, val paper: Paper?)

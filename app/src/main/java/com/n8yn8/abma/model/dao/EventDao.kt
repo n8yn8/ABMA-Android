@@ -19,7 +19,7 @@ interface EventDao {
     fun getAllEventsFor(startDate: Long, endDate: Long): LiveData<List<Event>>
 
     @Query("SELECT * FROM events WHERE object_id = :objectId LIMIT 1")
-    fun getEventById(objectId: String): Event?
+    suspend fun getEventById(objectId: String): Event?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(event: Event)

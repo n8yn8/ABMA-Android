@@ -10,6 +10,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 
 import com.n8yn8.abma.model.entities.Note;
+import com.n8yn8.abma.model.entities.NoteEventPaper;
 
 import java.util.List;
 
@@ -19,8 +20,9 @@ public abstract class NoteDao {
     @Query("SELECT * FROM notes")
     public abstract List<Note> getNotes();
 
+    @Transaction
     @Query("SELECT * FROM notes")
-    public abstract LiveData<List<Note>> getNotesLive();
+    public abstract LiveData<List<NoteEventPaper>> getNotesLive();
 
     @Query("SELECT * FROM notes WHERE event_id = :eventId AND paper_id IS NULL LIMIT 1")
     @Nullable

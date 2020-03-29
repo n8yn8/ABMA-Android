@@ -4,12 +4,14 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.ConvertUtil
 import com.n8yn8.abma.model.backendless.DbManager
 import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.abma.model.entities.Note
 import com.n8yn8.abma.model.entities.Paper
+import kotlinx.coroutines.launch
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
@@ -24,8 +26,10 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
     private val db: AppDatabase by inject()
 
     fun setSelectedEvent(eventId: String) {
-        val initialEvent = db.eventDao().getEventById(eventId)
-        _event.postValue(initialEvent)
+        viewModelScope.launch {
+            val initialEvent = db.eventDao().getEventById(eventId)
+            _event.postValue(initialEvent)
+        }
     }
 
     fun getPrevious(): Boolean {

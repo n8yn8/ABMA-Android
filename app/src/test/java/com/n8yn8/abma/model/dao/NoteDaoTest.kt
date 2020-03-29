@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.n8yn8.abma.model.AppDatabase
-import com.n8yn8.abma.model.entities.Note
+import com.n8yn8.abma.model.entities.NoteEventPaper
 import com.n8yn8.test.util.FakeData
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
@@ -26,7 +26,7 @@ class NoteDaoTest {
     private lateinit var database: AppDatabase
 
     @Mock
-    lateinit var notesObserver: Observer<List<Note>>
+    lateinit var notesObserver: Observer<List<NoteEventPaper>>
 
     @Before
     fun setup() {

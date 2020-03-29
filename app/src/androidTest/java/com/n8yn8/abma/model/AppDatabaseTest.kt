@@ -42,7 +42,12 @@ class AppDatabaseTest {
             years.addAll(database!!.yearDao().years())
         }
         Assert.assertEquals(years.size.toLong(), 1)
-        val events = database!!.eventDao().getEvents(years[0].objectId)
+
+        val events = mutableListOf<Event>()
+        runBlocking {
+            events.addAll(database!!.eventDao().getEvents(years[0].objectId))
+        }
+
         Assert.assertEquals(events.size.toLong(), 1)
         Assert.assertEquals(year, years[0])
         Assert.assertEquals(event, events[0])

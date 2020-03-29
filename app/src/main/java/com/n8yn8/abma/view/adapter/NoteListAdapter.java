@@ -13,26 +13,26 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
 import com.n8yn8.abma.model.entities.Event;
+import com.n8yn8.abma.model.entities.NoteEventPaper;
 import com.n8yn8.abma.model.entities.Paper;
-import com.n8yn8.abma.view.NoteModel;
 
 /**
  * Created by Nate on 3/15/15.
  */
-public class NoteListAdapter extends ListAdapter<NoteModel, NoteListAdapter.ViewHolder> {
+public class NoteListAdapter extends ListAdapter<NoteEventPaper, NoteListAdapter.ViewHolder> {
 
-    private static final DiffUtil.ItemCallback<NoteModel> DIFF_CALLBACK =
-            new DiffUtil.ItemCallback<NoteModel>() {
+    private static final DiffUtil.ItemCallback<NoteEventPaper> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<NoteEventPaper>() {
                 @Override
                 public boolean areItemsTheSame(
-                        @NonNull NoteModel oldNoteModel, @NonNull NoteModel newNoteModel) {
-                    return oldNoteModel.getNote().id.equals(newNoteModel.getNote().id);
+                        @NonNull NoteEventPaper oldNoteEventPaper, @NonNull NoteEventPaper newNoteEventPaper) {
+                    return oldNoteEventPaper.getNote().id.equals(newNoteEventPaper.getNote().id);
                 }
 
                 @Override
                 public boolean areContentsTheSame(
-                        @NonNull NoteModel oldNoteModel, @NonNull NoteModel newNoteModel) {
-                    return oldNoteModel.getNote().equals(newNoteModel.getNote());
+                        @NonNull NoteEventPaper oldNoteEventPaper, @NonNull NoteEventPaper newNoteEventPaper) {
+                    return oldNoteEventPaper.getNote().equals(newNoteEventPaper.getNote());
                 }
             };
     private OnClickListener onClickListener;
@@ -52,14 +52,14 @@ public class NoteListAdapter extends ListAdapter<NoteModel, NoteListAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-        final NoteModel noteModel = getItem(position);
+        final NoteEventPaper noteModel = getItem(position);
         holder.bind(noteModel, onClickListener);
     }
 
     public interface OnClickListener {
-        void onClick(NoteModel noteModel);
+        void onClick(NoteEventPaper noteModel);
 
-        void onLongClick(NoteModel noteModel);
+        void onLongClick(NoteEventPaper noteModel);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -72,7 +72,7 @@ public class NoteListAdapter extends ListAdapter<NoteModel, NoteListAdapter.View
             detailTextView = itemView.findViewById(R.id.noteDetailTextView);
         }
 
-        private static String getTitle(NoteModel noteModel) {
+        private static String getTitle(NoteEventPaper noteModel) {
             if (noteModel.getPaper() != null) {
                 Paper paper = noteModel.getPaper();
                 if (paper != null) {
@@ -88,7 +88,7 @@ public class NoteListAdapter extends ListAdapter<NoteModel, NoteListAdapter.View
             return "";
         }
 
-        void bind(final NoteModel noteModel, final OnClickListener onClickListener) {
+        void bind(final NoteEventPaper noteModel, final OnClickListener onClickListener) {
             noteTextView.setText(noteModel.getNote().content);
             detailTextView.setText(getTitle(noteModel));
             itemView.setOnClickListener(new View.OnClickListener() {

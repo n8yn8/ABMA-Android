@@ -7,6 +7,7 @@ import androidx.room.Room
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.backendless.BNote
 import com.n8yn8.abma.model.backendless.DbManager
+import com.n8yn8.abma.model.entities.NoteEventPaper
 import com.n8yn8.test.util.FakeData
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -40,7 +41,7 @@ class NoteViewModelTest : KoinTest {
     lateinit var remote: DbManager
 
     @Mock
-    lateinit var noteModelObserver: Observer<List<NoteModel>>
+    lateinit var noteModelObserver: Observer<List<NoteEventPaper>>
 
     private val database: AppDatabase by inject()
     private lateinit var noteViewModel: NoteViewModel
