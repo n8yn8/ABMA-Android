@@ -1,5 +1,6 @@
 package com.n8yn8.test.util
 
+import com.n8yn8.abma.model.backendless.BEvent
 import com.n8yn8.abma.model.backendless.BNote
 import com.n8yn8.abma.model.backendless.BSponsor
 import com.n8yn8.abma.model.backendless.BYear
@@ -34,6 +35,19 @@ object FakeData {
             place = "Here"
             title = "Some Title"
             subtitle = "Some subtitle"
+        }
+    }
+
+    fun getBEvent(index: Int = 1): BEvent {
+        return BEvent().apply {
+            objectId = "event$index"
+            details = "Some details"
+            endDate = Date(getStartOfYear(index, index)) // default 02-20-2020 20:40:20
+            startDate = Date(getStartOfYear(index, index)) // default 02-20-2020 20:20:20
+            location = "Here"
+            title = "Some Title"
+            subtitle = "Some subtitle"
+            papersCount = 1
         }
     }
 

@@ -16,12 +16,9 @@ import com.google.gson.reflect.TypeToken;
 import com.n8yn8.abma.model.AppDatabase;
 import com.n8yn8.abma.model.ConvertUtil;
 import com.n8yn8.abma.model.MyDateTypeAdapter;
-import com.n8yn8.abma.model.backendless.BEvent;
 import com.n8yn8.abma.model.backendless.BMap;
-import com.n8yn8.abma.model.backendless.BPaper;
 import com.n8yn8.abma.model.backendless.BSurvey;
 import com.n8yn8.abma.model.backendless.BYear;
-import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.entities.Event;
 
 import java.text.SimpleDateFormat;
@@ -126,34 +123,6 @@ public class Utils {
                 .create();
         List<BMap> maps = gson.fromJson(mapsString, new TypeToken<List<BMap>>(){}.getType());
         db.mapDao().insert(ConvertUtil.convertMaps(maps, year.getObjectId()));
-    }
-
-    public static void saveEvents(final AppDatabase db, String yearId, List<BEvent> events) {
-        List<Event> localEvents = db.eventDao().getEvents(yearId);
-        for (Event localEvent : localEvents) {
-            boolean found = false;
-            for (BEvent remoteEvent : events) {
-                if (remoteEvent.getObjectId().equals(localEvent.objectId)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                db.eventDao().delete(localEvent);
-            }
-        }
-
-        db.eventDao().insert(ConvertUtil.convertEvents(events, yearId));
-        for (final BEvent event : events) {
-            if (event.getPapersCount() != 0) {
-                DbManager.getInstance().getPapers(event.getObjectId(), new DbManager.Callback<List<BPaper>>() {
-                    @Override
-                    public void onDone(List<BPaper> bPapers, String error) {
-                        db.paperDao().insert(ConvertUtil.convertPapers(bPapers, event.getObjectId()));
-                    }
-                });
-            }
-        }
     }
 
     public static long getStartOfDay(long timeMillis) {

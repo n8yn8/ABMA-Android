@@ -7,6 +7,7 @@ import com.n8yn8.abma.Utils
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.abma.model.entities.Year
+import kotlinx.coroutines.launch
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 import java.util.concurrent.TimeUnit
@@ -49,13 +50,14 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
 
     fun setSelectedYear(year: Year) {
         selectedYear.postValue(year)
-        val events = db.eventDao().getEvents(year.objectId)
-        if (events.isEmpty()) {
-            yearEvents.observeForever(yearEventsObserver)
-        } else {
-            displayDateMillisLD.postValue(Utils.getStartOfDay(events.first().startDate))
+        viewModelScope.launch {
+            val events = db.eventDao().getEvents(year.objectId)
+            if (events.isEmpty()) {
+                yearEvents.observeForever(yearEventsObserver)
+            } else {
+                displayDateMillisLD.postValue(Utils.getStartOfDay(events.first().startDate))
+            }
         }
-
     }
 
     fun nextDay() {

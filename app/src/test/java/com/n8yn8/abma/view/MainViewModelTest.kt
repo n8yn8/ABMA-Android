@@ -7,6 +7,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.room.Room
 import com.n8yn8.abma.model.AppDatabase
+import com.n8yn8.abma.model.backendless.BEvent
 import com.n8yn8.abma.model.backendless.BSponsor
 import com.n8yn8.abma.model.backendless.BYear
 import com.n8yn8.abma.model.backendless.DbManager
@@ -111,16 +112,18 @@ class MainViewModelTest : KoinTest {
         mainViewModel.selectYear(expectedSecondYear.name.toString())
         verify(yearObserver).onChanged(expectedSecondYear)
         verify(remote, never()).getYears(any(), any())
-        verify(remote, never()).getEvents(any(), any())
         verify(remote, never()).getSponsors(any(), any())
+        verify(remote, never()).getEvents(any(), any())
+        verify(remote, never()).getPapers(any(), any())
     }
 
     @Test
     fun testStartEmpty_noResponse() {
         mainViewModel = MainViewModel(application)
         verify(remote).getYears(any(), any())
-        verify(remote, never()).getEvents(any(), any())
         verify(remote, never()).getSponsors(any(), any())
+        verify(remote, never()).getEvents(any(), any())
+        verify(remote, never()).getPapers(any(), any())
 
         mainViewModel.year.observeForever(yearObserver)
         mainViewModel.isLoading.observeForever(loadingObserver)
@@ -132,6 +135,9 @@ class MainViewModelTest : KoinTest {
     @Test
     fun testStartEmpty_withResponse() {
         val years = listOf(FakeData.getBYear(), FakeData.getBYear(2019))
+        val events = years.map {
+            FakeData.getBEvent(it.name)
+        }
 
         doAnswer {
             //TODO: figure out how to test
@@ -141,11 +147,26 @@ class MainViewModelTest : KoinTest {
             null
         }.`when`(remote).getYears(any(), any())
 
+        doAnswer {
+            val callback = it.arguments[1] as DbManager.Callback<List<BEvent>>
+            val yearId = it.arguments[0] as String
+            val event = if (yearId == "year2019") {
+                events[0]
+            } else {
+                events[1]
+            }
+            callback.onDone(listOf(event), null)
+            null
+        }.`when`(remote).getEvents(any(), any())
+
         mainViewModel = MainViewModel(application)
         verify(remote).getYears(any(), any())
         for (bYear in years) {
-            verify(remote).getEvents(ArgumentMatchers.eq(bYear.objectId), any())
-            verify(remote).getSponsors(ArgumentMatchers.eq(bYear.objectId), any())
+            verify(remote).getSponsors(eq(bYear.objectId), any())
+            verify(remote).getEvents(eq(bYear.objectId), any())
+        }
+        for (bEvent in events) {
+            verify(remote).getPapers(eq(bEvent.objectId), any())
         }
         mainViewModel.year.observeForever(yearObserver)
         mainViewModel.isLoading.observeForever(loadingObserver)
@@ -165,6 +186,7 @@ class MainViewModelTest : KoinTest {
         verify(remote, never()).getYears(any(), any())
         verify(remote, never()).getEvents(any(), any())
         verify(remote, never()).getSponsors(any(), any())
+        verify(remote, never()).getPapers(any(), any())
 
         mainViewModel.year.observeForever(yearObserver)
         mainViewModel.isLoading.observeForever(loadingObserver)
@@ -189,10 +211,18 @@ class MainViewModelTest : KoinTest {
             null
         }.`when`(remote).getYears(any(), any())
 
+        val remoteEvent = FakeData.getBEvent(remoteYear.name)
+        doAnswer {
+            val callback = it.arguments[1] as DbManager.Callback<List<BEvent>>
+            callback.onDone(listOf(remoteEvent), null)
+            null
+        }.`when`(remote).getEvents(any(), any())
+
         mainViewModel = MainViewModel(application)
         verify(remote).getYears(any(), any())
-        verify(remote).getEvents(ArgumentMatchers.eq(remoteYear.objectId), any())
-        verify(remote).getSponsors(ArgumentMatchers.eq(remoteYear.objectId), any())
+        verify(remote).getEvents(eq(remoteYear.objectId), any())
+        verify(remote).getSponsors(eq(remoteYear.objectId), any())
+        verify(remote).getPapers(eq(remoteEvent.objectId), any())
         mainViewModel.year.observeForever(yearObserver)
         mainViewModel.isLoading.observeForever(loadingObserver)
 
@@ -225,7 +255,8 @@ class MainViewModelTest : KoinTest {
         verify(remote, never()).getYears(any(), any())
         verify(remote, never()).getEvents(any(), any())
         verify(remote, never()).getSponsors(any(), any())
-        verify(loadingObserver, never()).onChanged(ArgumentMatchers.anyBoolean())
+        verify(remote, never()).getPapers(any(), any())
+        verify(loadingObserver, never()).onChanged(anyBoolean())
     }
 
     @Test

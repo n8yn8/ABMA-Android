@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.n8yn8.abma.Utils
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.ConvertUtil
+import com.n8yn8.abma.model.backendless.BEvent
 import com.n8yn8.abma.model.backendless.BSponsor
 import com.n8yn8.abma.model.backendless.DbManager
 import com.n8yn8.abma.model.entities.Year
@@ -79,7 +80,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
                     Utils.saveSurveys(db, bYear)
                     Utils.saveMaps(db, bYear)
                     remote.getEvents(bYear.objectId) { bEvents, _ ->
-                        Utils.saveEvents(db, bYear.objectId, bEvents)
+                        viewModelScope.launch {
+                            saveEvents(bYear.objectId, bEvents)
+                        }
                     }
                     remote.getSponsors(bYear.objectId, DbManager.Callback<List<BSponsor>> { remoteList, _ ->
                         if (remoteList == null) return@Callback
@@ -90,6 +93,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
             }
 
             _isLoading.postValue(false)
+        }
+    }
+
+    private suspend fun saveEvents(yearId: String, bEvents: List<BEvent>) {
+        val localEvents = db.eventDao().getEvents(yearId)
+        for (localEvent in localEvents) {
+            var found = false
+            for (remoteEvent in bEvents) {
+                if (remoteEvent.objectId == localEvent.objectId) {
+                    found = true
+                    break
+                }
+            }
+            if (!found) {
+                db.eventDao().delete(localEvent)
+            }
+        }
+
+        db.eventDao().insert(ConvertUtil.convertEvents(bEvents, yearId))
+        for (event in bEvents) {
+            if (event.papersCount != 0) {
+                remote.getPapers(event.objectId) { bPapers, _ ->
+                    db.paperDao().insert(ConvertUtil.convertPapers(bPapers, event.objectId))
+                }
+            }
         }
     }
 
