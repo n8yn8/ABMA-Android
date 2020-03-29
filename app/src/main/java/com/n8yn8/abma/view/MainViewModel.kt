@@ -6,10 +6,14 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.n8yn8.abma.Utils
 import com.n8yn8.abma.model.AppDatabase
+import com.n8yn8.abma.model.ConvertUtil
+import com.n8yn8.abma.model.backendless.BSponsor
 import com.n8yn8.abma.model.backendless.DbManager
 import com.n8yn8.abma.model.entities.Year
+import kotlinx.coroutines.launch
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
@@ -23,31 +27,39 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
     val year: LiveData<Year>
         get() = _year
 
+    private val _yearNames = MutableLiveData<List<String>>()
+    val yearNames: LiveData<List<String>>
+        get() = _yearNames
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
     init {
-        val savedYears = db.yearDao().years
-        if (savedYears.isEmpty()) {
-            loadBackendless()
-        } else {
-            if (sharedPreferences.getBoolean("PushReceived", false)) {
+        viewModelScope.launch {
+            val savedYears = db.yearDao().years()
+            if (savedYears.isEmpty()) {
                 loadBackendless()
             } else {
-                selectYear()
+                if (sharedPreferences.getBoolean("PushReceived", false)) {
+                    loadBackendless()
+                } else {
+                    selectYear()
+                }
             }
         }
     }
 
     fun selectYear(name: String? = null) {
-        val latestYear = if (name == null) {
-            db.yearDao().lastYear
-        } else {
-            db.yearDao().getYearByName(name)
-        }
-        if (latestYear != null) {
-            _year.postValue(latestYear)
+        viewModelScope.launch {
+            val latestYear = if (name == null) {
+                db.yearDao().lastYear()
+            } else {
+                db.yearDao().getYearByName(name)
+            }
+            if (latestYear != null) {
+                _year.postValue(latestYear)
+            }
         }
     }
 
@@ -61,14 +73,33 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
             if (error != null) {
                 Toast.makeText(getApplication(), "Error: $error", Toast.LENGTH_LONG).show()
             }
-            Utils.saveYears(db, years)
-            for (bYear in years) {
-                remote.getEvents(bYear.objectId) { bEvents, _ ->
-                    Utils.saveEvents(db, bYear.objectId, bEvents)
+            viewModelScope.launch {
+                for (bYear in years) {
+                    db.yearDao().insert(ConvertUtil.convert(bYear))
+                    Utils.saveSurveys(db, bYear)
+                    Utils.saveMaps(db, bYear)
+                    remote.getEvents(bYear.objectId) { bEvents, _ ->
+                        Utils.saveEvents(db, bYear.objectId, bEvents)
+                    }
+                    remote.getSponsors(bYear.objectId, DbManager.Callback<List<BSponsor>> { remoteList, _ ->
+                        if (remoteList == null) return@Callback
+                        db.sponsorDao().insert(ConvertUtil.convertSponsors(remoteList, bYear.objectId))
+                    })
                 }
+                selectYear()
             }
-            selectYear()
+
             _isLoading.postValue(false)
+        }
+    }
+
+    fun requestYearNames() {
+        viewModelScope.launch {
+            val namesInt = db.yearDao().allYearNames()
+            val names = namesInt.map {
+                it.toString()
+            }
+            _yearNames.postValue(names)
         }
     }
 }

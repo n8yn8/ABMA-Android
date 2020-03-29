@@ -110,15 +110,7 @@ public class Utils {
         }
     }
 
-    public static void saveYears(AppDatabase db, List<BYear> years) {
-        for (BYear year : years) {
-            db.yearDao().insert(ConvertUtil.convert(year));
-            saveSurveys(db, year);
-            saveMaps(db, year);
-        }
-    }
-
-    private static void saveSurveys(AppDatabase db, BYear year) {
+    public static void saveSurveys(AppDatabase db, BYear year) {
         String surveysString = year.getSurveys();
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Date.class, new MyDateTypeAdapter())
@@ -127,7 +119,7 @@ public class Utils {
         db.surveyDao().insert(ConvertUtil.convertSurveys(surveys, year.getObjectId()));
     }
 
-    private static void saveMaps(AppDatabase db, BYear year) {
+    public static void saveMaps(AppDatabase db, BYear year) {
         String mapsString = year.getMaps();
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Date.class, new MyDateTypeAdapter())

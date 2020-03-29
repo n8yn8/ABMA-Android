@@ -1,5 +1,6 @@
 package com.n8yn8.abma.model.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -8,18 +9,21 @@ import com.n8yn8.abma.model.entities.Year
 
 @Dao
 interface YearDao {
-    @get:Query("SELECT * FROM years")
-    val years: List<Year>
+    @Query("SELECT * FROM years")
+    suspend fun years(): List<Year>
 
-    @get:Query("SELECT name FROM years ORDER BY name DESC")
-    val allYearNames: List<Int>
+    @Query("SELECT name FROM years ORDER BY name DESC")
+    suspend fun allYearNames(): List<Int>
+
+    @Query("SELECT * FROM years WHERE name = (SELECT MAX(name) FROM years) LIMIT 1")
+    suspend fun lastYear(): Year?
 
     @get:Query("SELECT * FROM years WHERE name = (SELECT MAX(name) FROM years) LIMIT 1")
-    val lastYear: Year?
+    val lastYearLive: LiveData<Year?>
 
     @Query("SELECT * FROM years WHERE name = :name LIMIT 1")
-    fun getYearByName(name: String): Year?
+    suspend fun getYearByName(name: String): Year?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(year: Year)
+    suspend fun insert(year: Year)
 }

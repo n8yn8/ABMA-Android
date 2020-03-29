@@ -28,6 +28,8 @@ import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.backendless.DbManager;
 import com.n8yn8.abma.model.entities.Year;
 
+import java.util.List;
+
 import static com.n8yn8.abma.R.id.years;
 
 public class MainActivity extends AppCompatActivity
@@ -79,6 +81,12 @@ public class MainActivity extends AppCompatActivity
                 yearInfoMenuItem.setTitle(yearName + " Info");
             }
         });
+        viewModel.getYearNames().observe(this, new Observer<List<String>>() {
+            @Override
+            public void onChanged(List<String> names) {
+                showYearsPicker(names);
+            }
+        });
     }
 
     @Override
@@ -107,7 +115,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case years:
-                showYearsPicker();
+                viewModel.requestYearNames();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -169,10 +177,10 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void showYearsPicker() {
+    private void showYearsPicker(List<String> yearNames) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Year");
-        final YearSelectorView view = new YearSelectorView(this);
+        final YearSelectorView view = new YearSelectorView(this, yearNames);
         builder.setView(view);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override

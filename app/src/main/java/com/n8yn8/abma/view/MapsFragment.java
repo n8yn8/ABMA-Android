@@ -5,7 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,11 +21,12 @@ import com.n8yn8.abma.model.entities.Map;
 import com.n8yn8.abma.model.entities.Year;
 import com.n8yn8.abma.view.adapter.MapsAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapsFragment extends Fragment {
 
-    private List<Map> maps;
+    private List<Map> maps = new ArrayList<>();
 
     public MapsFragment() {
 
@@ -34,9 +39,6 @@ public class MapsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AppDatabase db = AppDatabase.getInstance(getActivity().getApplicationContext());
-        Year latestYear = db.yearDao().getLastYear();
-        maps = db.mapDao().getMaps(latestYear.objectId);
     }
 
     @Override
@@ -58,5 +60,18 @@ public class MapsFragment extends Fragment {
         listView.setAdapter(adapter);
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        MainViewModel viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        viewModel.getYear().observe(getViewLifecycleOwner(), new Observer<Year>() {
+            @Override
+            public void onChanged(Year year) {
+                AppDatabase db = AppDatabase.getInstance(requireActivity().getApplicationContext());
+                maps.addAll( db.mapDao().getMaps(year.objectId));
+            }
+        });
     }
 }

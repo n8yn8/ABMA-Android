@@ -10,7 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -55,15 +59,6 @@ public class ContactFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AppDatabase db = AppDatabase.getInstance(getActivity().getApplicationContext());
-        Year latestYear = db.yearDao().getLastYear();
-        List<Survey> allSurveys = db.surveyDao().getSurveys(latestYear.objectId);
-        Date now = new Date();
-        for (Survey survey : allSurveys) {
-            if (now.after(new Date(survey.startDate)) && now.before(new Date(survey.endDate))) {
-                surveys.add(survey);
-            }
-        }
     }
 
     @Override
@@ -93,5 +88,23 @@ public class ContactFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        MainViewModel viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        viewModel.getYear().observe(getViewLifecycleOwner(), new Observer<Year>() {
+            @Override
+            public void onChanged(Year year) {
+                AppDatabase db = AppDatabase.getInstance(requireActivity().getApplicationContext());
+                List<Survey> allSurveys = db.surveyDao().getSurveys(year.objectId);
+                Date now = new Date();
+                for (Survey survey : allSurveys) {
+                    if (now.after(new Date(survey.startDate)) && now.before(new Date(survey.endDate))) {
+                        surveys.add(survey);
+                    }
+                }
+            }
+        });
+    }
 }
