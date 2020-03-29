@@ -7,16 +7,18 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import com.n8yn8.abma.Utils
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.ConvertUtil
-import com.n8yn8.abma.model.backendless.BEvent
-import com.n8yn8.abma.model.backendless.BSponsor
-import com.n8yn8.abma.model.backendless.DbManager
+import com.n8yn8.abma.model.MyDateTypeAdapter
+import com.n8yn8.abma.model.backendless.*
 import com.n8yn8.abma.model.entities.Year
 import kotlinx.coroutines.launch
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
+import java.util.*
 
 class MainViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
 
@@ -78,7 +80,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
                 for (bYear in years) {
                     db.yearDao().insert(ConvertUtil.convert(bYear))
                     Utils.saveSurveys(db, bYear)
-                    Utils.saveMaps(db, bYear)
+                    saveMaps(bYear)
                     remote.getEvents(bYear.objectId) { bEvents, _ ->
                         viewModelScope.launch {
                             saveEvents(bYear.objectId, bEvents)
@@ -94,6 +96,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
 
             _isLoading.postValue(false)
         }
+    }
+
+    private suspend fun saveMaps(year: BYear) {
+        val mapsString = year.maps
+        val gson = GsonBuilder()
+                .registerTypeAdapter(Date::class.java, MyDateTypeAdapter())
+                .create()
+        val maps = gson.fromJson<List<BMap>>(mapsString, object : TypeToken<List<BMap?>?>() {}.type)
+        db.mapDao().insert(ConvertUtil.convertMaps(maps, year.objectId))
     }
 
     private suspend fun saveEvents(yearId: String, bEvents: List<BEvent>) {

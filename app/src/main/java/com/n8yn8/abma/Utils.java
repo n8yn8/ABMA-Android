@@ -16,7 +16,6 @@ import com.google.gson.reflect.TypeToken;
 import com.n8yn8.abma.model.AppDatabase;
 import com.n8yn8.abma.model.ConvertUtil;
 import com.n8yn8.abma.model.MyDateTypeAdapter;
-import com.n8yn8.abma.model.backendless.BMap;
 import com.n8yn8.abma.model.backendless.BSurvey;
 import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.entities.Event;
@@ -114,15 +113,6 @@ public class Utils {
                 .create();
         List<BSurvey> surveys = gson.fromJson(surveysString, new TypeToken<List<BSurvey>>(){}.getType());
         db.surveyDao().insert(ConvertUtil.convertSurveys(surveys, year.getObjectId()));
-    }
-
-    public static void saveMaps(AppDatabase db, BYear year) {
-        String mapsString = year.getMaps();
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Date.class, new MyDateTypeAdapter())
-                .create();
-        List<BMap> maps = gson.fromJson(mapsString, new TypeToken<List<BMap>>(){}.getType());
-        db.mapDao().insert(ConvertUtil.convertMaps(maps, year.getObjectId()));
     }
 
     public static long getStartOfDay(long timeMillis) {
