@@ -20,8 +20,6 @@ import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-private const val DATABASE = "DATABASE"
-
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class EventViewModelTest : KoinTest {
@@ -37,6 +35,9 @@ class EventViewModelTest : KoinTest {
 
     @Mock
     lateinit var paperObserver: Observer<Paper?>
+
+    @Mock
+    lateinit var directionObserver: Observer<EventViewModel.DirectionLimit?>
 
     private val database: com.n8yn8.abma.model.AppDatabase by inject()
 
@@ -72,6 +73,7 @@ class EventViewModelTest : KoinTest {
         }
         eventViewModel.event.observeForever(eventObserver)
         eventViewModel.paper.observeForever(paperObserver)
+        eventViewModel.directionLimit.observeForever(directionObserver)
 
         eventViewModel.setSelectedEvent(FakeData.getEvent().objectId)
 
@@ -92,6 +94,7 @@ class EventViewModelTest : KoinTest {
         }
         eventViewModel.event.observeForever(eventObserver)
         eventViewModel.paper.observeForever(paperObserver)
+        eventViewModel.directionLimit.observeForever(directionObserver)
 
         eventViewModel.setSelectedEvent(event2.objectId)
         eventViewModel.getPapers(event2.objectId)
@@ -99,12 +102,12 @@ class EventViewModelTest : KoinTest {
         Mockito.verify(eventObserver).onChanged(event2)
         Mockito.verify(eventObserver, Mockito.never()).onChanged(event1)
 
-        val canGetPrevious = eventViewModel.getPrevious()
-        assert(canGetPrevious)
+        eventViewModel.getPrevious()
+        Mockito.verify(directionObserver, Mockito.never()).onChanged(Mockito.any())
         Mockito.verify(eventObserver).onChanged(event1)
 
-        val canGetPreviousAgain = eventViewModel.getPrevious()
-        assert(!canGetPreviousAgain)
+        eventViewModel.getPrevious()
+        Mockito.verify(directionObserver).onChanged(EventViewModel.DirectionLimit.EVENT_MIN)
         Mockito.verify(eventObserver).onChanged(event1) //Wasn't called again
         Mockito.verify(paperObserver, Mockito.never()).onChanged(Mockito.any())
     }
@@ -122,6 +125,7 @@ class EventViewModelTest : KoinTest {
         }
         eventViewModel.event.observeForever(eventObserver)
         eventViewModel.paper.observeForever(paperObserver)
+        eventViewModel.directionLimit.observeForever(directionObserver)
 
         eventViewModel.setSelectedEvent(event2.objectId)
         eventViewModel.getPapers(event2.objectId)
@@ -134,8 +138,8 @@ class EventViewModelTest : KoinTest {
         Mockito.verify(paperObserver, Mockito.never()).onChanged(paper1Event2)
         Mockito.verify(paperObserver, Mockito.times(1)).onChanged(paper2Event2)
 
-        val canGetPrevious = eventViewModel.getPrevious()
-        assert(canGetPrevious)
+        eventViewModel.getPrevious()
+        Mockito.verify(directionObserver, Mockito.never()).onChanged(Mockito.any())
         //Verify original selection of event only
         Mockito.verify(eventObserver, Mockito.times(1)).onChanged(event2)
         Mockito.verify(eventObserver, Mockito.never()).onChanged(event1)
@@ -143,8 +147,8 @@ class EventViewModelTest : KoinTest {
         Mockito.verify(paperObserver, Mockito.times(1)).onChanged(paper1Event2)
         Mockito.verify(paperObserver, Mockito.times(1)).onChanged(paper2Event2)
 
-        val canGetPreviousAgain = eventViewModel.getPrevious()
-        assert(!canGetPreviousAgain)
+        eventViewModel.getPrevious()
+        Mockito.verify(directionObserver).onChanged(EventViewModel.DirectionLimit.PAPER_MIN)
         Mockito.verify(eventObserver, Mockito.times(1)).onChanged(event2) //Wasn't called again
         Mockito.verify(eventObserver, Mockito.never()).onChanged(event1) // Never navigated to event1
         //Verify original selected paper and previous paper have been selected once still
@@ -165,6 +169,7 @@ class EventViewModelTest : KoinTest {
         }
         eventViewModel.event.observeForever(eventObserver)
         eventViewModel.paper.observeForever(paperObserver)
+        eventViewModel.directionLimit.observeForever(directionObserver)
 
         eventViewModel.setSelectedEvent(event1.objectId)
         eventViewModel.getPapers(event1.objectId)
@@ -172,13 +177,13 @@ class EventViewModelTest : KoinTest {
         Mockito.verify(eventObserver).onChanged(event1)
         Mockito.verify(eventObserver, Mockito.never()).onChanged(event2)
 
-        val canGetNext = eventViewModel.getNext()
-        assert(canGetNext)
+        eventViewModel.getNext()
+        Mockito.verify(directionObserver, Mockito.never()).onChanged(Mockito.any())
         Mockito.verify(eventObserver).onChanged(event1)
         Mockito.verify(eventObserver).onChanged(event2)
 
-        val canGetNextAgain = eventViewModel.getNext()
-        assert(!canGetNextAgain)
+        eventViewModel.getNext()
+        Mockito.verify(directionObserver).onChanged(EventViewModel.DirectionLimit.EVENT_MAX)
         Mockito.verify(eventObserver).onChanged(event1)
         Mockito.verify(eventObserver).onChanged(event2) //Wasn't called again
         Mockito.verify(paperObserver, Mockito.never()).onChanged(Mockito.any())
@@ -197,6 +202,7 @@ class EventViewModelTest : KoinTest {
         }
         eventViewModel.event.observeForever(eventObserver)
         eventViewModel.paper.observeForever(paperObserver)
+        eventViewModel.directionLimit.observeForever(directionObserver)
 
         eventViewModel.setSelectedEvent(event1.objectId)
         eventViewModel.getPapers(event1.objectId)
@@ -209,8 +215,8 @@ class EventViewModelTest : KoinTest {
         Mockito.verify(paperObserver).onChanged(paper1Event1)
         Mockito.verify(paperObserver, Mockito.never()).onChanged(paper2Event1)
 
-        val canGetPrevious = eventViewModel.getNext()
-        assert(canGetPrevious)
+        eventViewModel.getNext()
+        Mockito.verify(directionObserver, Mockito.never()).onChanged(Mockito.any())
         //Verify original selection of event only
         Mockito.verify(eventObserver).onChanged(event1)
         Mockito.verify(eventObserver, Mockito.never()).onChanged(event2)
@@ -218,8 +224,8 @@ class EventViewModelTest : KoinTest {
         Mockito.verify(paperObserver).onChanged(paper1Event1)
         Mockito.verify(paperObserver).onChanged(paper2Event1)
 
-        val canGetPreviousAgain = eventViewModel.getNext()
-        assert(!canGetPreviousAgain)
+        eventViewModel.getNext()
+        Mockito.verify(directionObserver).onChanged(EventViewModel.DirectionLimit.PAPER_MAX)
         Mockito.verify(eventObserver).onChanged(event1) //Wasn't called again
         Mockito.verify(eventObserver, Mockito.never()).onChanged(event2) // Never navigated to event1
         //Verify original selected paper and previous paper have been selected once still

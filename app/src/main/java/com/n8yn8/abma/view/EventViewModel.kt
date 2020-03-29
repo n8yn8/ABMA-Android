@@ -17,12 +17,19 @@ import org.koin.standalone.inject
 
 class EventViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
 
+    enum class DirectionLimit {
+        EVENT_MIN, EVENT_MAX, PAPER_MIN, PAPER_MAX
+    }
+
     private val _event = MutableLiveData<Event>()
     val event: LiveData<Event>
         get() = _event
     val paper: MutableLiveData<Paper?> = MutableLiveData()
     var eventPapers: List<Paper>? = null
         private set
+    private val _directionLimit = MutableLiveData<DirectionLimit>()
+    val directionLimit: LiveData<DirectionLimit>
+        get() = _directionLimit
     private val db: AppDatabase by inject()
 
     fun setSelectedEvent(eventId: String) {
@@ -32,43 +39,44 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
         }
     }
 
-    fun getPrevious(): Boolean {
-        if (paper.value != null) {
-            val prevPaper: Paper? = getPrevPaper()
-            if (prevPaper != null) {
-                paper.postValue(prevPaper)
+    fun getPrevious() {
+        viewModelScope.launch {
+            if (paper.value != null) {
+                val prevPaper: Paper? = getPrevPaper()
+                if (prevPaper != null) {
+                    paper.postValue(prevPaper)
+                } else {
+                    _directionLimit.postValue(DirectionLimit.PAPER_MIN)
+                }
             } else {
-                return false
-            }
-        } else {
-            val tempEvent: Event? = db.eventDao().getEventBefore(_event.value!!.startDate)
-            if (tempEvent != null) {
-                _event.postValue(tempEvent)
-            } else {
-                return false
+                val tempEvent: Event? = db.eventDao().getEventBefore(_event.value!!.startDate)
+                if (tempEvent != null) {
+                    _event.postValue(tempEvent)
+                } else {
+                    _directionLimit.postValue(DirectionLimit.EVENT_MIN)
+                }
             }
         }
-
-        return true
     }
 
-    fun getNext(): Boolean {
-        if (paper.value != null) {
-            val nextPaper: Paper? = getNextPaper()
-            if (nextPaper != null) {
-                paper.postValue(nextPaper)
+    fun getNext() {
+        viewModelScope.launch {
+            if (paper.value != null) {
+                val nextPaper: Paper? = getNextPaper()
+                if (nextPaper != null) {
+                    paper.postValue(nextPaper)
+                } else {
+                    _directionLimit.postValue(DirectionLimit.PAPER_MAX)
+                }
             } else {
-                return false
-            }
-        } else {
-            val tempEvent: Event? = db.eventDao().getEventAfter(_event.value!!.startDate)
-            if (tempEvent != null) {
-                _event.postValue(tempEvent)
-            } else {
-                return false
+                val tempEvent: Event? = db.eventDao().getEventAfter(_event.value!!.startDate)
+                if (tempEvent != null) {
+                    _event.postValue(tempEvent)
+                } else {
+                    _directionLimit.postValue(DirectionLimit.EVENT_MAX)
+                }
             }
         }
-        return true
     }
 
     fun saveNote(noteString: String): Boolean {

@@ -98,23 +98,43 @@ public class EventActivity extends AppCompatActivity {
             }
         });
 
+        viewModel.getDirectionLimit().observe(this, new Observer<EventViewModel.DirectionLimit>() {
+            @Override
+            public void onChanged(EventViewModel.DirectionLimit directionLimit) {
+                String displayText;
+                switch (directionLimit) {
+                    case EVENT_MAX:
+                        displayText = "Last event reached";
+                        break;
+                    case EVENT_MIN:
+                        displayText = "First event reached";
+                        break;
+                    case PAPER_MAX:
+                        displayText = "Last paper reached";
+                        break;
+                    case PAPER_MIN:
+                        displayText = "First paper reached";
+                        break;
+                    default:
+                        displayText = "Limit reached";
+                        break;
+                }
+                Toast.makeText(getApplicationContext(), displayText, Toast.LENGTH_SHORT).show();
+            }
+        });
+
         ImageButton backButton = findViewById(R.id.backEventButton);
         ImageButton nextButton = findViewById(R.id.nextEventButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!viewModel.getPrevious()) {
-                    Toast.makeText(getApplicationContext(), "First reached", Toast.LENGTH_SHORT).show();
-                }
+                viewModel.getPrevious();
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!viewModel.getNext()) {
-                    Toast.makeText(getApplicationContext(), "Last reached", Toast.LENGTH_SHORT).show();
-                }
-
+                viewModel.getNext();
             }
         });
 
