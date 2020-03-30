@@ -5,7 +5,7 @@ import androidx.lifecycle.*
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.ConvertUtil
 import com.n8yn8.abma.model.backendless.DbManager
-import com.n8yn8.abma.model.entities.Event
+import com.n8yn8.abma.model.entities.EventPapers
 import com.n8yn8.abma.model.entities.Note
 import com.n8yn8.abma.model.entities.Paper
 import kotlinx.coroutines.launch
@@ -22,9 +22,8 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
     val eventPaper: LiveData<EventPaperModel>
         get() = _eventPaper
 
-    private val _event: MutableLiveData<Event> = MutableLiveData()
+    private val _event: MutableLiveData<EventPapers> = MutableLiveData()
     private val _paper: MutableLiveData<Paper?> = MutableLiveData()
-    private var eventPapers: List<Paper>? = null
 
     val noteLiveData: LiveData<Note>
 
@@ -44,10 +43,10 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
         noteLiveData = Transformations.switchMap(_eventPaper) {
             when (it.paper?.objectId) {
                 null -> {
-                    db.noteDao().getNoteLive(it.event.objectId)
+                    db.noteDao().getNoteLive(it.eventPapers.event.objectId)
                 }
                 else -> {
-                    db.noteDao().getNoteLive(it.event.objectId, it.paper.objectId)
+                    db.noteDao().getNoteLive(it.eventPapers.event.objectId, it.paper.objectId)
                 }
             }
         }
@@ -81,7 +80,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
                     _directionLimit.postValue(DirectionLimit.PAPER_MIN)
                 }
             } else {
-                val tempEvent: Event? = db.eventDao().getEventBefore(_event.value!!.startDate)
+                val tempEvent = db.eventDao().getEventBefore(_event.value!!.event.startDate)
                 if (tempEvent != null) {
                     _event.postValue(tempEvent)
                 } else {
@@ -101,7 +100,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
                     _directionLimit.postValue(DirectionLimit.PAPER_MAX)
                 }
             } else {
-                val tempEvent: Event? = db.eventDao().getEventAfter(_event.value!!.startDate)
+                val tempEvent = db.eventDao().getEventAfter(_event.value!!.event.startDate)
                 if (tempEvent != null) {
                     _event.postValue(tempEvent)
                 } else {
@@ -114,7 +113,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
     fun saveNote(noteString: String): Boolean {
         var eventId: String? = null
         if (_event.value != null) {
-            eventId = _event.value?.objectId
+            eventId = _event.value?.event?.objectId
         }
         var paperId: String? = null
         if (_paper.value != null) {
@@ -154,18 +153,12 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
         return true //TODO check this
     }
 
-    fun getPapers(eventId: String): List<Paper> {
-        val papers = db.paperDao().getPapers(eventId)
-        eventPapers = papers
-        return papers
-    }
-
     private fun getPrevPaper(): Paper? {
-        for (i in eventPapers!!.indices) {
-            val checkPaper = eventPapers!![i]
+        val eventPapers = _event.value ?: return null
+        for ((i, checkPaper) in eventPapers.papers.withIndex()) {
             if (checkPaper.objectId == _paper.value?.objectId) {
                 return if (i > 0) {
-                    eventPapers!![i - 1]
+                    eventPapers.papers[i - 1]
                 } else {
                     null
                 }
@@ -175,11 +168,11 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
     }
 
     private fun getNextPaper(): Paper? {
-        for (i in eventPapers!!.indices) {
-            val checkPaper = eventPapers!![i]
+        val eventPapers = _event.value ?: return null
+        for ((i, checkPaper) in eventPapers.papers.withIndex()) {
             if (checkPaper.objectId == _paper.value?.objectId) {
-                return if (i < eventPapers!!.size - 1) {
-                    eventPapers!![i + 1]
+                return if (i < eventPapers.papers.size - 1) {
+                    eventPapers.papers[i + 1]
                 } else {
                     null
                 }
@@ -189,4 +182,4 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
     }
 }
 
-data class EventPaperModel(val event: Event, val paper: Paper? = null)
+data class EventPaperModel(val eventPapers: EventPapers, val paper: Paper? = null)

@@ -24,6 +24,10 @@ object FakeData {
         }
     }
 
+    fun getEventPapers(): EventPapers {
+        return EventPapers(getEvent(), listOf())
+    }
+
     fun getEvent(index: Int = 1, yearName: Int = 2020): Event {
         return Event().apply {
             id = index

@@ -5,8 +5,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.room.Room
 import com.n8yn8.abma.model.AppDatabase
+import com.n8yn8.abma.model.entities.EventPapers
 import com.n8yn8.abma.model.entities.Note
-import com.n8yn8.abma.model.entities.Paper
 import com.n8yn8.test.util.FakeData
 import kotlinx.coroutines.runBlocking
 import org.junit.*
@@ -77,7 +77,7 @@ class EventViewModelTest : KoinTest {
 
         eventViewModel.setSelectedEvent(FakeData.getEvent().objectId)
 
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(FakeData.getEvent()))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(FakeData.getEventPapers()))
         Mockito.verify(eventPaperObserver).onChanged(Mockito.any())
     }
 
@@ -92,25 +92,27 @@ class EventViewModelTest : KoinTest {
             database.eventDao().insert(listOf(event1, event2))
             database.paperDao().insert(listOf(paper1Event1, paper2Event1))
         }
+        val eventPapers1 = EventPapers(event1, listOf(paper1Event1, paper2Event1))
+        val eventPapers2 = EventPapers(event2, listOf())
+
         eventViewModel.eventPaper.observeForever(eventPaperObserver)
         eventViewModel.directionLimit.observeForever(directionObserver)
 
         eventViewModel.setSelectedEvent(event2.objectId)
-        eventViewModel.getPapers(event2.objectId)
 
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event2))
-        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(event1))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers2))
+        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(eventPapers1))
         Mockito.verify(eventPaperObserver).onChanged(Mockito.any())
 
         eventViewModel.getPrevious()
         Mockito.verify(directionObserver, Mockito.never()).onChanged(Mockito.any())
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event1))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers1))
 
         eventViewModel.getPrevious()
         Mockito.verify(directionObserver).onChanged(EventViewModel.DirectionLimit.EVENT_MIN)
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event1)) //Wasn't called again
-        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(event1, paper1Event1))
-        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(event1, paper2Event1))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers1)) //Wasn't called again
+        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(eventPapers1, paper1Event1))
+        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(eventPapers1, paper2Event1))
         Mockito.verify(eventPaperObserver, Mockito.times(2)).onChanged(Mockito.any())
     }
 
@@ -125,19 +127,21 @@ class EventViewModelTest : KoinTest {
             database.eventDao().insert(listOf(event1, event2))
             database.paperDao().insert(listOf(paper1Event2, paper2Event2))
         }
+        val eventPapers1 = EventPapers(event1, listOf())
+        val eventPapers2 = EventPapers(event2, listOf(paper1Event2, paper2Event2))
+
         eventViewModel.eventPaper.observeForever(eventPaperObserver)
         eventViewModel.directionLimit.observeForever(directionObserver)
 
         eventViewModel.setSelectedEvent(event2.objectId)
-        eventViewModel.getPapers(event2.objectId)
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event2))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers2))
         //Verify no papers yet selected
         Mockito.verify(eventPaperObserver).onChanged(Mockito.any())
 
         eventViewModel.selectPaper(paper2Event2)
         //Verify only first selected paper selected
-        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(event2, paper1Event2))
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event2, paper2Event2))
+        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(eventPapers2, paper1Event2))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers2, paper2Event2))
         Mockito.verify(eventPaperObserver, Mockito.times(2)).onChanged(Mockito.any())
 
         eventViewModel.getPrevious()
@@ -147,11 +151,11 @@ class EventViewModelTest : KoinTest {
         Mockito.verify(directionObserver).onChanged(EventViewModel.DirectionLimit.PAPER_MIN)
 
         //Verify original selection of event only
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event2))
-        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(event1))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers2))
+        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(eventPapers1))
         //Verify original selected paper and previous paper have been selected once
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event2, paper1Event2))
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event2, paper2Event2))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers2, paper1Event2))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers2, paper2Event2))
         Mockito.verify(eventPaperObserver, Mockito.times(3)).onChanged(Mockito.any())
     }
 
@@ -166,25 +170,27 @@ class EventViewModelTest : KoinTest {
             database.eventDao().insert(listOf(event1, event2))
             database.paperDao().insert(listOf(paper1Event1, paper2Event1))
         }
+        val eventPapers1 = EventPapers(event1, listOf(paper1Event1, paper2Event1))
+        val eventPapers2 = EventPapers(event2, listOf())
+
         eventViewModel.eventPaper.observeForever(eventPaperObserver)
         eventViewModel.directionLimit.observeForever(directionObserver)
 
         eventViewModel.setSelectedEvent(event1.objectId)
-        eventViewModel.getPapers(event1.objectId)
 
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event1))
-        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(event2))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers1))
+        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(eventPapers2))
         Mockito.verify(eventPaperObserver).onChanged(Mockito.any())
 
         eventViewModel.getNext()
         Mockito.verify(directionObserver, Mockito.never()).onChanged(Mockito.any())
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event1))
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event2))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers1))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers2))
 
         eventViewModel.getNext()
         Mockito.verify(directionObserver).onChanged(EventViewModel.DirectionLimit.EVENT_MAX)
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event1))
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event2)) //Wasn't called again
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers1))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers2)) //Wasn't called again
         Mockito.verify(eventPaperObserver, Mockito.times(2)).onChanged(Mockito.any())
     }
 
@@ -199,19 +205,21 @@ class EventViewModelTest : KoinTest {
             database.eventDao().insert(listOf(event1, event2))
             database.paperDao().insert(listOf(paper1Event1, paper2Event1))
         }
+        val eventPapers1 = EventPapers(event1, listOf(paper1Event1, paper2Event1))
+        val eventPapers2 = EventPapers(event2, listOf())
+
         eventViewModel.eventPaper.observeForever(eventPaperObserver)
         eventViewModel.directionLimit.observeForever(directionObserver)
 
         eventViewModel.setSelectedEvent(event1.objectId)
-        eventViewModel.getPapers(event1.objectId)
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event1))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers1))
         //Verify no papers yet selected
         Mockito.verify(eventPaperObserver).onChanged(Mockito.any())
 
         eventViewModel.selectPaper(paper1Event1)
         //Verify only first selected paper selected
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event1, paper1Event1))
-        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(event1, paper2Event1))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers1, paper1Event1))
+        Mockito.verify(eventPaperObserver, Mockito.never()).onChanged(EventPaperModel(eventPapers1, paper2Event1))
         Mockito.verify(eventPaperObserver, Mockito.times(2)).onChanged(Mockito.any())
 
         eventViewModel.getNext()
@@ -221,10 +229,10 @@ class EventViewModelTest : KoinTest {
         Mockito.verify(directionObserver).onChanged(EventViewModel.DirectionLimit.PAPER_MAX)
 
         //Verify original selection of event only
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event1))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers1))
         //Verify original selected paper and previous paper have been selected once
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event1, paper1Event1))
-        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(event1, paper2Event1))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers1, paper1Event1))
+        Mockito.verify(eventPaperObserver).onChanged(EventPaperModel(eventPapers1, paper2Event1))
         Mockito.verify(eventPaperObserver, Mockito.times(3)).onChanged(Mockito.any())
     }
 
@@ -241,7 +249,6 @@ class EventViewModelTest : KoinTest {
         }
 
         eventViewModel.setSelectedEvent(event1.objectId)
-        eventViewModel.getPapers(event1.objectId)
 
         val expectedNotString = "Event 1 note"
         eventViewModel.saveNote(expectedNotString)
@@ -269,7 +276,6 @@ class EventViewModelTest : KoinTest {
         }
 
         eventViewModel.setSelectedEvent(event1.objectId)
-        eventViewModel.getPapers(event1.objectId)
         eventViewModel.selectPaper(paper1Event1)
 
         val expectedNotString = "Paper 1 note"
@@ -308,7 +314,6 @@ class EventViewModelTest : KoinTest {
         eventViewModel.noteLiveData.observeForever(noteObserver)
 
         eventViewModel.setSelectedEvent(event1.objectId)
-        eventViewModel.getPapers(event1.objectId)
 
         Mockito.verify(noteObserver).onChanged(note1)
 
@@ -323,21 +328,4 @@ class EventViewModelTest : KoinTest {
         Mockito.verify(noteObserver, Mockito.times(2)).onChanged(null)
     }
 
-    @Test
-    fun getPapers() {
-        val event1 = FakeData.getEvent()
-        val event2 = FakeData.getEvent(2)
-        val event1Papers = listOf(FakeData.getPaper(1), FakeData.getPaper(2))
-        runBlocking {
-            database.yearDao().insert(FakeData.getYear())
-            database.eventDao().insert(listOf(event1, event2))
-            database.paperDao().insert(event1Papers)
-        }
-
-        val retrieved1 = eventViewModel.getPapers(event1.objectId)
-        Assert.assertEquals(event1Papers, retrieved1)
-
-        val retrieved2 = eventViewModel.getPapers(event2.objectId)
-        Assert.assertEquals(emptyList<Paper>(), retrieved2)
-    }
 }

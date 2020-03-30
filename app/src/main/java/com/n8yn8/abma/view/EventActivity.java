@@ -23,14 +23,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
-import com.n8yn8.abma.model.entities.Event;
+import com.n8yn8.abma.model.entities.EventPapers;
 import com.n8yn8.abma.model.entities.Note;
 import com.n8yn8.abma.model.entities.Paper;
 import com.n8yn8.abma.view.adapter.PaperListAdapter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 
@@ -86,7 +85,7 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onChanged(EventPaperModel eventPaperModel) {
                 Log.d(TAG, "on event changed: " + eventPaperModel);
-                displayEvent(eventPaperModel.getEvent(), eventPaperModel.getPaper());
+                displayEvent(eventPaperModel.getEventPapers(), eventPaperModel.getPaper());
             }
         });
         viewModel.setSelectedEvent(getIntent().getStringExtra(EXTRA_EVENT_ID));
@@ -201,24 +200,23 @@ public class EventActivity extends AppCompatActivity {
         }
     }
 
-    public void displayEvent(final Event event, @Nullable Paper paper) {
-        Date date = new Date(event.startDate);
+    public void displayEvent(final EventPapers eventPapers, @Nullable Paper paper) {
+        Date date = new Date(eventPapers.getEvent().startDate);
         SimpleDateFormat dayFormatter = new SimpleDateFormat("EEEE");
         dayFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         dayTextView.setText(dayFormatter.format(date).toUpperCase());
         SimpleDateFormat dateFormatter = new SimpleDateFormat("d");
         dateTextView.setText(dateFormatter.format(date));
 
-        timeTextView.setText(Utils.getTimes(event));
-        placeTextView.setText(event.place);
+        timeTextView.setText(Utils.getTimes(eventPapers.getEvent()));
+        placeTextView.setText(eventPapers.getEvent().place);
 
-        List<Paper> papers = viewModel.getPapers(event.objectId);
-        adapter.submitList(papers);
+        adapter.submitList(eventPapers.getPapers());
 
         if (paper == null) {
-            titleTextView.setText(event.title);
-            subtitleTextView.setText(event.subtitle);
-            detailTextView.setText(event.details);
+            titleTextView.setText(eventPapers.getEvent().title);
+            subtitleTextView.setText(eventPapers.getEvent().subtitle);
+            detailTextView.setText(eventPapers.getEvent().details);
             detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
             detailTextView.scrollTo(0, 0);
             papersListView.setVisibility(View.VISIBLE);
