@@ -66,7 +66,9 @@ class NoteDaoTest {
         }
 
         Mockito.verify(notesObserver, Mockito.times(5)).onChanged(Mockito.any())
-        val allNotes = database.noteDao().notes
-        Assert.assertEquals(4, allNotes.size)
+        runBlocking {
+            val allNotes = database.noteDao().notes()
+            Assert.assertEquals(4, allNotes.size)
+        }
     }
 }

@@ -1,10 +1,7 @@
 package com.n8yn8.abma.view
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.ConvertUtil
 import com.n8yn8.abma.model.backendless.DbManager
@@ -21,16 +18,47 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
         EVENT_MIN, EVENT_MAX, PAPER_MIN, PAPER_MAX
     }
 
-    private val _event = MutableLiveData<Event>()
-    val event: LiveData<Event>
-        get() = _event
-    val paper: MutableLiveData<Paper?> = MutableLiveData()
-    var eventPapers: List<Paper>? = null
-        private set
+    private val _eventPaper = MediatorLiveData<EventPaperModel>()
+    val eventPaper: LiveData<EventPaperModel>
+        get() = _eventPaper
+
+    private val _event: MutableLiveData<Event> = MutableLiveData()
+    private val _paper: MutableLiveData<Paper?> = MutableLiveData()
+    private var eventPapers: List<Paper>? = null
+
+    val noteLiveData: LiveData<Note>
+
     private val _directionLimit = MutableLiveData<DirectionLimit>()
     val directionLimit: LiveData<DirectionLimit>
         get() = _directionLimit
+
     private val db: AppDatabase by inject()
+
+    init {
+        _eventPaper.addSource(_event) {
+            _eventPaper.value = combine()
+        }
+        _eventPaper.addSource(_paper) {
+            _eventPaper.value = combine()
+        }
+        noteLiveData = Transformations.switchMap(_eventPaper) {
+            when (it.paper?.objectId) {
+                null -> {
+                    db.noteDao().getNoteLive(it.event.objectId)
+                }
+                else -> {
+                    db.noteDao().getNoteLive(it.event.objectId, it.paper.objectId)
+                }
+            }
+        }
+    }
+
+    private fun combine() : EventPaperModel {
+        val thisEvent = _event.value!!
+        val thisPaper = _paper.value
+
+        return EventPaperModel(thisEvent, thisPaper)
+    }
 
     fun setSelectedEvent(eventId: String) {
         viewModelScope.launch {
@@ -39,12 +67,16 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
         }
     }
 
+    fun selectPaper(paper: Paper?) {
+        _paper.postValue(paper)
+    }
+
     fun getPrevious() {
         viewModelScope.launch {
-            if (paper.value != null) {
+            if (_paper.value != null) {
                 val prevPaper: Paper? = getPrevPaper()
                 if (prevPaper != null) {
-                    paper.postValue(prevPaper)
+                    _paper.postValue(prevPaper)
                 } else {
                     _directionLimit.postValue(DirectionLimit.PAPER_MIN)
                 }
@@ -61,10 +93,10 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
 
     fun getNext() {
         viewModelScope.launch {
-            if (paper.value != null) {
+            if (_paper.value != null) {
                 val nextPaper: Paper? = getNextPaper()
                 if (nextPaper != null) {
-                    paper.postValue(nextPaper)
+                    _paper.postValue(nextPaper)
                 } else {
                     _directionLimit.postValue(DirectionLimit.PAPER_MAX)
                 }
@@ -85,12 +117,12 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
             eventId = _event.value?.objectId
         }
         var paperId: String? = null
-        if (paper.value != null) {
-            paperId = paper.value?.objectId
+        if (_paper.value != null) {
+            paperId = _paper.value?.objectId
         }
         val noteContent: String = noteString
 
-        var note = getNote(eventId, paperId)
+        var note = noteLiveData.value
         if (noteContent != "") {
             if (note == null) {
                 note = Note()
@@ -100,17 +132,21 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
                 it.eventId = eventId
                 it.paperId = paperId
             }
-            db.noteDao().insert(note)
+            viewModelScope.launch {
+                db.noteDao().insert(note)
+            }
             DbManager.getInstance().addNote(ConvertUtil.convert(note)) { savedNote, error ->
                 if (error == null) {
                     if (savedNote != null) {
-                        db.noteDao().insert(ConvertUtil.convert(savedNote))
+                        viewModelScope.launch {
+                            db.noteDao().insert(ConvertUtil.convert(savedNote))
+                        }
                     }
                 }
             }
         } else {
             if (note != null) {
-                db.noteDao().delete(note)
+                viewModelScope.launch { db.noteDao().delete(note) }
                 DbManager.getInstance().delete(ConvertUtil.convert(note))
                 return false
             }
@@ -127,7 +163,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
     private fun getPrevPaper(): Paper? {
         for (i in eventPapers!!.indices) {
             val checkPaper = eventPapers!![i]
-            if (checkPaper.objectId == paper.value?.objectId) {
+            if (checkPaper.objectId == _paper.value?.objectId) {
                 return if (i > 0) {
                     eventPapers!![i - 1]
                 } else {
@@ -141,7 +177,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
     private fun getNextPaper(): Paper? {
         for (i in eventPapers!!.indices) {
             val checkPaper = eventPapers!![i]
-            if (checkPaper.objectId == paper.value?.objectId) {
+            if (checkPaper.objectId == _paper.value?.objectId) {
                 return if (i < eventPapers!!.size - 1) {
                     eventPapers!![i + 1]
                 } else {
@@ -151,18 +187,6 @@ class EventViewModel(application: Application) : AndroidViewModel(application), 
         }
         return null
     }
-
-    fun getNote(eventId: String?, paperId: String? = null): Note? {
-        return when {
-            eventId == null -> {
-                return null
-            }
-            paperId == null -> {
-                db.noteDao().getNote(eventId)
-            }
-            else -> {
-                db.noteDao().getNote(eventId, paperId)
-            }
-        }
-    }
 }
+
+data class EventPaperModel(val event: Event, val paper: Paper? = null)

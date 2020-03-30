@@ -82,19 +82,23 @@ public class EventActivity extends AppCompatActivity {
         placeTextView = findViewById(R.id.placeTextView);
         noteEditText = findViewById(R.id.noteEditText);
 
-        viewModel.getEvent().observe(this, new Observer<Event>() {
+        viewModel.getEventPaper().observe(this, new Observer<EventPaperModel>() {
             @Override
-            public void onChanged(Event event) {
-                Log.d(TAG, "on event changed: " + event);
-                displayEvent(event, null);
+            public void onChanged(EventPaperModel eventPaperModel) {
+                Log.d(TAG, "on event changed: " + eventPaperModel);
+                displayEvent(eventPaperModel.getEvent(), eventPaperModel.getPaper());
             }
         });
         viewModel.setSelectedEvent(getIntent().getStringExtra(EXTRA_EVENT_ID));
 
-        viewModel.getPaper().observe(this, new Observer<Paper>() {
+        viewModel.getNoteLiveData().observe(this, new Observer<Note>() {
             @Override
-            public void onChanged(Paper paper) {
-                displayEvent(viewModel.getEvent().getValue(), paper);
+            public void onChanged(Note note) {
+                if (note != null) {
+                    noteEditText.setText(note.content);
+                } else {
+                    noteEditText.setText("");
+                }
             }
         });
 
@@ -158,7 +162,7 @@ public class EventActivity extends AppCompatActivity {
         adapter = new PaperListAdapter(new PaperListAdapter.OnClickListener() {
             @Override
             public void onClick(Paper paper) {
-                viewModel.getPaper().postValue(paper);
+                viewModel.selectPaper(paper);
             }
         });
         papersListView.setAdapter(adapter);
@@ -176,8 +180,9 @@ public class EventActivity extends AppCompatActivity {
 //            return true;
 //        }
         if (id == android.R.id.home) {
-            if (viewModel.getPaper().getValue() != null) {
-                viewModel.getPaper().postValue(null);
+            EventPaperModel eventPaperModel= viewModel.getEventPaper().getValue();
+            if (eventPaperModel != null && eventPaperModel.getPaper() != null) {
+                viewModel.selectPaper( null);
             } else {
                 finish();
             }
@@ -188,8 +193,9 @@ public class EventActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (viewModel.getPaper().getValue() != null) {
-            viewModel.getPaper().postValue(null);
+        EventPaperModel eventPaperModel= viewModel.getEventPaper().getValue();
+        if (eventPaperModel != null && eventPaperModel.getPaper() != null) {
+            viewModel.selectPaper( null);
         } else {
             super.onBackPressed();
         }
@@ -202,7 +208,6 @@ public class EventActivity extends AppCompatActivity {
         dayTextView.setText(dayFormatter.format(date).toUpperCase());
         SimpleDateFormat dateFormatter = new SimpleDateFormat("d");
         dateTextView.setText(dateFormatter.format(date));
-
 
         timeTextView.setText(Utils.getTimes(event));
         placeTextView.setText(event.place);
@@ -224,12 +229,6 @@ public class EventActivity extends AppCompatActivity {
             detailTextView.setText(paper.synopsis);
             detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
             detailTextView.scrollTo(0, 0);
-        }
-        Note note = viewModel.getNote(event.objectId, paper == null ? null : paper.objectId);
-        if (note != null) {
-            noteEditText.setText(note.content);
-        } else {
-            noteEditText.setText("");
         }
     }
 }

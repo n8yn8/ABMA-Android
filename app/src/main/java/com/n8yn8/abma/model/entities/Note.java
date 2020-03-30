@@ -1,5 +1,6 @@
 package com.n8yn8.abma.model.entities;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -64,5 +65,19 @@ public class Note {
     @Override
     public int hashCode() {
         return Objects.hash(id, objectId, eventId, paperId, content, created, updated);
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+        return "Note{" +
+                "id=" + id +
+                ", objectId='" + objectId + '\'' +
+                ", eventId='" + eventId + '\'' +
+                ", paperId='" + paperId + '\'' +
+                ", content='" + content + '\'' +
+                ", created=" + created +
+                ", updated=" + updated +
+                '}';
     }
 }

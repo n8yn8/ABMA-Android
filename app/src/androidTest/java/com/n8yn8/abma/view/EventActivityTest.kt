@@ -17,6 +17,7 @@ import androidx.test.rule.ActivityTestRule
 import com.n8yn8.abma.BaseTest
 import com.n8yn8.abma.R
 import com.n8yn8.abma.model.entities.Event
+import com.n8yn8.abma.model.entities.Note
 import com.n8yn8.abma.model.entities.Paper
 import com.n8yn8.abma.view.adapter.PaperListAdapter
 import com.n8yn8.test.util.FakeData
@@ -176,8 +177,8 @@ class EventActivityTest : BaseTest() {
         onView(withId(R.id.noteEditText)).perform(typeText(noteText))
         onView(withId(R.id.saveNoteButton)).perform(click())
 
-        val savedNote = database.noteDao().getNote(FakeData.getEvent().objectId)
-
+        var savedNote: Note? = null
+        runBlocking { savedNote = database.noteDao().getNote(FakeData.getEvent().objectId) }
         Assert.assertEquals(noteText, savedNote!!.content)
     }
 
@@ -190,7 +191,8 @@ class EventActivityTest : BaseTest() {
         onView(withId(R.id.noteEditText)).perform(typeText(noteText))
         onView(withId(R.id.saveNoteButton)).perform(click())
 
-        val savedNote = database.noteDao().getNote(FakeData.getEvent().objectId, FakeData.getPaper(1).objectId)
+        var savedNote: Note? = null
+        runBlocking { savedNote = database.noteDao().getNote(FakeData.getEvent().objectId, FakeData.getPaper(1).objectId) }
 
         Assert.assertEquals(noteText, savedNote!!.content)
     }
@@ -241,10 +243,13 @@ class EventActivityTest : BaseTest() {
                 matches(withText(event.place))
         )
 
-        val note = if (paper == null) {
-            database.noteDao().getNote(event.objectId)
-        } else {
-            database.noteDao().getNote(event.objectId, paper.objectId)
+        var note: Note? = null
+        runBlocking {
+            note = if (paper == null) {
+                database.noteDao().getNote(event.objectId)
+            } else {
+                database.noteDao().getNote(event.objectId, paper.objectId)
+            }
         }
 
         onView(

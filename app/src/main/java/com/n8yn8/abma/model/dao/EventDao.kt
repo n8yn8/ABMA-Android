@@ -7,7 +7,7 @@ import com.n8yn8.abma.model.entities.Event
 @Dao
 interface EventDao {
     @Query("SELECT * FROM events")
-    fun events(): List<Event>
+    suspend fun events(): List<Event>
 
     @Query("SELECT * FROM events WHERE year_id = :yearId ORDER BY start_date ASC")
     suspend fun getEvents(yearId: String): List<Event>

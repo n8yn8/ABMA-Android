@@ -139,8 +139,10 @@ class NoteViewModelTest : KoinTest {
         verify(noteModelObserver, times(3)).onChanged(anyList())
         //Local added to remote
         verify(remote, times(2)).addNote(any(), any())
-        val resultNotes = database.noteDao().notes
-        assertEquals(2, resultNotes.size)
+        runBlocking {
+            val resultNotes = database.noteDao().notes()
+            assertEquals(2, resultNotes.size)
+        }
     }
 
     @Test
@@ -159,7 +161,10 @@ class NoteViewModelTest : KoinTest {
         //TODO reduce to 2 executions. 4 happens from sync of local notes.
         verify(noteModelObserver, times(4)).onChanged(anyList())
         verify(remote, times(2)).addNote(any(), any())
-        val resultNotes = database.noteDao().notes
-        assertEquals(4, resultNotes.size)
+
+        runBlocking {
+            val resultNotes = database.noteDao().notes()
+            assertEquals(4, resultNotes.size)
+        }
     }
 }
