@@ -126,7 +126,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
         for (event in bEvents) {
             if (event.papersCount != 0) {
                 remote.getPapers(event.objectId) { bPapers, _ ->
-                    db.paperDao().insert(ConvertUtil.convertPapers(bPapers, event.objectId))
+                    viewModelScope.launch { db.paperDao().insert(ConvertUtil.convertPapers(bPapers, event.objectId)) }
                 }
             }
         }

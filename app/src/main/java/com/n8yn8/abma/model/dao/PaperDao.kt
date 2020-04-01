@@ -12,11 +12,11 @@ interface PaperDao {
     suspend fun getPapers(eventId: String): List<Paper>
 
     @Query("SELECT * FROM papers WHERE object_id = :objectId LIMIT 1")
-    fun getPaperById(objectId: String): Paper?
+    suspend fun getPaperById(objectId: String): Paper?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(paper: Paper)
+    suspend fun insert(paper: Paper)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(paper: List<Paper>)
+    suspend fun insert(paper: List<Paper>)
 }
