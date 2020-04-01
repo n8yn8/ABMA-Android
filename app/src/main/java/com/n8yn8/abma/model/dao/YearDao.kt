@@ -19,7 +19,7 @@ interface YearDao {
     suspend fun lastYear(): Year?
 
     @get:Query("SELECT * FROM years WHERE name = (SELECT MAX(name) FROM years) LIMIT 1")
-    val lastYearLive: LiveData<Year?>
+    val lastYearLive: LiveData<Year>
 
     @Query("SELECT * FROM years WHERE name = :name LIMIT 1")
     suspend fun getYearByName(name: String): Year?

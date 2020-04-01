@@ -15,7 +15,7 @@ class SponsorViewModel(application: Application) : AndroidViewModel(application)
 
     init {
         sponsors = Transformations.switchMap(db.yearDao().lastYearLive) { year ->
-            db.sponsorDao().getSponsors(year?.objectId)
+            db.sponsorDao().getSponsors(year.objectId)
         }
     }
 }

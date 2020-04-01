@@ -88,7 +88,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
                     }
                     remote.getSponsors(bYear.objectId, DbManager.Callback<List<BSponsor>> { remoteList, _ ->
                         if (remoteList == null) return@Callback
-                        db.sponsorDao().insert(ConvertUtil.convertSponsors(remoteList, bYear.objectId))
+                        viewModelScope.launch { db.sponsorDao().insert(ConvertUtil.convertSponsors(remoteList, bYear.objectId)) }
                     })
                 }
                 selectYear()
