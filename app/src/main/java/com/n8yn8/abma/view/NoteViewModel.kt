@@ -51,7 +51,9 @@ class NoteViewModel(application: Application) : AndroidViewModel(application), K
                     }
                     ConvertUtil.convert(it)
                 }
-                db.noteDao().insert(notesToSave)
+                if (notesToSave.isNotEmpty()) {
+                    db.noteDao().insert(notesToSave)
+                }
                 for (note in localNotes) {
                     remote.addNote(ConvertUtil.convert(note)) { savedNote, _ ->
                         if (savedNote != null) {

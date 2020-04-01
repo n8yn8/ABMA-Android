@@ -56,4 +56,17 @@ public class Paper {
     public int hashCode() {
         return Objects.hash(id, objectId, eventId, title, author, synopsis, order);
     }
+
+    @Override
+    public String toString() {
+        return "Paper{" +
+                "id=" + id +
+                ", objectId='" + objectId + '\'' +
+                ", eventId='" + eventId + '\'' +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                ", synopsis='" + synopsis + '\'' +
+                ", order=" + order +
+                '}';
+    }
 }

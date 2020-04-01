@@ -35,6 +35,7 @@ public class Note {
     public String eventId;
 
     @ColumnInfo(name = "paper_id")
+    @Nullable
     public String paperId;
 
     @ColumnInfo(name = "note_content")
