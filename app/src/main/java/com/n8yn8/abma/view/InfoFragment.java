@@ -7,16 +7,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.AppDatabase;
+import com.n8yn8.abma.model.entities.Year;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class InfoFragment extends Fragment {
+
+    private TextView infoTextView;
 
     public InfoFragment() {
         // Required empty public constructor
@@ -34,13 +40,26 @@ public class InfoFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_info, container, false);
-        TextView infoTextView = view.findViewById(R.id.infoTextView);
+        infoTextView = view.findViewById(R.id.infoTextView);
 
-
-        String info = AppDatabase.getInstance(getActivity().getApplicationContext()).yearDao().getLastYear().info;
-        infoTextView.setText(info);
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        MainViewModel viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        viewModel.getYear().observe(getViewLifecycleOwner(), new Observer<Year>() {
+            @Override
+            public void onChanged(Year year) {
+                if (year != null) {
+                    String info = year.info;
+                    infoTextView.setText(info);
+                } else {
+                    infoTextView.setEnabled(false);
+                }
+            }
+        });
+    }
 }

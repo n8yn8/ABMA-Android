@@ -10,7 +10,6 @@ import android.widget.Spinner;
 import androidx.annotation.Nullable;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.AppDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +21,11 @@ import java.util.List;
 public class YearSelectorView extends LinearLayout {
 
     Spinner spinner;
+    List<String> names = new ArrayList<>();
 
-    public YearSelectorView(Context context) {
+    public YearSelectorView(Context context, List<String> names) {
         super(context);
+        this.names.addAll(names);
         initViews();
     }
 
@@ -47,12 +48,6 @@ public class YearSelectorView extends LinearLayout {
     private void initViews() {
         inflate(getContext(), R.layout.dialog_year_selector, this);
 
-        AppDatabase db = AppDatabase.getInstance(getContext().getApplicationContext());
-        List<Integer> namesInt = db.yearDao().getAllYearNames();
-        List<String> names = new ArrayList<>(namesInt.size());
-        for (Integer nameInt : namesInt) {
-            names.add(String.valueOf(nameInt));
-        }
         final ArrayAdapter<String> adp = new ArrayAdapter<>(getContext(),
                 R.layout.item_spinner, names);
         spinner = findViewById(R.id.yearSpinner);

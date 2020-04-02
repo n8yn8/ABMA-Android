@@ -1,52 +1,48 @@
-package com.n8yn8.abma.model.dao;
+package com.n8yn8.abma.model.dao
 
-import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
-import androidx.room.Query;
-
-import com.n8yn8.abma.model.entities.Event;
-
-import java.util.List;
+import androidx.lifecycle.LiveData
+import androidx.room.*
+import com.n8yn8.abma.model.entities.Event
+import com.n8yn8.abma.model.entities.EventPapers
 
 @Dao
-public interface EventDao {
-
+interface EventDao {
     @Query("SELECT * FROM events")
-    List<Event> getEvents();
+    suspend fun events(): List<Event>
 
     @Query("SELECT * FROM events WHERE year_id = :yearId ORDER BY start_date ASC")
-    List<Event> getEvents(final String yearId);
+    suspend fun getEvents(yearId: String): List<Event>
 
     @Query("SELECT * FROM events WHERE year_id = :yearId ORDER BY start_date ASC")
-    LiveData<List<Event>> getEventsLive(final String yearId);
+    fun getEventsLive(yearId: String): LiveData<List<Event>>
 
     @Query("SELECT * FROM events WHERE start_date >= :startDate AND start_date <= :endDate ORDER BY start_date ASC")
-    LiveData<List<Event>> getAllEventsFor(long startDate, long endDate);
+    fun getAllEventsFor(startDate: Long, endDate: Long): LiveData<List<Event>>
 
+    @Transaction
     @Query("SELECT * FROM events WHERE object_id = :objectId LIMIT 1")
-    Event getEventById(String objectId);
+    suspend fun getEventById(objectId: String): EventPapers?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(Event event);
+    suspend fun insert(event: Event)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(List<Event> event);
+    suspend fun insert(event: List<Event>)
 
+    @Transaction
     @Query("SELECT * FROM events WHERE start_date < :startDate ORDER BY start_date DESC LIMIT 1")
-    Event getEventBefore(long startDate);
+    suspend fun getEventBefore(startDate: Long): EventPapers?
 
     @Query("SELECT * FROM events WHERE year_id = :yearId AND start_date < :startDate ORDER BY start_date DESC LIMIT 1")
-    Event getEventBefore(String yearId, long startDate);
+    suspend fun getEventBefore(yearId: String, startDate: Long): Event?
 
+    @Transaction
     @Query("SELECT * FROM events WHERE start_date > :startDate ORDER BY start_date ASC LIMIT 1")
-    Event getEventAfter(long startDate);
+    suspend fun getEventAfter(startDate: Long): EventPapers?
 
     @Query("SELECT * FROM events WHERE year_id = :yearId AND start_date > :startDate ORDER BY start_date ASC LIMIT 1")
-    Event getEventAfter(String yearId, long startDate);
+    suspend fun getEventAfter(yearId: String, startDate: Long): Event?
 
     @Delete
-    void delete(Event... events);
+    fun delete(vararg events: Event)
 }

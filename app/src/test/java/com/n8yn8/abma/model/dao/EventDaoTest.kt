@@ -61,7 +61,7 @@ class EventDaoTest {
             endDate = 2
         }
 
-        database.eventDao().insert(eventInRange)
+        runBlocking { database.eventDao().insert(eventInRange) }
         Mockito.verify(eventObserver).onChanged(listOf(eventInRange))
         Mockito.verify(eventUniqueObserver).onChanged(listOf(eventInRange))
 
@@ -70,7 +70,7 @@ class EventDaoTest {
             endDate = 10
         }
 
-        database.eventDao().insert(event2InRange)
+        runBlocking { database.eventDao().insert(event2InRange) }
         Mockito.verify(eventObserver).onChanged(listOf(eventInRange, event2InRange))
         Mockito.verify(eventUniqueObserver).onChanged(listOf(eventInRange, event2InRange))
 
@@ -79,7 +79,7 @@ class EventDaoTest {
             endDate = 12
         }
 
-        database.eventDao().insert(eventOutOfRange)
+        runBlocking { database.eventDao().insert(eventOutOfRange) }
         //Event outside not included in data set returned
         Mockito.verify(eventObserver, Mockito.never()).onChanged(listOf(eventInRange, event2InRange, eventOutOfRange))
         //There is a second call on the correct set

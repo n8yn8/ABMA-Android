@@ -22,6 +22,7 @@ import com.backendless.exceptions.BackendlessFault;
 import com.google.android.material.snackbar.Snackbar;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.backendless.DbManager;
+import com.n8yn8.abma.model.entities.NoteEventPaper;
 import com.n8yn8.abma.view.adapter.NoteListAdapter;
 
 import java.util.List;
@@ -73,12 +74,12 @@ public class NoteFragment extends Fragment {
         recyclerView.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         mAdapter = new NoteListAdapter(new NoteListAdapter.OnClickListener() {
             @Override
-            public void onClick(NoteModel noteModel) {
+            public void onClick(NoteEventPaper noteModel) {
                 onItemClick(noteModel);
             }
 
             @Override
-            public void onLongClick(NoteModel noteModel) {
+            public void onLongClick(NoteEventPaper noteModel) {
                 onItemLongClick(noteModel);
             }
         });
@@ -92,9 +93,9 @@ public class NoteFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(this).get(NoteViewModel.class);
-        viewModel.getNotesData().observe(getViewLifecycleOwner(), new Observer<List<NoteModel>>() {
+        viewModel.getNotesData().observe(getViewLifecycleOwner(), new Observer<List<NoteEventPaper>>() {
             @Override
-            public void onChanged(List<NoteModel> notes) {
+            public void onChanged(List<NoteEventPaper> notes) {
                 mAdapter.submitList(notes);
                 if (notes.size() == 0) {
                     noDataTextView.setText(R.string.no_notes);
@@ -124,16 +125,16 @@ public class NoteFragment extends Fragment {
         super.onDetach();
     }
 
-    private void onItemClick(NoteModel noteModel) {
+    private void onItemClick(NoteEventPaper noteModel) {
         if (noteModel != null) {
             EventActivity.start(
                     getContext(),
-                    noteModel.getEvent() != null ? noteModel.getEvent().objectId : null,
+                    noteModel.getEvent().objectId,
                     noteModel.getPaper() != null ? noteModel.getPaper().objectId : null);
         }
     }
 
-    private void onItemLongClick(final NoteModel noteModel) {
+    private void onItemLongClick(final NoteEventPaper noteModel) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage("Would you like to delete this note?");

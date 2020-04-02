@@ -8,10 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.n8yn8.abma.R;
-import com.n8yn8.abma.model.AppDatabase;
+import com.n8yn8.abma.model.entities.Year;
 
 
 /**
@@ -21,6 +25,7 @@ import com.n8yn8.abma.model.AppDatabase;
  */
 public class WelcomeFragment extends Fragment {
 
+    private TextView infoTextView;
 
     public WelcomeFragment() {
         // Required empty public constructor
@@ -46,13 +51,21 @@ public class WelcomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_welcome, container, false);
-        TextView infoTextView = view.findViewById(R.id.welcomeTextView);
-
-        AppDatabase db = AppDatabase.getInstance(getActivity().getApplicationContext());
-        String welcome = db.yearDao().getLastYear().welcome;
-        infoTextView.setText(welcome);
+        infoTextView = view.findViewById(R.id.welcomeTextView);
         infoTextView.setMovementMethod(new ScrollingMovementMethod());
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        MainViewModel viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        viewModel.getYear().observe(getViewLifecycleOwner(), new Observer<Year>() {
+            @Override
+            public void onChanged(Year year) {
+                String welcome = year.welcome;
+                infoTextView.setText(welcome);
+            }
+        });
+    }
 }

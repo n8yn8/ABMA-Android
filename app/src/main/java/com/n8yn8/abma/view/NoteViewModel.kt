@@ -3,13 +3,12 @@ package com.n8yn8.abma.view
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.viewModelScope
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.ConvertUtil
 import com.n8yn8.abma.model.backendless.DbManager
-import com.n8yn8.abma.model.entities.Event
-import com.n8yn8.abma.model.entities.Note
-import com.n8yn8.abma.model.entities.Paper
+import com.n8yn8.abma.model.entities.NoteEventPaper
+import kotlinx.coroutines.launch
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
@@ -18,25 +17,17 @@ class NoteViewModel(application: Application) : AndroidViewModel(application), K
     private val db: AppDatabase by inject()
     private val remote: DbManager by inject()
 
-    val notesData: LiveData<List<NoteModel>>
+    val notesData: LiveData<List<NoteEventPaper>>
 
     init {
-        notesData = Transformations.map(db.noteDao().notesLive) { noteList ->
-            noteList.map {
-                NoteModel(
-                        note = it,
-                        event = db.eventDao().getEventById(it.eventId),
-                        paper = db.paperDao().getPaperById(it.paperId)
-                )
-            }
-        }
+        notesData = db.noteDao().notesLive
     }
 
-    fun deleteNote(noteModel: NoteModel?) {
+    fun deleteNote(noteModel: NoteEventPaper?) {
         if (noteModel == null) {
             return
         }
-        db.noteDao().delete(noteModel.note)
+        viewModelScope.launch { db.noteDao().delete(noteModel.note) }
         DbManager.getInstance().delete(ConvertUtil.convert(noteModel.note))
     }
 
@@ -47,28 +38,30 @@ class NoteViewModel(application: Application) : AndroidViewModel(application), K
                 return@getAllNotes
             }
 
-            val localNotes = db.noteDao().notes
-            val notesToSave = bNotes.map {
-                val localNote = if (it.paperId == null) {
-                    db.noteDao().getNote(it.eventId)
-                } else {
-                    db.noteDao().getNote(it.eventId, it.paperId)
+            viewModelScope.launch {
+                val localNotes = db.noteDao().notes()
+                val notesToSave = bNotes.map {
+                    val localNote = if (it.paperId == null) {
+                        db.noteDao().getNote(it.eventId)
+                    } else {
+                        db.noteDao().getNote(it.eventId, it.paperId)
+                    }
+                    if (localNote != null) {
+                        db.noteDao().delete(localNote)
+                    }
+                    ConvertUtil.convert(it)
                 }
-                if (localNote != null) {
-                    db.noteDao().delete(localNote)
+                if (notesToSave.isNotEmpty()) {
+                    db.noteDao().insert(notesToSave)
                 }
-                ConvertUtil.convert(it)
-            }
-            db.noteDao().insert(notesToSave)
-            for (note in localNotes) {
-                remote.addNote(ConvertUtil.convert(note)) { savedNote, _ ->
-                    if (savedNote != null) {
-                        db.noteDao().deleteInsert(note, ConvertUtil.convert(savedNote))
+                for (note in localNotes) {
+                    remote.addNote(ConvertUtil.convert(note)) { savedNote, _ ->
+                        if (savedNote != null) {
+                            viewModelScope.launch { db.noteDao().deleteInsert(note, ConvertUtil.convert(savedNote)) }
+                        }
                     }
                 }
             }
         }
     }
 }
-
-data class NoteModel(val note: Note, val event: Event?, val paper: Paper?)

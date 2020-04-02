@@ -1,5 +1,7 @@
 package com.n8yn8.abma.model.backendless;
 
+import androidx.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -68,6 +70,7 @@ public class BYear {
         this.sponsors = sponsors;
     }
 
+    @Nullable
     public String getSurveys() {
         return surveys;
     }

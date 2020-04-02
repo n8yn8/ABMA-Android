@@ -5,8 +5,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.room.Room
 import com.n8yn8.abma.model.AppDatabase
-import com.n8yn8.abma.model.backendless.BSponsor
-import com.n8yn8.abma.model.backendless.DbManager
 import com.n8yn8.abma.model.entities.Sponsor
 import com.n8yn8.test.util.FakeData
 import kotlinx.coroutines.runBlocking
@@ -20,7 +18,8 @@ import org.koin.standalone.StandAloneContext
 import org.koin.standalone.inject
 import org.koin.test.KoinTest
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.anyList
+import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -34,9 +33,6 @@ class SponsorViewModelTest : KoinTest {
 
     @Mock
     lateinit var application: Application
-
-    @Mock
-    lateinit var remote: DbManager
 
     @Mock
     lateinit var sponsorModelObserver: Observer<List<Sponsor>>
@@ -54,7 +50,6 @@ class SponsorViewModelTest : KoinTest {
                                         .allowMainThreadQueries()
                                         .build()
                             }
-                            single { remote }
                         }
                 )
         )
@@ -62,12 +57,6 @@ class SponsorViewModelTest : KoinTest {
         runBlocking {
             database.yearDao().insert(FakeData.getYear())
         }
-
-        doAnswer {
-            val callback = it.arguments[1] as DbManager.Callback<List<BSponsor>>
-            callback.onDone(FakeData.getBSponsors(), null)
-            null
-        }.`when`(remote).getSponsors(any(), any())
     }
 
     @After
@@ -83,7 +72,6 @@ class SponsorViewModelTest : KoinTest {
         val sponsorViewModel = SponsorViewModel(application)
         sponsorViewModel.sponsors.observeForever(sponsorModelObserver)
 
-        verify(remote, never()).getSponsors(any(), any())
         verify(sponsorModelObserver).onChanged(anyList())
         verify(sponsorModelObserver).onChanged(listOf(FakeData.getSponsor()))
     }
@@ -92,9 +80,6 @@ class SponsorViewModelTest : KoinTest {
     fun responseDataEmpty() {
         val sponsorViewModel = SponsorViewModel(application)
         sponsorViewModel.sponsors.observeForever(sponsorModelObserver)
-
-        verify(remote).getSponsors(any(), any())
-        verify(sponsorModelObserver, times(2)).onChanged(anyList())
-
+        verify(sponsorModelObserver).onChanged(emptyList())
     }
 }

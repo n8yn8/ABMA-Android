@@ -2,26 +2,22 @@ package com.n8yn8.abma.view
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.Observer
-import androidx.room.Room
 import com.n8yn8.abma.model.AppDatabase
+import com.n8yn8.abma.model.ConvertUtil
 import com.n8yn8.abma.model.backendless.BNote
 import com.n8yn8.abma.model.backendless.DbManager
+import com.n8yn8.abma.model.dao.NoteDao
+import com.n8yn8.abma.model.entities.Note
 import com.n8yn8.test.util.FakeData
-import kotlinx.coroutines.runBlocking
+import io.mockk.*
 import org.junit.After
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext
-import org.koin.standalone.inject
 import org.koin.test.KoinTest
-import org.mockito.Mock
-import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.util.*
@@ -33,16 +29,17 @@ class NoteViewModelTest : KoinTest {
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
-    @Mock
-    lateinit var application: Application
+    private val application = mockk<Application>()
+    private val remote = mockk<DbManager>()
+    private val noteDao = mockk<NoteDao> {
+        coEvery {
+            delete(any())
+            insert(notes = any())
+            deleteInsert(any(), any())
+        } just Runs
+        coEvery { notesLive } returns spyk()
+    }
 
-    @Mock
-    lateinit var remote: DbManager
-
-    @Mock
-    lateinit var noteModelObserver: Observer<List<NoteModel>>
-
-    private val database: AppDatabase by inject()
     private lateinit var noteViewModel: NoteViewModel
 
     private val event1 = FakeData.getEvent()
@@ -52,25 +49,18 @@ class NoteViewModelTest : KoinTest {
 
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
         StandAloneContext.startKoin(
-                listOf(
+                list = listOf(
                         module {
                             single {
-                                Room.inMemoryDatabaseBuilder(application, AppDatabase::class.java)
-                                        .allowMainThreadQueries()
-                                        .build()
+                                mockk<AppDatabase> {
+                                    every { noteDao() } returns noteDao
+                                }
                             }
                             single { remote }
                         }
                 )
         )
-
-        runBlocking {
-            database.yearDao().insert(FakeData.getYear())
-            database.eventDao().insert(listOf(event1, event2))
-            database.paperDao().insert(listOf(paper1, paper2))
-        }
     }
 
     @After
@@ -80,29 +70,38 @@ class NoteViewModelTest : KoinTest {
 
     private fun setUpNoteModel() {
         noteViewModel = NoteViewModel(application)
-        noteViewModel.notesData.observeForever(noteModelObserver)
-        verify(noteModelObserver).onChanged(anyList())
     }
 
     private fun setUpRemoteResponse(bNotes: List<BNote>) {
+        val getNotesCallback = slot<DbManager.OnGetNotesCallback>()
+        every {
+            remote.getAllNotes(capture(getNotesCallback))
+        } answers {
+            getNotesCallback.captured.notesRetrieved(bNotes, null)
+        }
 
-        doAnswer {
-            val callback = it.arguments[0] as DbManager.OnGetNotesCallback
-            callback.notesRetrieved(bNotes, null)
-            null
-        }.`when`(remote).getAllNotes(any())
-
-        doAnswer {
-            val bNote = it.arguments[0] as BNote
-            bNote.apply {
+        val noteToSave = slot<BNote>()
+        val saveNotesCallback = slot<DbManager.OnNoteSavedCallback>()
+        every {
+            remote.addNote(capture(noteToSave), capture(saveNotesCallback))
+        } answers {
+            val bNote = noteToSave.captured.apply {
                 created = Date()
                 updated = Date()
                 objectId = "$eventId$paperId"
             }
-            val callback = it.arguments[1] as DbManager.OnNoteSavedCallback
-            callback.noteSaved(bNote, null)
-            null
-        }.`when`(remote).addNote(any(), any())
+            saveNotesCallback.captured.noteSaved(bNote, null)
+        }
+    }
+
+    private fun setupDbResponses(dbNotes: List<Note>) {
+        coEvery { noteDao.notes() } returns dbNotes
+        coEvery { noteDao.getNote(any()) } returns dbNotes.find { note ->
+            note.paperId == null
+        }
+        coEvery { noteDao.getNote(any(), any()) } returns dbNotes.find { note ->
+            note.paperId != null
+        }
     }
 
     @Test
@@ -114,51 +113,46 @@ class NoteViewModelTest : KoinTest {
                 FakeData.getBNote(index = "2", inEventId = event1.objectId, inPaperId = paper1.objectId)
         )
         setUpRemoteResponse(bNotes)
+        setupDbResponses(emptyList())
+
         noteViewModel.getRemoteNotes()
 
-        verify(noteModelObserver, times(2)).onChanged(anyList())
-        verify(remote, never()).addNote(any(), any())
-//        Mockito.verify(noteModelObserver).onChanged(listOf(
-//                NoteModel(FakeData.getNote(event1.objectId), event1, null),
-//                NoteModel(FakeData.getNote(event1.objectId, paper1.objectId), event1, paper1)
-//        ))
+        verify(exactly = 0) { remote.addNote(any(), any()) }
+        val expectedInserted = bNotes.map { ConvertUtil.convert(it) }
+        coVerify { noteDao.insert(expectedInserted) }
     }
 
     @Test
     fun getRemoteNotes_allLocalNoneRemote() {
-        runBlocking {
-            database.noteDao().insert(listOf(FakeData.getNote(event1.objectId), FakeData.getNote(event1.objectId, paper1.objectId)))
-        }
-
         setUpNoteModel()
+        val dbNotes = listOf(FakeData.getNote(event1.objectId), FakeData.getNote(event1.objectId, paper1.objectId))
+        setupDbResponses(dbNotes)
+
         setUpRemoteResponse(emptyList())
         noteViewModel.getRemoteNotes()
 
-        //TODO: 3 from no new notes added, but saving after sync. Should be 1
-        verify(noteModelObserver, times(3)).onChanged(anyList())
         //Local added to remote
-        verify(remote, times(2)).addNote(any(), any())
-        val resultNotes = database.noteDao().notes
-        assertEquals(2, resultNotes.size)
+        verify(exactly = 2) { remote.addNote(any(), any()) }
+        coVerify(exactly = 2) { noteDao.deleteInsert(any(), any()) }
     }
 
     @Test
     fun getRemoteNotes_bothLocalAndRemote() {
-        runBlocking {
-            database.noteDao().insert(listOf(FakeData.getNote(event1.objectId), FakeData.getNote(event1.objectId, paper1.objectId)))
-        }
         setUpNoteModel()
         val bNotes = listOf(
                 FakeData.getBNote(index = "1", inEventId = event2.objectId),
                 FakeData.getBNote(index = "2", inEventId = event2.objectId, inPaperId = paper2.objectId)
         )
         setUpRemoteResponse(bNotes)
+        val dbNotes = listOf(
+                FakeData.getNote(event1.objectId),
+                FakeData.getNote(event1.objectId, paper1.objectId)
+        )
+        setupDbResponses(dbNotes
+        )
         noteViewModel.getRemoteNotes()
 
-        //TODO reduce to 2 executions. 4 happens from sync of local notes.
-        verify(noteModelObserver, times(4)).onChanged(anyList())
-        verify(remote, times(2)).addNote(any(), any())
-        val resultNotes = database.noteDao().notes
-        assertEquals(4, resultNotes.size)
+        coVerify { noteDao.insert(notes = any()) }
+        verify(exactly = 2) { remote.addNote(any(), any()) }
     }
 }

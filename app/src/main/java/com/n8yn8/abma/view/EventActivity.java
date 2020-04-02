@@ -23,14 +23,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.Utils;
-import com.n8yn8.abma.model.entities.Event;
+import com.n8yn8.abma.model.entities.EventPapers;
 import com.n8yn8.abma.model.entities.Note;
 import com.n8yn8.abma.model.entities.Paper;
 import com.n8yn8.abma.view.adapter.PaperListAdapter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 
@@ -82,19 +81,48 @@ public class EventActivity extends AppCompatActivity {
         placeTextView = findViewById(R.id.placeTextView);
         noteEditText = findViewById(R.id.noteEditText);
 
-        viewModel.getEvent().observe(this, new Observer<Event>() {
+        viewModel.getEventPaper().observe(this, new Observer<EventPaperModel>() {
             @Override
-            public void onChanged(Event event) {
-                Log.d(TAG, "on event changed: " + event);
-                displayEvent(event, null);
+            public void onChanged(EventPaperModel eventPaperModel) {
+                Log.d(TAG, "on event changed: " + eventPaperModel);
+                displayEvent(eventPaperModel.getEventPapers(), eventPaperModel.getPaper());
             }
         });
         viewModel.setSelectedEvent(getIntent().getStringExtra(EXTRA_EVENT_ID));
 
-        viewModel.getPaper().observe(this, new Observer<Paper>() {
+        viewModel.getNoteLiveData().observe(this, new Observer<Note>() {
             @Override
-            public void onChanged(Paper paper) {
-                displayEvent(viewModel.getEvent().getValue(), paper);
+            public void onChanged(Note note) {
+                if (note != null) {
+                    noteEditText.setText(note.content);
+                } else {
+                    noteEditText.setText("");
+                }
+            }
+        });
+
+        viewModel.getDirectionLimit().observe(this, new Observer<EventViewModel.DirectionLimit>() {
+            @Override
+            public void onChanged(EventViewModel.DirectionLimit directionLimit) {
+                String displayText;
+                switch (directionLimit) {
+                    case EVENT_MAX:
+                        displayText = "Last event reached";
+                        break;
+                    case EVENT_MIN:
+                        displayText = "First event reached";
+                        break;
+                    case PAPER_MAX:
+                        displayText = "Last paper reached";
+                        break;
+                    case PAPER_MIN:
+                        displayText = "First paper reached";
+                        break;
+                    default:
+                        displayText = "Limit reached";
+                        break;
+                }
+                Toast.makeText(getApplicationContext(), displayText, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -103,18 +131,13 @@ public class EventActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!viewModel.getPrevious()) {
-                    Toast.makeText(getApplicationContext(), "First reached", Toast.LENGTH_SHORT).show();
-                }
+                viewModel.getPrevious();
             }
         });
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!viewModel.getNext()) {
-                    Toast.makeText(getApplicationContext(), "Last reached", Toast.LENGTH_SHORT).show();
-                }
-
+                viewModel.getNext();
             }
         });
 
@@ -138,7 +161,7 @@ public class EventActivity extends AppCompatActivity {
         adapter = new PaperListAdapter(new PaperListAdapter.OnClickListener() {
             @Override
             public void onClick(Paper paper) {
-                viewModel.getPaper().postValue(paper);
+                viewModel.selectPaper(paper);
             }
         });
         papersListView.setAdapter(adapter);
@@ -156,8 +179,9 @@ public class EventActivity extends AppCompatActivity {
 //            return true;
 //        }
         if (id == android.R.id.home) {
-            if (viewModel.getPaper().getValue() != null) {
-                viewModel.getPaper().postValue(null);
+            EventPaperModel eventPaperModel= viewModel.getEventPaper().getValue();
+            if (eventPaperModel != null && eventPaperModel.getPaper() != null) {
+                viewModel.selectPaper( null);
             } else {
                 finish();
             }
@@ -168,32 +192,31 @@ public class EventActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (viewModel.getPaper().getValue() != null) {
-            viewModel.getPaper().postValue(null);
+        EventPaperModel eventPaperModel= viewModel.getEventPaper().getValue();
+        if (eventPaperModel != null && eventPaperModel.getPaper() != null) {
+            viewModel.selectPaper( null);
         } else {
             super.onBackPressed();
         }
     }
 
-    public void displayEvent(final Event event, @Nullable Paper paper) {
-        Date date = new Date(event.startDate);
+    public void displayEvent(final EventPapers eventPapers, @Nullable Paper paper) {
+        Date date = new Date(eventPapers.getEvent().startDate);
         SimpleDateFormat dayFormatter = new SimpleDateFormat("EEEE");
         dayFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         dayTextView.setText(dayFormatter.format(date).toUpperCase());
         SimpleDateFormat dateFormatter = new SimpleDateFormat("d");
         dateTextView.setText(dateFormatter.format(date));
 
+        timeTextView.setText(Utils.getTimes(eventPapers.getEvent()));
+        placeTextView.setText(eventPapers.getEvent().place);
 
-        timeTextView.setText(Utils.getTimes(event));
-        placeTextView.setText(event.place);
-
-        List<Paper> papers = viewModel.getPapers(event.objectId);
-        adapter.submitList(papers);
+        adapter.submitList(eventPapers.getPapers());
 
         if (paper == null) {
-            titleTextView.setText(event.title);
-            subtitleTextView.setText(event.subtitle);
-            detailTextView.setText(event.details);
+            titleTextView.setText(eventPapers.getEvent().title);
+            subtitleTextView.setText(eventPapers.getEvent().subtitle);
+            detailTextView.setText(eventPapers.getEvent().details);
             detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
             detailTextView.scrollTo(0, 0);
             papersListView.setVisibility(View.VISIBLE);
@@ -204,12 +227,6 @@ public class EventActivity extends AppCompatActivity {
             detailTextView.setText(paper.synopsis);
             detailTextView.setMovementMethod(LinkMovementMethod.getInstance());
             detailTextView.scrollTo(0, 0);
-        }
-        Note note = viewModel.getNote(event.objectId, paper == null ? null : paper.objectId);
-        if (note != null) {
-            noteEditText.setText(note.content);
-        } else {
-            noteEditText.setText("");
         }
     }
 }

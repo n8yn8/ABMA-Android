@@ -7,42 +7,49 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.entities.Survey;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by Nate on 3/26/18.
  */
 
-public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class SurveyListAdapter extends ListAdapter<SurveyListAdapter.BaseData, RecyclerView.ViewHolder> {
+
+    private static final DiffUtil.ItemCallback<BaseData> DIFF_CALLBACK = new DiffUtil.ItemCallback<BaseData>() {
+        @Override
+        public boolean areItemsTheSame(
+                @NonNull BaseData oldItem, @NonNull BaseData newItem) {
+            return oldItem.equals(newItem);
+        }
+
+        @Override
+        public boolean areContentsTheSame(
+                @NonNull BaseData oldItem, @NonNull BaseData newItem) {
+            return oldItem.equals(newItem);
+        }
+    };
 
     private final static String TAG = SurveyListAdapter.class.getSimpleName();
-    private final static String NO_SURVEY_TITLE = "No Surveys Available";
-    private List<Object> objects = new ArrayList<>();
+    public final static String NO_SURVEY_TITLE = "No Surveys Available";
     private OnLinkClickedListener onLinkClickedListener;
 
-    public SurveyListAdapter(List<Survey> surveys, OnLinkClickedListener onLinkClickedListener) {
-        objects.add("Surveys");
-        if (surveys.isEmpty()) {
-            objects.add(NO_SURVEY_TITLE);
-        } else {
-            objects.addAll(surveys);
-        }
-        objects.add("Links");
-        objects.add(new Link("https://www.theabma.org", "ABMA Website"));
-        objects.add(new Link("https://theabma.org/contact/", "Contact ABMA"));
-
+    public SurveyListAdapter(OnLinkClickedListener onLinkClickedListener) {
+        super(DIFF_CALLBACK);
         this.onLinkClickedListener = onLinkClickedListener;
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
         switch (ViewType.values()[viewType]) {
             case SURVEY:
@@ -69,19 +76,19 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        Object item = objects.get(position);
+        BaseData item = getItem(position);
 
         switch (ViewType.values()[holder.getItemViewType()]) {
             case SURVEY:
-                if (item instanceof Survey && holder instanceof SurveyViewHolder) {
-                    ((SurveyViewHolder) holder).onBind((Survey) item, onLinkClickedListener);
+                if (item instanceof SurveyData && holder instanceof SurveyViewHolder) {
+                    ((SurveyViewHolder) holder).onBind((SurveyData) item, onLinkClickedListener);
                 } else {
                     Log.e(TAG, "Not survey");
                 }
                 break;
             case NO_SURVEY:
-                if (item instanceof String && holder instanceof NoSurveyViewHolder) {
-                    ((NoSurveyViewHolder) holder).onBind((String) item, onLinkClickedListener);
+                if (holder instanceof NoSurveyViewHolder) {
+                    ((NoSurveyViewHolder) holder).onBind(item, onLinkClickedListener);
                 } else {
                     Log.e(TAG, "Not No Survey Available");
                 }
@@ -94,8 +101,8 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
                 break;
             case SEPARATOR:
-                if (item instanceof String && holder instanceof SeparatorViewHolder) {
-                    ((SeparatorViewHolder) holder).onBind((String) item);
+                if (holder instanceof SeparatorViewHolder) {
+                    ((SeparatorViewHolder) holder).onBind(item);
                 } else {
                     Log.e(TAG, "Not string");
                 }
@@ -106,25 +113,20 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public int getItemViewType(int position) {
-        Object object = objects.get(position);
-        if (object instanceof Survey) {
+        BaseData object = getItem(position);
+        if (object instanceof SurveyData) {
             return ViewType.SURVEY.ordinal();
         } else if (object instanceof Link) {
             return ViewType.LINK.ordinal();
-        } else if (object instanceof String && TextUtils.equals(NO_SURVEY_TITLE, (String) object)) {
+        } else if (TextUtils.equals(NO_SURVEY_TITLE, object.title)) {
             return ViewType.NO_SURVEY.ordinal();
         }
         return ViewType.SEPARATOR.ordinal();
 
     }
 
-    @Override
-    public int getItemCount() {
-        return objects.size();
-    }
-
     private enum ViewType {
-        NO_SURVEY, SURVEY, LINK, SEPARATOR;
+        NO_SURVEY, SURVEY, LINK, SEPARATOR
 
     }
 
@@ -132,29 +134,62 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         void onClick(String url);
     }
 
-    private class Link {
+    public static class BaseData {
+        String title;
 
-        private String url;
-        private String title;
-
-        Link(String url, String title) {
-            this.url = url;
+        public BaseData(String title) {
             this.title = title;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            BaseData baseData = (BaseData) o;
+            return title.equals(baseData.title);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(title);
         }
     }
 
-    private class CommonViewHolder<T> extends RecyclerView.ViewHolder {
+    public static class Link extends BaseData {
+
+        private String url;
+
+        public Link(String url, String title) {
+            super(title);
+            this.url = url;
+        }
+    }
+
+    public static class SurveyData extends BaseData {
+        private String details;
+        private Long endTime;
+        private String url;
+
+        public SurveyData(Survey survey) {
+            super(survey.title);
+            this.details = survey.details;
+            this.endTime = survey.endDate;
+            this.url = survey.url;
+        }
+    }
+
+    private static class CommonViewHolder<IViewType> extends RecyclerView.ViewHolder {
 
         CommonViewHolder(View itemView) {
             super(itemView);
         }
 
-        void onBind(final T object, final OnLinkClickedListener onLinkClickedListener) {
+        void onBind(final IViewType object, final OnLinkClickedListener onLinkClickedListener) {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (object instanceof Survey) {
-                        onLinkClickedListener.onClick(((Survey) object).url);
+                    if (object instanceof SurveyData) {
+                        onLinkClickedListener.onClick(((SurveyData) object).url);
                     } else if (object instanceof Link) {
                         onLinkClickedListener.onClick(((Link) object).url);
                     } else {
@@ -165,7 +200,7 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    public class SurveyViewHolder extends CommonViewHolder<Survey> {
+    public static class SurveyViewHolder extends CommonViewHolder<SurveyData> {
 
         TextView nameTextView;
         TextView detailsTextView;
@@ -179,15 +214,15 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         @Override
-        void onBind(Survey survey, OnLinkClickedListener onLinkClickedListener) {
+        void onBind(SurveyData survey, OnLinkClickedListener onLinkClickedListener) {
             super.onBind(survey, onLinkClickedListener);
             nameTextView.setText(survey.title);
             detailsTextView.setText(survey.details);
-            timeTextView.setText(String.format(timeTextView.getContext().getString(R.string.available_until), new Date(survey.endDate)));
+            timeTextView.setText(String.format(timeTextView.getContext().getString(R.string.available_until), new Date(survey.endTime)));
         }
     }
 
-    public class LinkViewHolder extends CommonViewHolder<Link> {
+    public static class LinkViewHolder extends CommonViewHolder<Link> {
 
         TextView titleTextView;
 
@@ -203,7 +238,7 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    public class NoSurveyViewHolder extends CommonViewHolder<String> {
+    public static class NoSurveyViewHolder extends CommonViewHolder<BaseData> {
 
         TextView titleTextView;
 
@@ -213,13 +248,13 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         @Override
-        void onBind(String object, OnLinkClickedListener onLinkClickedListener) {
+        void onBind(BaseData object, OnLinkClickedListener onLinkClickedListener) {
             super.onBind(object, onLinkClickedListener);
-            titleTextView.setText(object);
+            titleTextView.setText(object.title);
         }
     }
 
-    public class SeparatorViewHolder extends RecyclerView.ViewHolder {
+    public static class SeparatorViewHolder extends RecyclerView.ViewHolder {
 
         TextView titleTextView;
 
@@ -228,8 +263,8 @@ public class SurveyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             titleTextView = itemView.findViewById(R.id.separatorTitleView);
         }
 
-        void onBind(String title) {
-            titleTextView.setText(title);
+        void onBind(BaseData item) {
+            titleTextView.setText(item.title);
         }
     }
 }
