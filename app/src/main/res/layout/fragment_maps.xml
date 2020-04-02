@@ -20,7 +20,7 @@
             android:layout_gravity="center"
             android:text="MAPS"
             android:textColor="#ffe1e1e1"
-            android:textSize="30dp" />
+            android:textSize="30sp" />
 
     </RelativeLayout>
 

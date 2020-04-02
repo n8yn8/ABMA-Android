@@ -1,5 +1,7 @@
 package com.n8yn8.abma.model.backendless;
 
+import androidx.annotation.NonNull;
+
 import com.backendless.BackendlessUser;
 
 import java.util.Date;
@@ -78,6 +80,7 @@ public class BNote {
     }
 
     @Override
+    @NonNull
     public String toString() {
         return "BNote{" +
                 "objectId='" + objectId + '\'' +

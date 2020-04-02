@@ -120,11 +120,6 @@ public class NoteFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
     private void onItemClick(NoteEventPaper noteModel) {
         if (noteModel != null) {
             EventActivity.start(

@@ -29,7 +29,7 @@
             android:layout_gravity="center"
             android:text="Apr 12, 2014"
             android:textColor="#ffe1e1e1"
-            android:textSize="30dp" />
+            android:textSize="30sp" />
 
         <ImageButton
             android:id="@+id/nextDayButton"

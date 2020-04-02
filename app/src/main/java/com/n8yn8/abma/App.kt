@@ -30,7 +30,7 @@ class App : Application() {
         startKoin(this, listOf(applicationModule))
 
 //        Backendless.initApp(this, "7D06F708-89FA-DD86-FF95-C51A10425A00", "AA32ED18-4FEC-569C-FF5F-AE0F2F571E00") //Prod
-                Backendless.initApp(this, "76269ABA-AF2E-5901-FF61-99AB83F57700", "25B7C6B5-E2E5-4B39-B058-1FA73D862A19"); //Test
+                Backendless.initApp(this, "76269ABA-AF2E-5901-FF61-99AB83F57700", "25B7C6B5-E2E5-4B39-B058-1FA73D862A19") //Test
         DbManager.getInstance().checkUser { DbManager.getInstance().registerPush() }
 
         val mRequestQueue = Volley.newRequestQueue(applicationContext)

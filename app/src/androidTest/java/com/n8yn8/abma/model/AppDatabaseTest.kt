@@ -53,7 +53,7 @@ class AppDatabaseTest {
         Assert.assertEquals(event, events[0])
     }
 
-    val year: Year
+    private val year: Year
         get() {
             val year = Year()
             year.id = 1

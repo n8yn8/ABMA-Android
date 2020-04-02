@@ -1,5 +1,6 @@
 package com.n8yn8.abma.model.entities;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -58,6 +59,7 @@ public class Paper {
     }
 
     @Override
+    @NonNull
     public String toString() {
         return "Paper{" +
                 "id=" + id +

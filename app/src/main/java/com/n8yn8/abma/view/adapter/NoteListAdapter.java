@@ -80,9 +80,7 @@ public class NoteListAdapter extends ListAdapter<NoteEventPaper, NoteListAdapter
                 }
             } else {
                 Event event = noteModel.getEvent();
-                if (event != null) {
-                    return event.title;
-                }
+                return event.title;
             }
             Utils.logError("Set Note Title", noteModel.getNote().toString());
             return "";

@@ -75,7 +75,7 @@ public class LoginDialog extends LinearLayout {
             emailEditText.setText("thelostonefound@gmail.com");
         }
 
-        newAccountCheckbox = (CheckBox) findViewById(R.id.newAccountCheckBox);
+        newAccountCheckbox = findViewById(R.id.newAccountCheckBox);
         newAccountCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
@@ -83,7 +83,7 @@ public class LoginDialog extends LinearLayout {
             }
         });
 
-        loginButton = (Button) findViewById(R.id.login_button);
+        loginButton = findViewById(R.id.login_button);
         loginButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -142,7 +142,7 @@ public class LoginDialog extends LinearLayout {
     }
 
     private void updateError(@Nullable String error) {
-        TextView errorTextView = (TextView) findViewById(R.id.errorTextView);
+        TextView errorTextView = findViewById(R.id.errorTextView);
         if (error != null) {
             errorTextView.setVisibility(VISIBLE);
             errorTextView.setText("Error: " + error);
