@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import com.n8yn8.abma.Utils
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.ConvertUtil
 import com.n8yn8.abma.model.MyDateTypeAdapter
@@ -79,7 +78,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
             viewModelScope.launch {
                 for (bYear in years) {
                     db.yearDao().insert(ConvertUtil.convert(bYear))
-                    Utils.saveSurveys(db, bYear)
+                    saveSurveys(bYear)
                     saveMaps(bYear)
                     remote.getEvents(bYear.objectId) { bEvents, _ ->
                         viewModelScope.launch {
@@ -103,7 +102,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
         val gson = GsonBuilder()
                 .registerTypeAdapter(Date::class.java, MyDateTypeAdapter())
                 .create()
-        val maps = gson.fromJson<List<BMap>>(mapsString, object : TypeToken<List<BMap?>?>() {}.type)
+        val maps = gson.fromJson<List<BMap>>(mapsString, object : TypeToken<List<BMap>>() {}.type)
         db.mapDao().insert(ConvertUtil.convertMaps(maps, year.objectId))
     }
 
@@ -130,6 +129,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application), K
                 }
             }
         }
+    }
+
+    private fun saveSurveys(year: BYear) {
+        val surveysString = year.surveys
+        if (surveysString.isNullOrBlank()) return
+        val gson = GsonBuilder()
+                .registerTypeAdapter(Date::class.java, MyDateTypeAdapter())
+                .create()
+        val surveys = gson.fromJson<List<BSurvey>>(surveysString, object : TypeToken<List<BSurvey>>() {}.type)
+        viewModelScope.launch { db.surveyDao().insert(ConvertUtil.convertSurveys(surveys, year.objectId)) }
     }
 
     fun requestYearNames() {

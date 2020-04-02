@@ -37,7 +37,8 @@ import java.util.List;
  */
 public class ContactFragment extends Fragment {
 
-    List<Survey> surveys = new ArrayList<>();
+    private List<Survey> surveys = new ArrayList<>();
+    private SurveyListAdapter adapter;
 
     public ContactFragment() {
         // Required empty public constructor
@@ -49,11 +50,8 @@ public class ContactFragment extends Fragment {
      *
      * @return A new instance of fragment ContactFragment.
      */
-    public static ContactFragment newInstance() {
-        ContactFragment fragment = new ContactFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+    static ContactFragment newInstance() {
+        return new ContactFragment();
     }
 
     @Override
@@ -67,7 +65,7 @@ public class ContactFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_contact, container, false);
         RecyclerView listView = view.findViewById(R.id.surveyListView);
-        SurveyListAdapter adapter = new SurveyListAdapter(surveys, new SurveyListAdapter.OnLinkClickedListener() {
+        adapter = new SurveyListAdapter(new SurveyListAdapter.OnLinkClickedListener() {
             @Override
             public void onClick(String url) {
                 try {
@@ -79,7 +77,7 @@ public class ContactFragment extends Fragment {
 
             }
         });
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext().getApplicationContext());
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(requireContext().getApplicationContext());
         listView.setLayoutManager(mLayoutManager);
         listView.setItemAnimator(new DefaultItemAnimator());
 
@@ -97,13 +95,31 @@ public class ContactFragment extends Fragment {
             @Override
             public void onChanged(Year year) {
                 AppDatabase db = AppDatabase.getInstance(requireActivity().getApplicationContext());
-                List<Survey> allSurveys = db.surveyDao().getSurveys(year.objectId);
-                Date now = new Date();
-                for (Survey survey : allSurveys) {
-                    if (now.after(new Date(survey.startDate)) && now.before(new Date(survey.endDate))) {
-                        surveys.add(survey);
+                db.surveyDao().getSurveys(year.objectId).observe(getViewLifecycleOwner(), new Observer<List<Survey>>() {
+                    @Override
+                    public void onChanged(List<Survey> allSurveys) {
+                        Date now = new Date();
+                        for (Survey survey : allSurveys) {
+                            if (now.after(new Date(survey.startDate)) && now.before(new Date(survey.endDate))) {
+                                surveys.add(survey);
+                            }
+                        }
+                        List<SurveyListAdapter.BaseData> objects = new ArrayList<>();
+                        objects.add(new SurveyListAdapter.BaseData("Surveys"));
+                        if (surveys.isEmpty()) {
+                            objects.add(new SurveyListAdapter.BaseData(SurveyListAdapter.NO_SURVEY_TITLE));
+                        } else {
+                            for (Survey survey : surveys) {
+                                objects.add(new SurveyListAdapter.SurveyData(survey));
+                            }
+                        }
+                        objects.add(new SurveyListAdapter.BaseData("Links"));
+                        objects.add(new SurveyListAdapter.Link("https://www.theabma.org", "ABMA Website"));
+                        objects.add(new SurveyListAdapter.Link("https://theabma.org/contact/", "Contact ABMA"));
+                        adapter.submitList(objects);
                     }
-                }
+                });
+
             }
         });
     }

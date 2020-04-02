@@ -10,20 +10,11 @@ import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.LoginEvent;
 import com.crashlytics.android.answers.SignUpEvent;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import com.n8yn8.abma.model.AppDatabase;
-import com.n8yn8.abma.model.ConvertUtil;
-import com.n8yn8.abma.model.MyDateTypeAdapter;
-import com.n8yn8.abma.model.backendless.BSurvey;
-import com.n8yn8.abma.model.backendless.BYear;
 import com.n8yn8.abma.model.entities.Event;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -104,15 +95,6 @@ public class Utils {
         } else {
             Log.e("Utils", "survey clicked");
         }
-    }
-
-    public static void saveSurveys(AppDatabase db, BYear year) {
-        String surveysString = year.getSurveys();
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Date.class, new MyDateTypeAdapter())
-                .create();
-        List<BSurvey> surveys = gson.fromJson(surveysString, new TypeToken<List<BSurvey>>(){}.getType());
-        db.surveyDao().insert(ConvertUtil.convertSurveys(surveys, year.getObjectId()));
     }
 
     public static long getStartOfDay(long timeMillis) {
