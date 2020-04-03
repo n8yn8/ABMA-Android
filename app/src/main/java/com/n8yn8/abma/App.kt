@@ -6,10 +6,9 @@ import android.util.LruCache
 import com.android.volley.toolbox.ImageLoader
 import com.android.volley.toolbox.Volley
 import com.backendless.Backendless
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.n8yn8.abma.di.applicationModule
 import com.n8yn8.abma.model.backendless.DbManager
-import io.fabric.sdk.android.Fabric
 import org.koin.android.ext.android.startKoin
 
 /**
@@ -23,9 +22,7 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        if (!BuildConfig.DEBUG) {
-            Fabric.with(this, Crashlytics())
-        }
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG);
 
         startKoin(this, listOf(applicationModule))
 
