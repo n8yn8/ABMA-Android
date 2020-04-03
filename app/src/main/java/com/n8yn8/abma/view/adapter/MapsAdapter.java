@@ -3,6 +3,7 @@ package com.n8yn8.abma.view.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,8 +11,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.NetworkImageView;
+import com.bumptech.glide.Glide;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.entities.Map;
 
@@ -32,12 +32,10 @@ public class MapsAdapter extends ListAdapter<Map, MapsAdapter.MapViewHolder> {
             };
 
     private OnMapClickListener onMapClickListener;
-    private ImageLoader imageLoader;
 
-    public MapsAdapter(ImageLoader imageLoader, OnMapClickListener onMapClickListener) {
+    public MapsAdapter(OnMapClickListener onMapClickListener) {
         super(DIFF_CALLBACK);
         this.onMapClickListener = onMapClickListener;
-        this.imageLoader = imageLoader;
     }
 
     @NonNull
@@ -50,7 +48,7 @@ public class MapsAdapter extends ListAdapter<Map, MapsAdapter.MapViewHolder> {
 
     @Override
     public void onBindViewHolder(MapViewHolder holder, int position) {
-        holder.onBind(getItem(position), onMapClickListener, imageLoader);
+        holder.onBind(getItem(position), onMapClickListener);
     }
 
     public interface OnMapClickListener {
@@ -59,7 +57,7 @@ public class MapsAdapter extends ListAdapter<Map, MapsAdapter.MapViewHolder> {
 
     static class MapViewHolder extends RecyclerView.ViewHolder {
 
-        NetworkImageView networkImageView;
+        ImageView networkImageView;
         TextView titleTextView;
 
         MapViewHolder(View itemView) {
@@ -69,7 +67,7 @@ public class MapsAdapter extends ListAdapter<Map, MapsAdapter.MapViewHolder> {
             titleTextView = itemView.findViewById(R.id.textView4);
         }
 
-        void onBind(final Map map, final OnMapClickListener onMapClickListener, ImageLoader imageLoader) {
+        void onBind(final Map map, final OnMapClickListener onMapClickListener) {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -77,7 +75,7 @@ public class MapsAdapter extends ListAdapter<Map, MapsAdapter.MapViewHolder> {
                 }
             });
 
-            networkImageView.setImageUrl(map.url, imageLoader);
+            Glide.with(networkImageView).load(map.url).placeholder(R.drawable.abma_logo).into(networkImageView);
             titleTextView.setText(map.title);
         }
     }

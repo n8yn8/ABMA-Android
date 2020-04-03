@@ -9,10 +9,9 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.ImageView;
 
-import com.android.volley.toolbox.NetworkImageView;
-
-public class TouchNetworkImageView extends NetworkImageView {
+public class TouchNetworkImageView extends ImageView {
 
     Matrix matrix;
     // We can be in one of these 3 states

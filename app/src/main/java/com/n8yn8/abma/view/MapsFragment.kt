@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.n8yn8.abma.App
 import com.n8yn8.abma.R
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.view.adapter.MapsAdapter
@@ -25,7 +24,7 @@ class MapsFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_maps, container, false)
         val listView: RecyclerView = view.findViewById(R.id.mapsListView)
-        adapter = MapsAdapter((context!!.applicationContext as App).imageLoader, OnMapClickListener { map -> MapDetailActivity.start(context, map) })
+        adapter = MapsAdapter(OnMapClickListener { map -> MapDetailActivity.start(context, map) })
         val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context!!.applicationContext)
         listView.layoutManager = mLayoutManager
         listView.itemAnimator = DefaultItemAnimator()

@@ -6,7 +6,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.n8yn8.abma.App;
+import com.bumptech.glide.Glide;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.entities.Map;
 
@@ -16,7 +16,7 @@ public class MapDetailActivity extends AppCompatActivity {
 
     public static void start(Context context, Map map) {
         Intent intent = new Intent(context, MapDetailActivity.class);
-        intent.putExtra(EXTRA_MAP, map);
+        intent.putExtra(EXTRA_MAP, map.url);
         context.startActivity(intent);
     }
 
@@ -26,11 +26,13 @@ public class MapDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_map_detail);
 
         //TODO: get url only
-        Map map = getIntent().getParcelableExtra(EXTRA_MAP);
+        String mapUrl = getIntent().getStringExtra(EXTRA_MAP);
 
         TouchNetworkImageView imageView = findViewById(R.id.imageView);
 
-        imageView.setImageUrl(map.url, ((App) getApplicationContext()).getImageLoader());
+        if (mapUrl != null) {
+            Glide.with(this).load(mapUrl).placeholder(R.drawable.abma_logo).into(imageView);
+        }
         imageView.setMaxZoom(4f);
     }
 }

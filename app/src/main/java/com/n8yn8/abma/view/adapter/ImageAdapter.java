@@ -4,15 +4,14 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.NetworkImageView;
-import com.n8yn8.abma.App;
+import com.bumptech.glide.Glide;
 import com.n8yn8.abma.R;
 import com.n8yn8.abma.model.entities.Sponsor;
 
@@ -35,13 +34,11 @@ public class ImageAdapter extends ListAdapter<Sponsor, ImageAdapter.ViewHolder> 
                     return oldSponsor.imageUrl.equals(newSponsor.imageUrl);
                 }
             };
-    private ImageLoader mImageLoader;
     private OnClickListener onClickListener;
 
     public ImageAdapter(Context c, OnClickListener onClickListener) {
         super(DIFF_CALLBACK);
 
-        mImageLoader = ((App) c.getApplicationContext()).getImageLoader();
         this.onClickListener = onClickListener;
     }
 
@@ -55,7 +52,7 @@ public class ImageAdapter extends ListAdapter<Sponsor, ImageAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bindView(getItem(position), mImageLoader, onClickListener);
+        holder.bindView(getItem(position), onClickListener);
     }
 
     public interface OnClickListener {
@@ -64,15 +61,15 @@ public class ImageAdapter extends ListAdapter<Sponsor, ImageAdapter.ViewHolder> 
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        NetworkImageView networkImageView;
+        ImageView networkImageView;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             networkImageView = itemView.findViewById(R.id.sponsorImageView);
         }
 
-        void bindView(final Sponsor sponsor, ImageLoader imageLoader, final OnClickListener onClickListener) {
-            networkImageView.setImageUrl(sponsor.imageUrl, imageLoader);
+        void bindView(final Sponsor sponsor, final OnClickListener onClickListener) {
+            Glide.with(networkImageView).load(sponsor.imageUrl).placeholder(R.drawable.abma_logo).into(networkImageView);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
