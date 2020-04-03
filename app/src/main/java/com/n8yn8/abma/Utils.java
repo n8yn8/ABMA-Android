@@ -6,10 +6,6 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
-import com.crashlytics.android.answers.LoginEvent;
-import com.crashlytics.android.answers.SignUpEvent;
 import com.n8yn8.abma.model.entities.Event;
 
 import java.text.SimpleDateFormat;
@@ -64,36 +60,11 @@ public class Utils {
         editor.apply();
     }
 
-    public static void logSignUp(boolean success) {
-        if (!BuildConfig.DEBUG) {
-            Answers.getInstance().logSignUp(new SignUpEvent()
-                    .putMethod("Email")
-                    .putSuccess(success));
-        }
-    }
-
-    public static void logLogIn(boolean success) {
-        if (!BuildConfig.DEBUG) {
-            Answers.getInstance().logLogin(new LoginEvent()
-                    .putMethod("Email")
-                    .putSuccess(success));
-        }
-    }
-
     public static void logError(String method, String error) {
         if (!BuildConfig.DEBUG) {
-            Answers.getInstance().logCustom(new CustomEvent("Error " + method)
-                    .putCustomAttribute("error", error));
+            //TODO: add analytics
         } else {
             Log.e("Utils", method + " had error: " + error);
-        }
-    }
-
-    public static void logSurvey() {
-        if (!BuildConfig.DEBUG) {
-            Answers.getInstance().logCustom(new CustomEvent("Survey"));
-        } else {
-            Log.e("Utils", "survey clicked");
         }
     }
 

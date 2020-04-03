@@ -43,13 +43,11 @@ public class DbManager {
         Backendless.UserService.register(user, new AsyncCallback<BackendlessUser>() {
             @Override
             public void handleResponse(BackendlessUser response) {
-                Utils.logSignUp(true);
                 login(email, password, callback);
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
-                Utils.logSignUp(false);
                 Utils.logError("Register", fault.getMessage());
                 callback.onLogin(fault.getMessage());
             }
@@ -60,13 +58,11 @@ public class DbManager {
         Backendless.UserService.login(email, password, new AsyncCallback<BackendlessUser>() {
             @Override
             public void handleResponse(BackendlessUser response) {
-                Utils.logLogIn(true);
                 callback.onLogin(null);
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
-                Utils.logLogIn(false);
                 Utils.logError("Login", fault.getMessage());
                 callback.onLogin(fault.getMessage());
             }
