@@ -4,9 +4,12 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.test.util.FakeData
+import io.mockk.spyk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -17,9 +20,6 @@ import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext
 import org.koin.standalone.inject
 import org.koin.test.KoinTest
-import org.mockito.Mock
-import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -30,17 +30,13 @@ class ScheduleViewModelTest : KoinTest {
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
-    @Mock
-    lateinit var application: Application
-
-    @Mock
-    lateinit var eventsObserver: Observer<List<Event>>
+    private val application: Application = ApplicationProvider.getApplicationContext()
+    private val eventsObserver = spyk<Observer<List<Event>>>()
 
     private val database: AppDatabase by inject()
 
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
         StandAloneContext.startKoin(
                 listOf(
                         module {
@@ -68,7 +64,7 @@ class ScheduleViewModelTest : KoinTest {
         val scheduleViewModel = ScheduleViewModel(application)
         scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
 
-        verify(eventsObserver, never()).onChanged(emptyList())
+        verify(exactly = 0) { eventsObserver.onChanged(emptyList()) }
     }
 
     @Test
@@ -77,8 +73,10 @@ class ScheduleViewModelTest : KoinTest {
         scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
         scheduleViewModel.setSelectedYear(FakeData.getYear())
 
-        verify(eventsObserver, never()).onChanged(emptyList())
-        verify(eventsObserver, never()).onChanged(any())
+        verify(exactly = 0) {
+            eventsObserver.onChanged(emptyList())
+            eventsObserver.onChanged(any())
+        }
     }
 
     @Test
@@ -87,8 +85,10 @@ class ScheduleViewModelTest : KoinTest {
 
         runBlocking { database.eventDao().insert(FakeData.getEvent()) }
 
-        verify(eventsObserver).onChanged(listOf(FakeData.getEvent()))
-        verify(eventsObserver).onChanged(any())
+        verify {
+            eventsObserver.onChanged(listOf(FakeData.getEvent()))
+            eventsObserver.onChanged(any())
+        }
     }
 
     @Test
@@ -101,8 +101,10 @@ class ScheduleViewModelTest : KoinTest {
         scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
         scheduleViewModel.setSelectedYear(FakeData.getYear())
 
-        verify(eventsObserver).onChanged(events)
-        verify(eventsObserver).onChanged(any())
+        verify {
+            eventsObserver.onChanged(events)
+            eventsObserver.onChanged(any())
+        }
     }
 
     @Test
@@ -121,10 +123,10 @@ class ScheduleViewModelTest : KoinTest {
             database.eventDao().insert(differentYearEvent)
         }
 
-        verify(eventsObserver).onChanged(events)
+        verify { eventsObserver.onChanged(events) }
         events.add(differentYearEvent)
-        verify(eventsObserver, never()).onChanged(events)
-        verify(eventsObserver).onChanged(any())
+        verify(exactly = 0) { eventsObserver.onChanged(events) }
+        verify { eventsObserver.onChanged(any()) }
     }
 
     @Test
@@ -142,17 +144,17 @@ class ScheduleViewModelTest : KoinTest {
             database.eventDao().insert(sameYearEvent)
         }
 
-        verify(eventsObserver).onChanged(events)
+        verify { eventsObserver.onChanged(events) }
         events.add(sameYearEvent)
-        verify(eventsObserver).onChanged(events)
-        verify(eventsObserver, times(2)).onChanged(any())
+        verify { eventsObserver.onChanged(events) }
+        verify(exactly = 2) { eventsObserver.onChanged(any()) }
 
         val differentDayEvent = FakeData.getEvent(25)
         runBlocking {
             database.eventDao().insert(differentDayEvent)
         }
 
-        verify(eventsObserver, times(2)).onChanged(any())
+        verify(exactly = 2) { eventsObserver.onChanged(any()) }
     }
 
     @Test
@@ -168,13 +170,13 @@ class ScheduleViewModelTest : KoinTest {
         scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
         scheduleViewModel.setSelectedYear(FakeData.getYear())
 
-        verify(eventsObserver).onChanged(listOf(eventOne))
+        verify { eventsObserver.onChanged(listOf(eventOne)) }
 
         scheduleViewModel.nextDay()
-        verify(eventsObserver).onChanged(listOf(eventTwo))
+        verify { eventsObserver.onChanged(listOf(eventTwo)) }
 
         scheduleViewModel.previousDay()
-        verify(eventsObserver, times(2)).onChanged(listOf(eventOne))
+        verify(exactly = 2) { eventsObserver.onChanged(listOf(eventOne)) }
     }
 
     @Test
@@ -188,12 +190,12 @@ class ScheduleViewModelTest : KoinTest {
         scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
         scheduleViewModel.setSelectedYear(FakeData.getYear())
 
-        verify(eventsObserver).onChanged(any())
+        verify { eventsObserver.onChanged(any()) }
 
         scheduleViewModel.nextDay()
         scheduleViewModel.previousDay()
 
-        verify(eventsObserver).onChanged(any())
+        verify { eventsObserver.onChanged(any()) }
     }
 
 }

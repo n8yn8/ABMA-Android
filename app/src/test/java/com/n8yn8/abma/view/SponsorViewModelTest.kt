@@ -4,9 +4,12 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.entities.Sponsor
 import com.n8yn8.test.util.FakeData
+import io.mockk.spyk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -17,10 +20,6 @@ import org.koin.dsl.module.module
 import org.koin.standalone.StandAloneContext
 import org.koin.standalone.inject
 import org.koin.test.KoinTest
-import org.mockito.Mock
-import org.mockito.Mockito.anyList
-import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -31,17 +30,13 @@ class SponsorViewModelTest : KoinTest {
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
-    @Mock
-    lateinit var application: Application
-
-    @Mock
-    lateinit var sponsorModelObserver: Observer<List<Sponsor>>
+    private val application: Application = ApplicationProvider.getApplicationContext()
+    private val sponsorModelObserver = spyk<Observer<List<Sponsor>>>()
 
     private val database: AppDatabase by inject()
 
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
         StandAloneContext.startKoin(
                 listOf(
                         module {
@@ -72,14 +67,16 @@ class SponsorViewModelTest : KoinTest {
         val sponsorViewModel = SponsorViewModel(application)
         sponsorViewModel.sponsors.observeForever(sponsorModelObserver)
 
-        verify(sponsorModelObserver).onChanged(anyList())
-        verify(sponsorModelObserver).onChanged(listOf(FakeData.getSponsor()))
+        verify {
+            sponsorModelObserver.onChanged(any())
+            sponsorModelObserver.onChanged(listOf(FakeData.getSponsor()))
+        }
     }
 
     @Test
     fun responseDataEmpty() {
         val sponsorViewModel = SponsorViewModel(application)
         sponsorViewModel.sponsors.observeForever(sponsorModelObserver)
-        verify(sponsorModelObserver).onChanged(emptyList())
+        verify { sponsorModelObserver.onChanged(emptyList()) }
     }
 }

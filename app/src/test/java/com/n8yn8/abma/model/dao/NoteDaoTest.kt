@@ -13,7 +13,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.MockitoAnnotations
 import java.util.concurrent.Executors
 
 @RunWith(AndroidJUnit4::class)
@@ -25,7 +24,6 @@ class NoteDaoTest {
 
     @Before
     fun setup() {
-        MockitoAnnotations.initMocks(this)
         database = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), AppDatabase::class.java)
                 .allowMainThreadQueries()
                 .setTransactionExecutor(Executors.newSingleThreadExecutor())

@@ -110,9 +110,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation "org.koin:koin-android:1.0.2"
-    implementation "org.koin:koin-android-viewmodel:1.0.2"
-    androidTestImplementation 'org.koin:koin-test:1.0.2'
-    testImplementation 'org.koin:koin-test:1.0.2'
+    androidTestImplementation 'org.koin:koin-test:1.0.2' //Includes Mockito
+    testImplementation 'org.koin:koin-test:1.0.2' //Includes Mockito
     androidTestImplementation 'io.mockk:mockk-android:1.9.3'
     testImplementation 'io.mockk:mockk:1.9.3'
 
@@ -127,6 +126,6 @@ dependencies {
     testImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
     testImplementation 'androidx.test:core:1.2.0'
-    testImplementation 'androidx.arch.core:core-testing:2.1.0'
+    testImplementation 'androidx.arch.core:core-testing:2.1.0' //Includes Mockito
     testImplementation 'org.robolectric:robolectric:4.3.1'
 }
