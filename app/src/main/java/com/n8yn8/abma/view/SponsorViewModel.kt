@@ -1,16 +1,15 @@
 package com.n8yn8.abma.view
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.entities.Sponsor
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
 
-class SponsorViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
-    private val db: AppDatabase by inject()
+class SponsorViewModel @ViewModelInject constructor(
+        private val db: AppDatabase
+) : ViewModel() {
     val sponsors: LiveData<List<Sponsor>>
 
     init {

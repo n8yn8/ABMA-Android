@@ -27,6 +27,8 @@ import com.n8yn8.abma.view.adapter.NoteListAdapter;
 
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 /**
  * A fragment representing a list of Items.
  * <p/>
@@ -34,6 +36,7 @@ import java.util.List;
  * with a GridView.
  * <p/>
  */
+@AndroidEntryPoint
 public class NoteFragment extends Fragment {
 
     private NoteViewModel viewModel;

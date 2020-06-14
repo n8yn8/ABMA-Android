@@ -32,7 +32,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class EventActivity extends AppCompatActivity {
 
     private static final String EXTRA_EVENT_ID = "event_id";

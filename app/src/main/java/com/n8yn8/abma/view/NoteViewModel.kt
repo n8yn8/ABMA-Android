@@ -1,27 +1,21 @@
 package com.n8yn8.abma.view
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.ConvertUtil
 import com.n8yn8.abma.model.backendless.DbManager
 import com.n8yn8.abma.model.entities.NoteEventPaper
 import kotlinx.coroutines.launch
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
 
-class NoteViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
+class NoteViewModel @ViewModelInject constructor(
+        private val db: AppDatabase,
+        private val remote: DbManager
+) : ViewModel() {
 
-    private val db: AppDatabase by inject()
-    private val remote: DbManager by inject()
-
-    val notesData: LiveData<List<NoteEventPaper>>
-
-    init {
-        notesData = db.noteDao().notesLive
-    }
+    val notesData: LiveData<List<NoteEventPaper>> = db.noteDao().notesLive
 
     fun deleteNote(noteModel: NoteEventPaper?) {
         if (noteModel == null) {

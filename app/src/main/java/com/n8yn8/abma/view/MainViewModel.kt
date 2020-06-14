@@ -3,6 +3,7 @@ package com.n8yn8.abma.view
 import android.app.Application
 import android.content.SharedPreferences
 import android.widget.Toast
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,15 +16,14 @@ import com.n8yn8.abma.model.MyDateTypeAdapter
 import com.n8yn8.abma.model.backendless.*
 import com.n8yn8.abma.model.entities.Year
 import kotlinx.coroutines.launch
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
 import java.util.*
 
-class MainViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
-
-    private val db: AppDatabase by inject()
-    private val remote: DbManager by inject()
-    private val sharedPreferences: SharedPreferences by inject()
+class MainViewModel @ViewModelInject constructor(
+        application: Application,
+        private val db: AppDatabase,
+        private val remote: DbManager,
+        private val sharedPreferences: SharedPreferences
+) : AndroidViewModel(application) {
 
     private val _year = MutableLiveData<Year>()
     val year: LiveData<Year>

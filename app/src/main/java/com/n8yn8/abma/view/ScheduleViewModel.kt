@@ -2,6 +2,7 @@ package com.n8yn8.abma.view
 
 import android.app.Application
 import android.widget.Toast
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.n8yn8.abma.Utils
 import com.n8yn8.abma.model.AppDatabase
@@ -9,12 +10,12 @@ import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.abma.model.entities.Year
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
 import java.util.concurrent.TimeUnit
 
-class ScheduleViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
-    private val db: AppDatabase by inject()
+class ScheduleViewModel @ViewModelInject constructor(
+        application: Application,
+        private val db: AppDatabase
+) : AndroidViewModel(application) {
 
     private var displayDateMillisLD = MutableLiveData<Long>()
     private var selectedYear = MutableLiveData<Year>()

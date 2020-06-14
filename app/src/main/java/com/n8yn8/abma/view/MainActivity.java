@@ -30,8 +30,11 @@ import com.n8yn8.abma.model.entities.Year;
 
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 import static com.n8yn8.abma.R.id.years;
 
+@AndroidEntryPoint
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
