@@ -1,9 +1,12 @@
 package com.n8yn8.abma.view
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.view.View
 import androidx.annotation.NonNull
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
@@ -11,16 +14,26 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
-import com.n8yn8.abma.BaseTest
 import com.n8yn8.abma.R
+import com.n8yn8.abma.di.DataModule
+import com.n8yn8.abma.model.AppDatabase
+import com.n8yn8.abma.model.backendless.DbManager
 import com.n8yn8.abma.model.entities.Event
 import com.n8yn8.abma.model.entities.Note
 import com.n8yn8.abma.model.entities.Paper
 import com.n8yn8.abma.view.adapter.PaperListAdapter
 import com.n8yn8.test.util.FakeData
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -29,19 +42,49 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
+import javax.inject.Inject
+import javax.inject.Singleton
 
-
-@RunWith(AndroidJUnit4::class)
+@UninstallModules(DataModule::class)
+@HiltAndroidTest
 @LargeTest
-class EventActivityTest : BaseTest() {
+class EventActivityTest {
+    @get:Rule
+    val hiltRule = HiltAndroidRule(this)
     @get:Rule
     var activityRule = ActivityTestRule(EventActivity::class.java, true, false)
 
+    @InstallIn(ApplicationComponent::class)
+    @Module
+    object TestModule {
+        @Singleton
+        @Provides
+        fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
+            return Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+                    .allowMainThreadQueries()
+                    .build()
+
+        }
+
+        @Provides
+        @Singleton
+        fun provideDbManager(): DbManager {
+            return mockk()
+        }
+
+        @Provides
+        fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+            return context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE)
+        }
+    }
+
+    @Inject
+    lateinit var database: AppDatabase
+
     @Before
     @Throws(Exception::class)
-    override fun setUp() {
-        super.setUp()
+    fun setUp() {
+        hiltRule.inject()
         runBlocking {
             database.yearDao().insert(FakeData.getYear())
             database.eventDao().insert(FakeData.getEvent())
