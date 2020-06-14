@@ -11,22 +11,16 @@ import com.n8yn8.abma.model.entities.Year
 import com.n8yn8.test.util.FakeData
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.dsl.module.module
-import org.koin.standalone.StandAloneContext
-import org.koin.standalone.inject
-import org.koin.test.KoinTest
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
-class MainViewModelTest : KoinTest {
+class MainViewModelTest {
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
@@ -41,31 +35,26 @@ class MainViewModelTest : KoinTest {
     private val loadingObserver = spyk<Observer<Boolean>>()
     private val remote = mockk<DbManager>()
 
-    private val database: AppDatabase by inject()
+    private val database = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), AppDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
     private lateinit var mainViewModel: MainViewModel
 
     @Before
     fun setUp() {
-        StandAloneContext.startKoin(
-                listOf(
-                        module {
-                            single {
-                                Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), AppDatabase::class.java)
-                                        .allowMainThreadQueries()
-                                        .build()
-                            }
-                            single { remote }
-                            single { sharedPreferences }
-                        }
-                )
-        )
-
         every {
             remote.getSponsors(any(), any())
         } answers {
             secondArg<DbManager.Callback<List<BSponsor>>>().onDone(FakeData.getBSponsors(), null)
         }
     }
+
+    private fun getMainViewModel() = MainViewModel(
+            ApplicationProvider.getApplicationContext(),
+            database,
+            remote,
+            sharedPreferences
+    )
 
     private fun setupRemoteResponse(years: List<BYear> = listOf(), events: List<BEvent> = listOf()) {
         every { remote.getYears(any(), any()) } answers {
@@ -79,11 +68,6 @@ class MainViewModelTest : KoinTest {
         every { sharedPreferences.getBoolean(any(), any()) } returns isPush
     }
 
-    @After
-    fun tearDown() {
-        StandAloneContext.stopKoin()
-    }
-
     @Test
     fun selectLatestYear() {
         setPushDriven(false)
@@ -94,7 +78,7 @@ class MainViewModelTest : KoinTest {
             database.yearDao().insert(expectedSecondYear)
             database.yearDao().insert(FakeData.getYear(2018))
         }
-        mainViewModel = MainViewModel(ApplicationProvider.getApplicationContext())
+        mainViewModel = getMainViewModel()
         mainViewModel.year.observeForever(yearObserver)
         mainViewModel.isLoading.observeForever(loadingObserver)
 
@@ -112,7 +96,7 @@ class MainViewModelTest : KoinTest {
     @Test
     fun testStartEmpty_noResponse() {
         setupRemoteResponse()
-        mainViewModel = MainViewModel(ApplicationProvider.getApplicationContext())
+        mainViewModel = getMainViewModel()
         verify { remote.getYears(any(), any()) }
         verify(exactly = 0) { remote.getSponsors(any(), any()) }
         verify(exactly = 0) { remote.getEvents(any(), any()) }
@@ -143,7 +127,7 @@ class MainViewModelTest : KoinTest {
             secondArg<DbManager.Callback<List<BEvent>>>().onDone(listOf(event), null)
         }
 
-        mainViewModel = MainViewModel(ApplicationProvider.getApplicationContext())
+        mainViewModel = getMainViewModel()
         verify { remote.getYears(any(), any()) }
         for (bYear in years) {
             verify { remote.getSponsors(eq(bYear.objectId), any()) }
@@ -166,7 +150,7 @@ class MainViewModelTest : KoinTest {
             database.yearDao().insert(FakeData.getYear())
         }
 
-        mainViewModel = MainViewModel(ApplicationProvider.getApplicationContext())
+        mainViewModel = getMainViewModel()
         verify(exactly = 0) { remote.getYears(any(), any()) }
         verify(exactly = 0) { remote.getSponsors(any(), any()) }
         verify(exactly = 0) { remote.getEvents(any(), any()) }
@@ -191,7 +175,7 @@ class MainViewModelTest : KoinTest {
         val remoteEvent = FakeData.getBEvent(remoteYear.name)
         setupRemoteResponse(listOf(remoteYear), listOf(remoteEvent))
 
-        mainViewModel = MainViewModel(ApplicationProvider.getApplicationContext())
+        mainViewModel = getMainViewModel()
         verify { remote.getYears(any(), any()) }
         verify { remote.getEvents(remoteYear.objectId, any()) }
         verify { remote.getSponsors(remoteYear.objectId, any()) }

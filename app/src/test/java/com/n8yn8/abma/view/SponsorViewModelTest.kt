@@ -11,21 +11,16 @@ import com.n8yn8.test.util.FakeData
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.dsl.module.module
-import org.koin.standalone.StandAloneContext
-import org.koin.standalone.inject
-import org.koin.test.KoinTest
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
-class SponsorViewModelTest : KoinTest {
+class SponsorViewModelTest {
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
@@ -33,30 +28,15 @@ class SponsorViewModelTest : KoinTest {
     private val application: Application = ApplicationProvider.getApplicationContext()
     private val sponsorModelObserver = spyk<Observer<List<Sponsor>>>()
 
-    private val database: AppDatabase by inject()
+    private val database = Room.inMemoryDatabaseBuilder(application, AppDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
 
     @Before
     fun setUp() {
-        StandAloneContext.startKoin(
-                listOf(
-                        module {
-                            single {
-                                Room.inMemoryDatabaseBuilder(application, AppDatabase::class.java)
-                                        .allowMainThreadQueries()
-                                        .build()
-                            }
-                        }
-                )
-        )
-
         runBlocking {
             database.yearDao().insert(FakeData.getYear())
         }
-    }
-
-    @After
-    fun tearDown() {
-        StandAloneContext.stopKoin()
     }
 
     @Test
@@ -64,7 +44,7 @@ class SponsorViewModelTest : KoinTest {
         runBlocking {
             database.sponsorDao().insert(FakeData.getSponsor())
         }
-        val sponsorViewModel = SponsorViewModel(application)
+        val sponsorViewModel = SponsorViewModel(database)
         sponsorViewModel.sponsors.observeForever(sponsorModelObserver)
 
         verify {
@@ -75,7 +55,7 @@ class SponsorViewModelTest : KoinTest {
 
     @Test
     fun responseDataEmpty() {
-        val sponsorViewModel = SponsorViewModel(application)
+        val sponsorViewModel = SponsorViewModel(database)
         sponsorViewModel.sponsors.observeForever(sponsorModelObserver)
         verify { sponsorModelObserver.onChanged(emptyList()) }
     }

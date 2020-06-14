@@ -1,6 +1,5 @@
 package com.n8yn8.abma.view
 
-import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.n8yn8.abma.model.AppDatabase
 import com.n8yn8.abma.model.ConvertUtil
@@ -10,26 +9,20 @@ import com.n8yn8.abma.model.dao.NoteDao
 import com.n8yn8.abma.model.entities.Note
 import com.n8yn8.test.util.FakeData
 import io.mockk.*
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.dsl.module.module
-import org.koin.standalone.StandAloneContext
-import org.koin.test.KoinTest
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.util.*
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
-class NoteViewModelTest : KoinTest {
+class NoteViewModelTest {
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
-    private val application = mockk<Application>()
     private val remote = mockk<DbManager>()
     private val noteDao = mockk<NoteDao> {
         coEvery {
@@ -39,6 +32,9 @@ class NoteViewModelTest : KoinTest {
         } just Runs
         coEvery { notesLive } returns spyk()
     }
+    private val database = mockk<AppDatabase> {
+        every { noteDao() } returns this@NoteViewModelTest.noteDao
+    }
 
     private lateinit var noteViewModel: NoteViewModel
 
@@ -47,29 +43,8 @@ class NoteViewModelTest : KoinTest {
     private val event2 = FakeData.getEvent(index = 2)
     private val paper2 = FakeData.getPaper(index = 2, eventIndex = 2)
 
-    @Before
-    fun setUp() {
-        StandAloneContext.startKoin(
-                list = listOf(
-                        module {
-                            single {
-                                mockk<AppDatabase> {
-                                    every { noteDao() } returns noteDao
-                                }
-                            }
-                            single { remote }
-                        }
-                )
-        )
-    }
-
-    @After
-    fun tearDown() {
-        StandAloneContext.stopKoin()
-    }
-
     private fun setUpNoteModel() {
-        noteViewModel = NoteViewModel(application)
+        noteViewModel = NoteViewModel(database, remote)
     }
 
     private fun setUpRemoteResponse(bNotes: List<BNote>) {

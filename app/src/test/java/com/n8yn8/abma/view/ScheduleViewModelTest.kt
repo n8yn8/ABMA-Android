@@ -11,21 +11,16 @@ import com.n8yn8.test.util.FakeData
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.dsl.module.module
-import org.koin.standalone.StandAloneContext
-import org.koin.standalone.inject
-import org.koin.test.KoinTest
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
-class ScheduleViewModelTest : KoinTest {
+class ScheduleViewModelTest {
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
@@ -33,35 +28,20 @@ class ScheduleViewModelTest : KoinTest {
     private val application: Application = ApplicationProvider.getApplicationContext()
     private val eventsObserver = spyk<Observer<List<Event>>>()
 
-    private val database: AppDatabase by inject()
+    private val database: AppDatabase = Room.inMemoryDatabaseBuilder(application, AppDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
 
     @Before
     fun setUp() {
-        StandAloneContext.startKoin(
-                listOf(
-                        module {
-                            single {
-                                Room.inMemoryDatabaseBuilder(application, AppDatabase::class.java)
-                                        .allowMainThreadQueries()
-                                        .build()
-                            }
-                        }
-                )
-        )
-
         runBlocking {
             database.yearDao().insert(FakeData.getYear())
         }
     }
 
-    @After
-    fun onDone() {
-        StandAloneContext.stopKoin()
-    }
-
     @Test
     fun initializeEmpty() {
-        val scheduleViewModel = ScheduleViewModel(application)
+        val scheduleViewModel = ScheduleViewModel(application, database)
         scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
 
         verify(exactly = 0) { eventsObserver.onChanged(emptyList()) }
@@ -69,7 +49,7 @@ class ScheduleViewModelTest : KoinTest {
 
     @Test
     fun setYear_noEvents() {
-        val scheduleViewModel = ScheduleViewModel(application)
+        val scheduleViewModel = ScheduleViewModel(application, database)
         scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
         scheduleViewModel.setSelectedYear(FakeData.getYear())
 
@@ -97,7 +77,7 @@ class ScheduleViewModelTest : KoinTest {
         runBlocking {
             database.eventDao().insert(events)
         }
-        val scheduleViewModel = ScheduleViewModel(application)
+        val scheduleViewModel = ScheduleViewModel(application, database)
         scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
         scheduleViewModel.setSelectedYear(FakeData.getYear())
 
@@ -113,7 +93,7 @@ class ScheduleViewModelTest : KoinTest {
         runBlocking {
             database.eventDao().insert(events)
         }
-        val scheduleViewModel = ScheduleViewModel(application)
+        val scheduleViewModel = ScheduleViewModel(application, database)
         scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
         scheduleViewModel.setSelectedYear(FakeData.getYear())
 
@@ -135,7 +115,7 @@ class ScheduleViewModelTest : KoinTest {
         runBlocking {
             database.eventDao().insert(events)
         }
-        val scheduleViewModel = ScheduleViewModel(application)
+        val scheduleViewModel = ScheduleViewModel(application, database)
         scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
         scheduleViewModel.setSelectedYear(FakeData.getYear())
 
@@ -166,7 +146,7 @@ class ScheduleViewModelTest : KoinTest {
             database.eventDao().insert(eventTwo)
 
         }
-        val scheduleViewModel = ScheduleViewModel(application)
+        val scheduleViewModel = ScheduleViewModel(application, database)
         scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
         scheduleViewModel.setSelectedYear(FakeData.getYear())
 
@@ -186,7 +166,7 @@ class ScheduleViewModelTest : KoinTest {
             database.eventDao().insert(events)
 
         }
-        val scheduleViewModel = ScheduleViewModel(application)
+        val scheduleViewModel = ScheduleViewModel(application, database)
         scheduleViewModel.scheduleViewData.observeForever(eventsObserver)
         scheduleViewModel.setSelectedYear(FakeData.getYear())
 
