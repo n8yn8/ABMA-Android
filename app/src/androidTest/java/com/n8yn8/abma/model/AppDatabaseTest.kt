@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AppDatabaseTest {
-    var database: AppDatabase? = null
+    private lateinit var database: AppDatabase
 
     @Before
     @Throws(Exception::class)
@@ -25,7 +25,7 @@ class AppDatabaseTest {
     @After
     @Throws(Exception::class)
     fun tearDown() {
-        database!!.close()
+        database.close()
     }
 
     @Test
@@ -33,19 +33,19 @@ class AppDatabaseTest {
         val year = year
         val event = getEvent(year.objectId)
         runBlocking {
-            database!!.yearDao().insert(year)
-            database!!.eventDao().insert(event)
+            database.yearDao().insert(year)
+            database.eventDao().insert(event)
         }
 
         val years = mutableListOf<Year>()
         runBlocking {
-            years.addAll(database!!.yearDao().years())
+            years.addAll(database.yearDao().years())
         }
         Assert.assertEquals(years.size.toLong(), 1)
 
         val events = mutableListOf<Event>()
         runBlocking {
-            events.addAll(database!!.eventDao().getEvents(years[0].objectId))
+            events.addAll(database.eventDao().getEvents(years[0].objectId))
         }
 
         Assert.assertEquals(events.size.toLong(), 1)
@@ -53,30 +53,27 @@ class AppDatabaseTest {
         Assert.assertEquals(event, events[0])
     }
 
-    private val year: Year
-        get() {
-            val year = Year()
-            year.id = 1
-            year.info = "info"
-            year.name = 2016
-            year.objectId = "id1"
-            year.welcome = "welcome"
-            return year
-        }
+    private val year = Year().apply {
+        id = 1
+        info = "info"
+        name = 2016
+        objectId = "id1"
+        welcome = "welcome"
+    }
 
     companion object {
         fun getEvent(yearObjectId: String?): Event {
-            val event = Event()
-            event.details = "details"
-            event.endDate = 5678L
-            event.startDate = 1234L
-            event.id = 1
-            event.objectId = "id1"
-            event.place = "place"
-            event.title = "title"
-            event.subtitle = "subtitle"
-            event.yearId = yearObjectId
-            return event
+            return Event().apply {
+                details = "details"
+                endDate = 5678L
+                startDate = 1234L
+                id = 1
+                objectId = "id1"
+                place = "place"
+                title = "title"
+                subtitle = "subtitle"
+                yearId = yearObjectId
+            }
         }
     }
 }
