@@ -4,8 +4,8 @@ buildscript {
     ext.versions = [
             kotlin: '1.3.72',
             hilt: [
-                    base: '2.28-alpha',
-                    life_cycle: '1.0.0-alpha01'
+                    base: '2.28.3-alpha',
+                    life_cycle: '1.0.0-alpha02'
             ]
     ]
     repositories {
